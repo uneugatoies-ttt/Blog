@@ -1,5 +1,7 @@
 package com.example.blog.security;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -61,7 +63,8 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 									.build();
 			userEntity = userRepository.save(userEntity);
 		} else {
-			userEntity = userRepository.findByUserName(username);
+			userEntity = userRepository.findByUserName(username)
+					.orElseThrow(() -> new EntityNotFoundException("User not found"));;
 		}
 		
 		log.info("Successfully pulled user info username {} authProvider {}", username, authProvider);

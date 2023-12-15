@@ -3,6 +3,7 @@ package com.example.blog.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class CategoryService {
 
 	@Transactional
 	public CategoryDTO addCategory(CategoryDTO categoryDTO) {
-		User user = userRepository.findByUserName(categoryDTO.getUser());
+		User user = userRepository.findByUserName(categoryDTO.getUser())
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		
 		Category category = Category.builder()
 									.user(user)
@@ -48,7 +50,8 @@ public class CategoryService {
 
 	@Transactional
 	public List<CategoryDTO> getCategory(String userName) {
-		User user = userRepository.findByUserName(userName);
+		User user = userRepository.findByUserName(userName)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		List<CategoryDTO> categories = categoryRepository
 								.findAllByUser(user)
 								.stream()

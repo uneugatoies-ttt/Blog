@@ -3,6 +3,7 @@ package com.example.blog.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class TagService {
 	
 	@Transactional
 	public TagDTO addTag(TagDTO tagDTO) {
-		User user = userRepository.findByUserName(tagDTO.getUser());
+		User user = userRepository.findByUserName(tagDTO.getUser())
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		
 		Tag tag = Tag.builder()
 						.user(user)
@@ -49,7 +51,8 @@ public class TagService {
 	
 	@Transactional
 	public List<TagDTO> getTag(String userName) {
-		User user = userRepository.findByUserName(userName);
+		User user = userRepository.findByUserName(userName)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		List<TagDTO> tags = tagRepository
 					.findAllByUser(user)
 					.stream()

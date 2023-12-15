@@ -49,7 +49,5 @@ public class Article extends BaseEntity {
 	@OneToMany(mappedBy = "article")
 	@ToString.Exclude
 	private List<ArticleTag> tag;
-	
-	
 
 }

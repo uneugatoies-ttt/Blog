@@ -2,6 +2,7 @@ package com.example.blog.service;
 
 import java.io.IOException;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +25,8 @@ public class UserService {
 	
 	public User getUserByCredentials(final String userName, final String password) {
 			try {
-				final User origUser = userRepository.findByUserName(userName);
+				final User origUser = userRepository.findByUserName(userName)
+						.orElseThrow(() -> new EntityNotFoundException("User not found"));
 				if (
 					origUser != null &&
 						passwordEncoder.matches(
@@ -62,7 +64,8 @@ public class UserService {
 
 	public User findUserByUserName(String userName) {
 		try {
-			return userRepository.findByUserName(userName);
+			return userRepository.findByUserName(userName)
+					.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		} catch (Exception e) {
 			throw e;
 		}
@@ -74,7 +77,9 @@ public class UserService {
 	
 	public String getBlogTitle(String userName) {
 		try {
-			return userRepository.findByUserName(userName).getBlogTitle();
+			return userRepository.findByUserName(userName)
+					.orElseThrow(() -> new EntityNotFoundException("User not found"))
+					.getBlogTitle();
 		} catch (Exception e) {
 			throw e;
 		}

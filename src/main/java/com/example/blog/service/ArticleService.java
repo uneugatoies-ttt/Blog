@@ -1,12 +1,17 @@
 package com.example.blog.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.blog.domain.Article;
+import com.example.blog.domain.ArticleTag;
 import com.example.blog.domain.Category;
 import com.example.blog.domain.Tag;
 import com.example.blog.domain.User;
@@ -24,10 +29,10 @@ import lombok.AllArgsConstructor;
 public class ArticleService {
 	
 	private ArticleRepository articleRepository;
+	private UserRepository userRepository;
 	private CategoryRepository categoryRepository;
 	private TagRepository tagRepository;
 	private ArticleTagRepository articleTagRepository;
-	private UserRepository userRepository;
 	
 	@Transactional
 	public List<ArticleDTO> getArticlesByCategory(Long categoryId) {
@@ -51,7 +56,7 @@ public class ArticleService {
 	public List<ArticleDTO> getArticlesByTag(Long tagId) {
 		Tag t = tagRepository.findById(tagId).get();
 		List<ArticleDTO> articles= articleTagRepository
-				.findAllByTagId(t)
+				.findAllByTag(t)
 				.stream()
 				.map(at -> ArticleDTO.builder()
 							.id(at.getArticle().getId())
@@ -68,7 +73,8 @@ public class ArticleService {
 	
 	@Transactional
 	public List<ArticleDTO> getArticlesForThisUser(String userName) {
-		User user = userRepository.findByUserName(userName);
+		User user = userRepository.findByUserName(userName)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		List<ArticleDTO> articles= articleRepository.findAllByWriter(user)
 				.stream()
 				.map(a -> ArticleDTO.builder()
@@ -82,5 +88,81 @@ public class ArticleService {
 				.collect(Collectors.toList());
 		return articles;
 	}
-
+	
+	// 생성과 변경의 logic은 상호 간 큰 차이가 없으므로 동일 method로 처리.
+	@Transactional
+	public ArticleDTO createOrEditArticle(ArticleDTO articleDTO) {
+		User writer = userRepository.findByUserName(articleDTO.getWriter())
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
+		Category category = categoryRepository.findById(articleDTO.getCategory())
+				.orElseThrow(() -> new EntityNotFoundException("Category not found"));
+		
+		Article article = Article.builder()
+								.writer(writer)
+								.content(articleDTO.getContent())
+								.title(articleDTO.getTitle())
+								.category(category)
+								.build();
+		
+		if (articleDTO.getId() != null) article.setId(articleDTO.getId());
+		
+		Article savedArticle = articleRepository.save(article);
+		
+		List<Long> articleTagList = settingTagsForArticle(savedArticle, articleDTO.getTag());
+		
+		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
+													.id(savedArticle.getId())
+													.writer(savedArticle.getWriter().getUserName())
+													.content(savedArticle.getContent())
+													.title(savedArticle.getTitle())
+													.category(savedArticle.getCategory().getId())
+													.tag(articleTagList)
+													.createdAt(savedArticle.getCreatedAt())
+													.updatedAt(savedArticle.getUpdatedAt())
+													.build();
+		
+		return resultingArticleDTO;
+	}
+	
+	@Transactional
+	private List<Long> settingTagsForArticle(Article article, List<Long> tags) {
+		// 만약 edit의 경우라면 기존의 태그들을 찾아서 삭제.
+		Optional<List<ArticleTag>> existingList = articleTagRepository.findAllByArticle(article);
+		if (existingList.isPresent()) {
+			for (ArticleTag tempAt : existingList.get())
+				articleTagRepository.delete(tempAt);
+		}
+		
+		List<Long> articleTagList = new ArrayList<>();
+		Tag tag;
+		ArticleTag at;
+		for (Long t : tags) {
+			tag = tagRepository.findById(t)
+					.orElseThrow(() -> new EntityNotFoundException("Tag not found"));
+			
+			at = ArticleTag.builder()
+					.article(article)
+					.tag(tag)
+					.build();
+			
+			articleTagList.add(articleTagRepository.save(at).getTag().getId());
+		}
+		return articleTagList;
+	}
+	
+	@Transactional
+	public void deleteArticle(Long articleId) {
+		Article article = articleRepository.findById(articleId)
+				.orElseThrow(() -> new EntityNotFoundException("Article not found"));
+		
+		Optional<List<ArticleTag>> articleTagList = articleTagRepository.findAllByArticle(article);
+		
+		if (articleTagList.isPresent()) {
+			for (ArticleTag at : articleTagList.get())
+				articleTagRepository.delete(at);
+		}
+		
+		articleRepository.deleteById(articleId);
+	}
+	
 }
