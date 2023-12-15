@@ -1,0 +1,51 @@
+name: BE workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:latest
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '11'
+
+    - name: Set environment variables
+      run: |
+        echo "GH_CLIENT_ID=${{ secrets.GH_CLIENT_ID }}" >> $GITHUB_ENV
+        echo "GH_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }}" >> $GITHUB_ENV
+        echo "DB_USERNAME=testuser" >> $GITHUB_ENV
+        echo "DB_PASSWORD=testpassword" >> $GITHUB_ENV
+        echo "RDS_HOSTNAME=localhost" >> $GITHUB_ENV
+        echo "RDS_PORT=3306" >> $GITHUB_ENV
+        echo "RDS_DB_NAME=testdb" >> $GITHUB_ENV
+        echo "RDS_USERNAME=testuser" >> $GITHUB_ENV
+        echo "RDS_PASSWORD=testpassword" >> $GITHUB_ENV
+        echo "SPRING_PROFILES_ACTIVE=dev" >> $GITHUB_ENV
+
+    - name: Grant permission for gradlew
+      run: chmod +x ./gradlew
+
+    - name: Build and test
+      run: ./gradlew build
