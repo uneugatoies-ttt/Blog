@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.blog.dto.FileDTO;
+import com.example.blog.dto.ResponseDTO;
 import com.example.blog.service.FileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -61,7 +62,7 @@ public class FileController {
 			}
 			return null;
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
 	
@@ -98,7 +99,7 @@ public class FileController {
 			return ResponseEntity.ok().body(storedFileDTO);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return ResponseEntity.status(500).body("Failed to upload file");
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
 	
