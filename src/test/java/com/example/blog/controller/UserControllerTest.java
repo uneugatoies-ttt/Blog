@@ -25,7 +25,7 @@ import com.example.blog.security.TokenProvider;
 import com.example.blog.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest(value = UserController.class)
+@WebMvcTest(UserController.class)
 public class UserControllerTest {
 	
 	@Autowired
