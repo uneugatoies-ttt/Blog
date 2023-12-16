@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -31,10 +33,12 @@ public class Reply extends BaseEntity {
 	
 	private String content;
 	
-	private User from;
-	
+	@ManyToOne
+	@JoinColumn(name = "writer")
 	private User writer;
 	
+	@ManyToOne
+	@JoinColumn(name = "article")
 	private Article article;
 	
 	private String where;

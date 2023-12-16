@@ -16,16 +16,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.AllArgsConstructor;
 
 /*
-	-> This class is for creating tokens. Remember that the token
-	from the authentication result is made in this class, rather than
-	being saved in the database and retrieved from it.
+ 	-> 이 class는 token을 만드는 데에 쓰인다.
+ 	-> authentication 결과의 token은 이 class에서 만들어진다는 점을 기억할 것.
+ 	database에 저장되었다가 fetch되는 것이 아니다.
 */
 
-@Service
+
 @AllArgsConstructor
+@Service
 public class TokenProvider {
 	
-	public String createToken(User userEntity) throws IOException {
+	public String create(User userEntity) throws IOException {
 		final String secretKey = JwtKeyReader.readKey();
 		
 		Date expiryDate = Date.from(
@@ -41,7 +42,7 @@ public class TokenProvider {
 				.compact();
 	}
 	
-	public String createToken(final Authentication authentication) throws IOException {
+	public String create(final Authentication authentication) throws IOException {
 		final String secretKey = JwtKeyReader.readKey();
 		
 		ApplicationOAuth2User userPrincipal = (ApplicationOAuth2User) authentication.getPrincipal();

@@ -3,8 +3,8 @@ package com.example.blog.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@EnableTransactionManagement
 @Configuration
+@EnableTransactionManagement
 public class AppConfig {
 
 }

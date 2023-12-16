@@ -41,8 +41,8 @@ public class UserController {
 				final String token = userService.createToken(user);
 				final UserDTO responseUserDTO = UserDTO
 							.builder()
-							.userName(user.getUserName())
 							.id(user.getId())
+							.userName(user.getUserName())
 							.token(token)
 							.build();
 					

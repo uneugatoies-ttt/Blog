@@ -57,6 +57,8 @@ public class UserService {
 		UserDTO resultingUserDTO = UserDTO.builder()
 				.id(savedUser.getId())
 				.userName(savedUser.getUserName())
+				.email(savedUser.getEmail())
+				.blogTitle(savedUser.getBlogTitle())
 				.build();
 
 		return resultingUserDTO;
@@ -72,7 +74,7 @@ public class UserService {
 	}
 	
 	public String createToken(User user) throws IOException {
-		return tokenProvider.createToken(user);
+		return tokenProvider.create(user);
 	}
 	
 	public String getBlogTitle(String userName) {

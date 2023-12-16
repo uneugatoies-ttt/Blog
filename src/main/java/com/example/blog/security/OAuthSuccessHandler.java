@@ -65,7 +65,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 		Authentication authentication
 	) throws IOException {
 		log.info("auth succeeded");
-		String token = tokenProvider.createToken(authentication);
+		String token = tokenProvider.create(authentication);
 		
 		Optional<Cookie> oCookie = Arrays.stream(request.getCookies())
 										.filter(

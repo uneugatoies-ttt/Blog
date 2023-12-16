@@ -19,7 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.blog.security.TokenProvider;
 
-
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	

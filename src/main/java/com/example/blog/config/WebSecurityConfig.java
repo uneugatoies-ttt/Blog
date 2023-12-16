@@ -1,6 +1,5 @@
 package com.example.blog.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,7 +16,6 @@ import com.example.blog.security.OAuthSuccessHandler;
 import com.example.blog.security.OAuthUserServiceImpl;
 import com.example.blog.security.filters.JwtAuthenticationFilter;
 import com.example.blog.security.filters.RedirectUrlCookieFilter;
-
 
 @EnableWebSecurity
 @Configuration

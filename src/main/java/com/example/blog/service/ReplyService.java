@@ -26,16 +26,13 @@ public class ReplyService {
 	private ArticleRepository articleRepository;
 
 	public ReplyDTO createReply(ReplyDTO replyDTO) {
-		User from = userRepository.findByUserName(replyDTO.getFrom())
-				.orElseThrow(() -> new EntityNotFoundException("From user not found"));
 		User writer = userRepository.findByUserName(replyDTO.getWriter())
-				.orElseThrow(() -> new EntityNotFoundException("Writer not found"));
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		Article article = articleRepository.findById(replyDTO.getArticle())
 				.orElseThrow(() -> new EntityNotFoundException("Article not found"));
 		
 		Reply reply = Reply.builder()
 						.content(replyDTO.getContent())
-						.from(from)
 						.writer(writer)
 						.article(article)
 						.where(replyDTO.getWhere())
@@ -46,7 +43,6 @@ public class ReplyService {
 		ReplyDTO resultingReplyDTO = ReplyDTO.builder()
 							.id(savedReply.getId())
 							.content(savedReply.getContent())
-							.from(savedReply.getFrom().getUserName())
 							.writer(savedReply.getWriter().getUserName())
 							.article(savedReply.getArticle().getId())
 							.where(savedReply.getWhere())
@@ -69,7 +65,6 @@ public class ReplyService {
 				.map(r -> ReplyDTO.builder()
 								.id(r.getId())
 								.content(r.getContent())
-								.from(r.getFrom().getUserName())
 								.writer(r.getWriter().getUserName())
 								.article(r.getArticle().getId())
 								.where(r.getWhere())
