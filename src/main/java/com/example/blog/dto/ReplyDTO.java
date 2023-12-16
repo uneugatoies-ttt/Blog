@@ -15,8 +15,8 @@ public class ReplyDTO {
 	private Long id;
 	private String content;
 	private String from;
-	private String to;
-	private String article;
+	private String writer;
+	private Long article;
 	private String where;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;

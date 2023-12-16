@@ -33,7 +33,7 @@ public class Reply extends BaseEntity {
 	
 	private User from;
 	
-	private User to;
+	private User writer;
 	
 	private Article article;
 	
