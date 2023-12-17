@@ -116,25 +116,20 @@ public class UserControllerTest {
 	@Test
 	@DisplayName("Case of Failed signin: Invalid Credentials")
 	void signinWithInvalidCredentials() throws Exception {
-	    // Input with invalid credentials
 	    UserDTO userDTO = UserDTO.builder()
 	            .userName("NonExistentUser")
 	            .password("InvalidPassword")
 	            .build();
 
-	    // Mocking to simulate no user found
 	    Mockito.when(userService.getUserByCredentials("NonExistentUser", "InvalidPassword"))
 	            .thenReturn(null);
 
-	    // Perform the request
 	    ResultActions result = mockMvc.perform(post("/auth/signin")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(objectMapper.writeValueAsString(userDTO)));
 
-	    // Assertions
 	    result.andExpect(status().isNotFound());
 
-	    // Verifications
 	    Mockito.verify(userService).getUserByCredentials("NonExistentUser", "InvalidPassword");
 	    Mockito.verifyNoMoreInteractions(userService);
 	}
