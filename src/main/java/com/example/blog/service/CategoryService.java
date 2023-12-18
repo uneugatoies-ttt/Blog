@@ -49,7 +49,7 @@ public class CategoryService {
 	}
 
 	@Transactional
-	public List<CategoryDTO> getCategory(String userName) {
+	public List<CategoryDTO> getCategories(String userName) {
 		User user = userRepository.findByUserName(userName)
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
 		List<CategoryDTO> categories = categoryRepository

@@ -37,19 +37,19 @@ public class CategoryController {
 	}
 	
 	@DeleteMapping
-	public ResponseEntity<?> deleteCategory(@RequestParam Long id) {
+	public ResponseEntity<?> deleteCategory(@RequestParam Long categoryId) {
 		try {
-			categoryService.deleteCategory(id);
-			return ResponseEntity.ok().body(ResponseDTO.builder().data("Category successfully deleted").build());
+			categoryService.deleteCategory(categoryId);
+			return ResponseEntity.noContent().build();
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
 	
 	@GetMapping
-	public ResponseEntity<?> getCategory(@RequestParam String userName) {
+	public ResponseEntity<?> getCategories(@RequestParam String userName) {
 		try {
-			List<CategoryDTO> categories = categoryService.getCategory(userName);
+			List<CategoryDTO> categories = categoryService.getCategories(userName);
 			ResponseListDTO<CategoryDTO> responseListDTO = ResponseListDTO.<CategoryDTO>builder()
 														.data(categories)
 														.build();

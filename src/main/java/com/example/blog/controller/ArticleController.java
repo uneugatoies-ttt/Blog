@@ -93,10 +93,7 @@ public class ArticleController {
 	public ResponseEntity<?> deleteArticle(@RequestParam Long articleId) {
 		try {
 			articleService.deleteArticle(articleId);
-			ResponseDTO dto = ResponseDTO.builder()
-										.data("Article successfully deleted")
-										.build();
-			return ResponseEntity.ok().body(dto);
+			return ResponseEntity.noContent().build();
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}

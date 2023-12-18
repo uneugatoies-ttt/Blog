@@ -19,7 +19,7 @@ public class BlogController {
 		this.userService = userService;
 	}
 	
-	@GetMapping("/blog-title")
+	@GetMapping("/title")
 	public ResponseEntity<?> getBlogTitle(@RequestParam String userName) {
 		try {
 			ResponseDTO responseDTO = ResponseDTO.builder()

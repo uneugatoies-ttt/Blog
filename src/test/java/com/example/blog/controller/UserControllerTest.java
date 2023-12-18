@@ -1,9 +1,16 @@
 package com.example.blog.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,11 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.blog.domain.User;
 import com.example.blog.dto.UserDTO;
@@ -34,6 +36,7 @@ public class UserControllerTest {
 	private ObjectMapper objectMapper;
 	@Autowired
 	private WebApplicationContext webApplicationContext;
+
 	
 	@MockBean
 	private UserService userService;
@@ -56,7 +59,7 @@ public class UserControllerTest {
 							.email("test@test.com")
 							.build();
 		
-		Mockito.when(userService.createUser(userDTO))
+		when(userService.createUser(userDTO))
 				.thenReturn(UserDTO.builder()
 								.id("TestUser's ID")
 								.userName("TestUser")
@@ -75,7 +78,7 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$.blogTitle").value("TestUser's Blog"))
 				.andDo(print());
 								
-		Mockito.verify(userService).createUser(userDTO);
+		verify(userService).createUser(userDTO);
 	}
 	
 	@Test
@@ -94,10 +97,10 @@ public class UserControllerTest {
 				.blogTitle("TestUser's Blog")
 				.build();
 		
-		Mockito.when(userService.getUserByCredentials("TestUser", "TestUser_password"))
+		when(userService.getUserByCredentials("TestUser", "TestUser_password"))
 				.thenReturn(user);
 		
-		Mockito.when(userService.createToken(user))
+		when(userService.createToken(user))
 				.thenReturn("TestUser's Token");
 		
 		ResultActions result = mockMvc.perform(post("/auth/signin")
@@ -109,8 +112,8 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$.userName").value("TestUser"))
 				.andDo(print());
 		
-		Mockito.verify(userService).getUserByCredentials("TestUser", "TestUser_password");
-		Mockito.verify(userService).createToken(user);
+		verify(userService).getUserByCredentials("TestUser", "TestUser_password");
+		verify(userService).createToken(user);
 	}
 	
 	@Test
@@ -121,7 +124,7 @@ public class UserControllerTest {
 	            .password("InvalidPassword")
 	            .build();
 
-	    Mockito.when(userService.getUserByCredentials("NonExistentUser", "InvalidPassword"))
+	    when(userService.getUserByCredentials("NonExistentUser", "InvalidPassword"))
 	            .thenReturn(null);
 
 	    ResultActions result = mockMvc.perform(post("/auth/signin")
@@ -130,8 +133,8 @@ public class UserControllerTest {
 
 	    result.andExpect(status().isNotFound());
 
-	    Mockito.verify(userService).getUserByCredentials("NonExistentUser", "InvalidPassword");
-	    Mockito.verifyNoMoreInteractions(userService);
+	    verify(userService).getUserByCredentials("NonExistentUser", "InvalidPassword");
+	    verifyNoMoreInteractions(userService);
 	}
 
 }
