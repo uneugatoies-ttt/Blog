@@ -50,6 +50,7 @@ public class FileService {
 		}
 	}
 
+	@Transactional
 	public boolean isFileNamePresent(String fileName, String userName) {
 		try {
 			User uploader = userRepository.findByUserName(userName)

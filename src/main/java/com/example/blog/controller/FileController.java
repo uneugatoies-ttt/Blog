@@ -103,6 +103,19 @@ public class FileController {
 		}
 	}
 	
+	@GetMapping("/presence")
+	public ResponseEntity<?> isFileNamePresent(@RequestParam String fileName, @RequestParam String uploader) {
+		try {
+			String fileNameWithUnderBar = fileName.replace(' ', '_');
+			String wikiNameWithUnderBar = uploader.replace('-', '_');
+			boolean presence = fileService.isFileNamePresent(fileNameWithUnderBar, wikiNameWithUnderBar);
+			
+			return ResponseEntity.ok().body(presence);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
 	private String extractFileExtension(String filename) {
 	    int lastDotIndex = filename.lastIndexOf('.');
 	    if (lastDotIndex > 0) {
