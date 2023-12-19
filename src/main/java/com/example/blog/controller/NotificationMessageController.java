@@ -38,16 +38,12 @@ public class NotificationMessageController {
 	}
 	
 	// Remember not to set raw string data as the body of a response;
-	// you'll see the error that says Unexpected token is not valid JSON.
+	// you might see the error that says Unexpected token is not valid JSON.
 	@DeleteMapping
 	public ResponseEntity<?> clearAllMessagesForThisUser(@RequestParam String userName) {
 		try {
 			notificationMessageService.clearAllMessagesForThisUser(userName);
-			
-			ResponseDTO dto = ResponseDTO.builder()
-											.data("All messages successfully deleted")
-											.build();
-			return ResponseEntity.ok().body(dto);
+			return ResponseEntity.noContent().build();
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}

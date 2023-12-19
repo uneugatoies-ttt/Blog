@@ -53,7 +53,7 @@ public class ReplyController {
 	public ResponseEntity<?> deleteReply(@RequestParam Long replyId) {
 		try {
 			replyService.deleteReply(replyId);
-			return ResponseEntity.ok().body(ResponseDTO.builder().data("Reply successfully deleted").build());
+			return ResponseEntity.noContent().build();
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}

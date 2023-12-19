@@ -40,7 +40,7 @@ public class TagController {
 	public ResponseEntity<?> deleteTag(@RequestParam Long id) {
 		try {
 			tagService.deleteTag(id);
-			return ResponseEntity.ok().body(ResponseDTO.builder().data("Tag successfully deleted").build());
+			return ResponseEntity.noContent().build();
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
