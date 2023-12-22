@@ -3,6 +3,7 @@ src/main/resources/application.yml
 src/main/resources/static/
 src/main/java/com/example/blog/security/secret-key.txt
 src/main/java/com/example/blog/practice/
+src/main/java/com/example/blog/exception/
 src/test/java/com/example/test/
 .metadata/
 .github/

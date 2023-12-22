@@ -98,9 +98,10 @@ public class ArticleControllerTest {
 		ResultActions result = mockMvc.perform(get("/article/by-user")
 						.param("userName", "TestUser"));
 						
+		// Loop를 사용할 수 있다면 좋겠지만.
 		result.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.data", hasSize(3)))
+				.andExpect(jsonPath("$.data", hasSize(3)))		
 				.andExpect(jsonPath("$.data[0].writer").value("TestUser"))
 				.andExpect(jsonPath("$.data[0].title").value("Test Article 1"))
 				.andExpect(jsonPath("$.data[0].category").value(35L))
