@@ -26,7 +26,7 @@ public class ArticleController {
 	public ArticleController(ArticleService articleService) {
 		this.articleService = articleService;
 	}
-	
+
 	@GetMapping("/by-user")
 	public ResponseEntity<?> getArticlesForThisUser(@RequestParam String userName) {
 		try {
