@@ -108,7 +108,7 @@ public class ArticleService {
 		
 		Article savedArticle = articleRepository.save(article);
 		
-		List<Long> articleTagList = settingTagsForArticle(savedArticle, articleDTO.getTag());
+		List<Long> articleTagList = setTagsForArticle(savedArticle, articleDTO.getTag());
 		
 		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
 													.id(savedArticle.getId())
@@ -125,12 +125,11 @@ public class ArticleService {
 	}
 	
 	@Transactional
-	private List<Long> settingTagsForArticle(Article article, List<Long> tags) {
+	private List<Long> setTagsForArticle(Article article, List<Long> tags) {
 		// 만약 edit의 경우라면 기존의 태그들을 찾아서 삭제.
 		Optional<List<ArticleTag>> existingList = articleTagRepository.findAllByArticle(article);
 		if (existingList.isPresent()) {
-			for (ArticleTag tempAt : existingList.get())
-				articleTagRepository.delete(tempAt);
+			articleTagRepository.deleteAllByArticle(article);
 		}
 		
 		List<Long> articleTagList = new ArrayList<>();
