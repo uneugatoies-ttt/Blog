@@ -41,41 +41,42 @@ public class WebSecurityConfig {
 	@Bean
 	protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// HTTP security builder
-		http.cors()
-			.and()
+		http
+			.cors()
+				.and()
 			.csrf()
-			.disable()
-			.httpBasic()
-			.disable()
-			.sessionManagement()
-			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and()
+				.disable()
+				.httpBasic()
+				.disable()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				.and()
 			.authorizeRequests()
 			// '/images/**' is for image testing; it should be discarded after it's done.
-			.antMatchers("/", "/auth/**", "/oauth2/**", "/file/**", "/test").permitAll()
+				.antMatchers("/", "/auth/**", "/oauth2/**", "/file/**", "/test").permitAll()
 			//.antMatchers("/", "/auth/**", "/oauth2/**", "/temp").permitAll()
-			.anyRequest()
-			.authenticated()
-			.and()
+				.anyRequest()
+				.authenticated()
+				.and()
 			.oauth2Login()
-			.redirectionEndpoint()
-			.baseUri("/oauth2/callback/*")
+				.redirectionEndpoint()
+				.baseUri("/oauth2/callback/*")
 			/*
 			 	Don't forget that the reason why you can use OAuth
 			 	with the path "/auth/authorize/github" is ascribed to
 			 	the following 3 lines.
 			*/
-			.and()
+				.and()
 			.authorizationEndpoint()
-			.baseUri("/auth/authorize")
-			.and()
+				.baseUri("/auth/authorize")
+				.and()
 			.userInfoEndpoint()
-			.userService(oAuthUserService)
-			.and()
+				.userService(oAuthUserService)
+				.and()
 			.successHandler(oAuthSuccessHandler)
-			.and()
+				.and()
 			.exceptionHandling()
-			.authenticationEntryPoint(new Http403ForbiddenEntryPoint());
+				.authenticationEntryPoint(new Http403ForbiddenEntryPoint());
 		
 		// register filter
 		http.addFilterAfter(
