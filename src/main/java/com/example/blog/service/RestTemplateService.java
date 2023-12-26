@@ -2,10 +2,15 @@ package com.example.blog.service;
 
 import java.net.URI;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -141,6 +146,33 @@ public class RestTemplateService {
 				restTemplate.exchange(requestEntity,  MemberDTO.class);
 		
 		return responseEntity;
+	}
+	
+	public RestTemplate getRestTemplateWithConnectionPool() {
+		HttpComponentsClientHttpRequestFactory factory =
+				new HttpComponentsClientHttpRequestFactory();
+		
+		
+		// Creating an HttpClient - way 1: Using HttpClientBuilder.create()
+		/*
+		HttpClient client = HttpClientBuilder.create()
+								.setMaxConnTotal(500)
+								.setMaxConnPerRoute(500)
+								.build();*/
+		
+		// Creating an HttpClient - way 2: Using HttpClients.custom()
+		CloseableHttpClient httpClient = HttpClients.custom()
+								.setMaxConnTotal(500)
+								.setMaxConnPerRoute(500)
+								.build();
+		
+		factory.setHttpClient(httpClient);
+		factory.setConnectTimeout(2000);
+		factory.setReadTimeout(5000);
+		
+		RestTemplate restTemplate = new RestTemplate(factory);
+		
+		return restTemplate;
 	}
 
 }
