@@ -40,7 +40,6 @@ public class WebSecurityConfig {
 	
 	@Bean
 	protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		// HTTP security builder
 		http
 			.cors()
 				.and()
@@ -52,9 +51,7 @@ public class WebSecurityConfig {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 			.authorizeRequests()
-			// '/images/**' is for image testing; it should be discarded after it's done.
-				.antMatchers("/", "/auth/**", "/oauth2/**", "/file/**", "/test").permitAll()
-			//.antMatchers("/", "/auth/**", "/oauth2/**", "/temp").permitAll()
+				.antMatchers("/", "/auth/**", "/oauth2/**", "/test").permitAll()
 				.anyRequest()
 				.authenticated()
 				.and()
