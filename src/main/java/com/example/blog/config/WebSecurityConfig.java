@@ -17,6 +17,27 @@ import com.example.blog.security.OAuthUserServiceImpl;
 import com.example.blog.security.filters.JwtAuthenticationFilter;
 import com.example.blog.security.filters.RedirectUrlCookieFilter;
 
+/*
+	-> ".redirectionEndpoint().baseUri("/oauth2/callback/*")":
+		- This specifies the base URI where OAuth2 redirection call backs are expected.
+		In this case, it's set to "/oauth2/callback/"; this is where the OAuth2 provider
+		(GitHub or Google) will redirect the user after successful authentication.
+		
+	-> ".authorizationEndpoint().baseUri("/auth/authorize")":
+		- This specifies the base URI where the authorization end point is exposed.
+		The authorization end point is used to initiate the OAuth2 authorization flow.
+		In this case, it's set the "/auth/authorize"; this is the URL pattern you see
+		when initiating OAuth2 authentication with GitHub or Google.
+		
+		- So, by setting this configuration, you can simply access the end points like
+		"http://localhost:8080/auth/authorize/github"
+		or 
+		"http://localhost:8080/auth/authorize/google"
+		to initiate the OAuth2 authentication flow.
+
+
+*/
+
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
@@ -52,28 +73,22 @@ public class WebSecurityConfig {
 				.and()
 			.authorizeRequests()
 				.antMatchers("/", "/auth/**", "/oauth2/**", "/test").permitAll()
-				.anyRequest()
-				.authenticated()
+				.anyRequest().authenticated()
 				.and()
 			.oauth2Login()
 				.redirectionEndpoint()
-				.baseUri("/oauth2/callback/*")
-			/*
-			 	Don't forget that the reason why you can use OAuth
-			 	with the path "/auth/authorize/github" is ascribed to
-			 	the following 3 lines.
-			*/
-				.and()
-			.authorizationEndpoint()
-				.baseUri("/auth/authorize")
-				.and()
-			.userInfoEndpoint()
-				.userService(oAuthUserService)
-				.and()
-			.successHandler(oAuthSuccessHandler)
-				.and()
-			.exceptionHandling()
-				.authenticationEntryPoint(new Http403ForbiddenEntryPoint());
+					.baseUri("/oauth2/callback/*")
+					.and()
+				.authorizationEndpoint()
+					.baseUri("/auth/authorize")
+					.and()
+				.userInfoEndpoint()
+					.userService(oAuthUserService)
+					.and()
+				.successHandler(oAuthSuccessHandler)
+					.and()
+				.exceptionHandling()
+					.authenticationEntryPoint(new Http403ForbiddenEntryPoint());
 		
 		// register filter
 		http.addFilterAfter(
@@ -94,5 +109,5 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-	
+
 }
