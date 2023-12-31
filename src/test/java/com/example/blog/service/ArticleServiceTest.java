@@ -49,7 +49,6 @@ public class ArticleServiceTest {
 	@MockBean
 	private ArticleTagRepository articleTagRepository;
 	
-	
 	@Autowired
 	private ArticleService articleService;
 	
