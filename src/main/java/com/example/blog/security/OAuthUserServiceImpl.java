@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /*
-	- This class is for checking whether the returned user information from GitHub
+	- This class is for checking whether the returned user information from GitHub (or Google)
 	is present in the database or not. And if it isn't, then the new account for
 	the user must be made.
 */
@@ -48,9 +48,20 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 			e.printStackTrace();
 		}
 		
-		// getting the login field.
-		final String username = (String) oAuth2User.getAttributes().get("login");
 		final String authProvider = userRequest.getClientRegistration().getClientName();
+
+		String username = null;
+		if (authProvider.equals("GitHub")) {
+			// getting the login field.
+			username = (String) oAuth2User.getAttributes().get("login");
+		} else if (authProvider.equals("Google")) {
+			// Since there is no "login" field when doing the OAuth2 flow with Google,
+			// you have to get the "name" field instead.
+			username = (String) oAuth2User.getAttributes().get("name");
+		}
+		
+		if (username == null)
+			throw new RuntimeException("username is null");
 		
 		User userEntity = null;
 		
@@ -66,7 +77,8 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));;
 		}
 		
-		log.info("Successfully pulled user info username {} authProvider {}", username, authProvider);
+		log.info("Successfully pulled user info");
+		log.info("username: {} authProvider: {}", username, authProvider);
 		
 		userSession.setUsername(username);
 		

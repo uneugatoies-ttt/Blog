@@ -20,10 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import static com.example.blog.security.filters.RedirectUrlCookieFilter.REDIRECT_URI_PARAM;
 
 /*
-	- This class's method is called when the OAuth's flow is
-	successfully finished. So, we can utilize this for
-	issuing a token after the OAuth authentication for
-	a user is completed.
+	- The method of this class is called when the OAuth's flow is
+	successfully finished. In this class, we have to create a 
+	JWT for the corresponding user.
 	
 	- Because this is executed when the authentication flow is complete,
 	the token must be stored in the cookie beforehand;
@@ -34,18 +33,11 @@ import static com.example.blog.security.filters.RedirectUrlCookieFilter.REDIRECT
 	- Remember the 'filter' operation that is used on the Cookie array
 	is utilizing Java's Stream API.
 	
-	- The commented final part of the method "onAuthenticationSuccess()" is 
-	originally getting the redirection URI from the request's cookies.
-	But, since, as of now, the redirection URI is always the same as the value of
-	the constant LOCAL_REDIRECT_URL, we can say the process is redundant,
-	therefore I omit the cookie retrieval.
-	If any change is made in the future, then corresponding handling should be done;
-	but while the situation remains the same, I'll just keep doing like this.
-	
-	- I have to append the name of the user who is the subject of this authentication
-	process to the URL, so we can store the 'USERNAME' in the localStorage at the frontend.
-	Now, because this new requirement has arisen, I should go back using cookies;
-	I have no better way to implement all these.
+	- I used to manage this class without cookies since I thought setting the predefined same
+	redirect URI again and again. But I have to append the name of the user who is the subject
+	of this authentication process to the URL, so we can store the 'USERNAME' in the
+	localStorage at the frontend. Now, because this new requirement has arisen,
+	I should go back using cookies; I have no better way to implement all these.
 */
 
 @Slf4j
@@ -75,15 +67,27 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 										.findFirst();
 				
 		Optional<String> redirectUri = oCookie.map(Cookie::getValue);
-		//	the above line is equivalent to the below line; the difference is 
-		//	whether they're using a lambda expression or are they using the method reference.
+		//	the above line is equivalent to the below line;
 		// Optional<String> redirectUri = oCookie.map(c -> c.getValue());
+		
+		// I don't know why, but if you don't specify the param "redirect_uri"
+		// when you initiate the OAuth2 flow, then the value of "redirectUri.get()"
+		// becomes this backend app's URI; so I had to append this validation.
+		// I'll fix the problem later.
+		String ru = null;
+		if (redirectUri.isEmpty() || 
+			redirectUri.get().equals("") || 
+			redirectUri.get().equals("http://localhost:8080")) {
+			ru = LOCAL_REDIRECT_URL;
+		} else {
+			ru = redirectUri.get();
+		}
 		
 		String username = userSession.getUsername();
 		
 		log.info("token {}", token);
 		log.info("username {}", username);
 		
-		response.sendRedirect(redirectUri.orElseGet(() -> LOCAL_REDIRECT_URL) + "/sociallogin?token=" + token + "&username=" + username);
+		response.sendRedirect(ru + "/sociallogin?token=" + token + "&username=" + username);
 	}
 }
