@@ -40,12 +40,12 @@ public class BlogControllerTest {
 	}
 	
 	@Test
-	@DisplayName("Test for getBlogTitle()")
-	void getBlogTitleTest() throws Exception {
+	@DisplayName("Test for getBlogTitleByUserName()")
+	void getBlogTitleByUserNameTest() throws Exception {
 		String userName = "TestUser";
 		String title = "TestUser's Blog";
 		
-		when(userService.getBlogTitle(userName))
+		when(userService.getBlogTitleByUserName(userName))
 				.thenReturn(title);
 		
 		ResultActions result = mockMvc.perform(get("/blog/title")
@@ -55,7 +55,7 @@ public class BlogControllerTest {
 				.andExpect(jsonPath("$.data").value(title))
 				.andDo(print());
 		
-		verify(userService).getBlogTitle(userName);
+		verify(userService).getBlogTitleByUserName(userName);
 	}
 
 }

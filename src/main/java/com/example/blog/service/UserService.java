@@ -74,16 +74,7 @@ public class UserService {
 		return resultingUserDTO;
 	}
 
-	public User findUserByUserName(String userName) {
-		try {
-			return userRepository.findByUserName(userName)
-					.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		} catch (Exception e) {
-			throw e;
-		}
-	}
-
-	public String getBlogTitle(String userName) {
+	public String getBlogTitleByUserName(String userName) {
 		try {
 			return userRepository.findByUserName(userName)
 					.orElseThrow(() -> new EntityNotFoundException("User not found"))
@@ -96,5 +87,16 @@ public class UserService {
 	private String createToken(User user) throws IOException {
 		return tokenProvider.create(user);
 	}
+
+	/*
+	public User findUserByUserName(String userName) {
+		try {
+			return userRepository.findByUserName(userName)
+					.orElseThrow(() -> new EntityNotFoundException("User not found"));
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	*/
 
 }

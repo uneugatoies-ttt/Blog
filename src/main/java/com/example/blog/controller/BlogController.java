@@ -20,10 +20,10 @@ public class BlogController {
 	}
 	
 	@GetMapping("/title")
-	public ResponseEntity<?> getBlogTitle(@RequestParam String userName) {
+	public ResponseEntity<?> getBlogTitleByUserName(@RequestParam String userName) {
 		try {
 			ResponseDTO responseDTO = ResponseDTO.builder()
-												.data(userService.getBlogTitle(userName))
+												.data(userService.getBlogTitleByUserName(userName))
 												.build();
 			return ResponseEntity.ok().body(responseDTO);
 		} catch (Exception e) {

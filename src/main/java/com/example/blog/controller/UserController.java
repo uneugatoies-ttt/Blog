@@ -1,6 +1,7 @@
 package com.example.blog.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/signup")
-	public ResponseEntity<?> signup(@RequestBody UserDTO userDTO) {
+	public ResponseEntity<?> signup(@Validated @RequestBody UserDTO userDTO) {
 		try {
 			if (userDTO == null || userDTO.getPassword() == null)
 				throw new RuntimeException("invalid password");
@@ -33,7 +34,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/signin")
-	public ResponseEntity<?> signin(@RequestBody UserDTO userDTO) {
+	public ResponseEntity<?> signin(@Validated @RequestBody UserDTO userDTO) {
 		try {
 			UserDTO resultingUserDTO = userService.getUserByCredentials(userDTO.getUserName(), userDTO.getPassword());
 			if (resultingUserDTO == null)
@@ -44,11 +45,5 @@ public class UserController {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
-	
-	/*
-	@GetMapping("/oauth2/code/{registrationId}")
-	public void loginWithGoogle(@RequestParam String code, @PathVariable String registrationId) {
-		userService.socialLogin(code, registrationId);
-	}*/
 
 }

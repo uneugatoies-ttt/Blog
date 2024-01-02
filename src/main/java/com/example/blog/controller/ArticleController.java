@@ -3,6 +3,7 @@ package com.example.blog.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,7 +71,7 @@ public class ArticleController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> createArticle(@RequestBody ArticleDTO articleDTO) {
+	public ResponseEntity<?> createArticle(@Validated @RequestBody ArticleDTO articleDTO) {
 		try {
 			ArticleDTO resultingArticleDTO = articleService.createOrEditArticle(articleDTO);
 			return ResponseEntity.ok().body(resultingArticleDTO);
@@ -80,7 +81,7 @@ public class ArticleController {
 	}
 	
 	@PutMapping
-	public ResponseEntity<?> editArticle(@RequestBody ArticleDTO articleDTO) {
+	public ResponseEntity<?> editArticle(@Validated @RequestBody ArticleDTO articleDTO) {
 		try {
 			ArticleDTO resultingArticleDTO = articleService.createOrEditArticle(articleDTO);
 			return ResponseEntity.ok().body(resultingArticleDTO);
