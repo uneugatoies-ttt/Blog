@@ -37,7 +37,7 @@ public class NotificationMessage extends BaseEntity {
 	@JoinColumn(name = "recipient")
 	private User recipient;
 	
-	// The path where the event that caused this message has happened.
+	// The pathname where the event that caused this message has happened.
 	private String where;
 
 }

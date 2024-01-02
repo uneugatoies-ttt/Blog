@@ -27,6 +27,7 @@ public class BlogController {
 												.build();
 			return ResponseEntity.ok().body(responseDTO);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}

@@ -72,7 +72,7 @@ public class WebSecurityConfig {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 			.authorizeRequests()
-				.antMatchers("/", "/auth/**", "/oauth2/**", "/test").permitAll()
+				.antMatchers("/", "/auth/**", "/oauth2/**", "/test/**").permitAll()
 				.anyRequest().authenticated()
 				.and()
 			.oauth2Login()

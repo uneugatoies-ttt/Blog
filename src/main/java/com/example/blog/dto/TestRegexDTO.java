@@ -11,19 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDTO {
+public class TestRegexDTO {
 	
-	private String id;
-	
-	@Pattern(regexp = "[^_-]+")
-	private String userName;
-	
-	private String password;
-	
-	private String email;
-	
-	private String token;
-	
-	private String blogTitle;
-	
+	@Pattern(
+		regexp = "[^_-]+",
+		message = "String should not contain spaces or underscores"
+	)
+	private String someField;
+
 }

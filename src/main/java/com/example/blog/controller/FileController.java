@@ -1,6 +1,5 @@
 package com.example.blog.controller;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,51 +16,46 @@ import com.example.blog.dto.ResponseDTO;
 import com.example.blog.service.FileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 @RestController
 @RequestMapping("/file")
 public class FileController {
 	
-	private static final String IMG_STORAGE_DIRECTORY = 
-			"." + File.separator +
-			"src" + File.separator +
-			"main" + File.separator +
-			"resources" + File.separator + 
-			"static" + File.separator;
-	
 	private FileService fileService;
+	private ObjectMapper objectMapper;
 	
-	public FileController(FileService fileService) {
+	public FileController(FileService fileService, ObjectMapper objectMapper) {
 		this.fileService = fileService;
+		this.objectMapper = objectMapper;
 	}
 	
 	@GetMapping
-	public ResponseEntity<?> getFile(@RequestParam String fileName, @RequestParam String userName) {
+	public ResponseEntity<?> getFile(
+			@RequestParam String fileName,
+			@RequestParam String uploader
+	) {
 		try {
-			String fileNameWithUnderBar = fileName.replace(' ', '_');
-			String userNameWithUnderBar = userName.replace(' ', '_');
-			
-			Resource fileResource = 
-					new ClassPathResource(
-							"static" + 
-							File.separator +
-							userNameWithUnderBar +
-							File.separator +
-							fileNameWithUnderBar
-						);
-			if (fileResource.exists()) {
-				return ResponseEntity
-						.ok()
-						.contentType(MediaType.IMAGE_JPEG)
-						.body(fileResource);
-			}
-			return null;
+			String fileNameWithHyphen = fileName.replace(' ', '-').replace('_', '-');
+			String userNameWithHyphen = uploader.replace(' ', '-').replace('_', '-');
+			Resource resultingFileResource = fileService.getFile(fileNameWithHyphen, userNameWithHyphen);
+			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(resultingFileResource);
 		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
+		}
+	}
+	
+	@GetMapping("/presence")
+	public ResponseEntity<?> isFileNamePresent(
+			@RequestParam String fileName,
+			@RequestParam String uploader
+	) {
+		try {
+			String fileNameWithHyphen = fileName.replace(' ', '-').replace('_', '-');
+			String userNameWithHyphen = uploader.replace(' ', '-').replace('_', '-');
+			boolean presence = fileService.isFileNamePresent(fileNameWithHyphen, userNameWithHyphen);
+			return ResponseEntity.ok().body(presence);
+		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
@@ -73,55 +67,14 @@ public class FileController {
 	) {
 		if (file.isEmpty())
 			return ResponseEntity.badRequest().body("No file has been sent");
-		
 		try {
-			FileDTO fileDTO = new ObjectMapper().readValue(fileDTOJson, FileDTO.class);
-			String fileNameWithUnderBar = fileDTO.getFileName().replace(' ', '_');
-			String userNameWithUnderBar = fileDTO.getUploader().replace(' ', '_');
-			byte[] bytes = file.getBytes();
-			
-	        Path directoryPath = Paths.get(
-	                IMG_STORAGE_DIRECTORY + userNameWithUnderBar
-	        );
-
-	        // Create the directories if they don't exist
-	        Files.createDirectories(directoryPath);
-			
-			Path path = Paths.get(
-					directoryPath.toString() + File.separator +
-					fileNameWithUnderBar + "." +
-					extractFileExtension(file.getOriginalFilename())
-				);
-			Files.write(path, bytes);
-			
-			FileDTO storedFileDTO = fileService.insertNewFile(fileDTO, path.toString());
-			
-			return ResponseEntity.ok().body(storedFileDTO);
-		} catch (IOException e) {
+			FileDTO fileDTO = objectMapper.readValue(fileDTOJson, FileDTO.class);
+			FileDTO resultingFileDTO = fileService.insertNewFileInSystem(file, fileDTO);
+			return ResponseEntity.ok().body(resultingFileDTO);
+		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
 	
-	@GetMapping("/presence")
-	public ResponseEntity<?> isFileNamePresent(@RequestParam String fileName, @RequestParam String uploader) {
-		try {
-			String fileNameWithUnderBar = fileName.replace(' ', '_');
-			String wikiNameWithUnderBar = uploader.replace('-', '_');
-			boolean presence = fileService.isFileNamePresent(fileNameWithUnderBar, wikiNameWithUnderBar);
-			
-			return ResponseEntity.ok().body(presence);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
-	
-	private String extractFileExtension(String filename) {
-	    int lastDotIndex = filename.lastIndexOf('.');
-	    if (lastDotIndex > 0) {
-	        return filename.substring(lastDotIndex + 1);
-	    }
-	    return ""; // there's no extension
-	}
-
 }

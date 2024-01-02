@@ -1,15 +1,11 @@
 package com.example.blog.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.blog.domain.User;
 import com.example.blog.dto.ResponseDTO;
 import com.example.blog.dto.UserDTO;
 import com.example.blog.service.UserService;
@@ -39,20 +35,11 @@ public class UserController {
 	@PostMapping("/signin")
 	public ResponseEntity<?> signin(@RequestBody UserDTO userDTO) {
 		try {
-			User user = userService.getUserByCredentials(userDTO.getUserName(), userDTO.getPassword());
-			if (user != null) {
-				final String token = userService.createToken(user);
-				final UserDTO responseUserDTO = UserDTO
-							.builder()
-							.id(user.getId())
-							.userName(user.getUserName())
-							.token(token)
-							.build();
-					
-				return ResponseEntity.ok().body(responseUserDTO);
-			} else {
+			UserDTO resultingUserDTO = userService.getUserByCredentials(userDTO.getUserName(), userDTO.getPassword());
+			if (resultingUserDTO == null)
 				return ResponseEntity.notFound().build();
-			}
+			else
+				return ResponseEntity.ok().body(resultingUserDTO);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}

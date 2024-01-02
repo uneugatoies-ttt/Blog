@@ -1,17 +1,14 @@
 package com.example.blog.service;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.example.blog.dto.FileDTO;
-import com.example.blog.persistence.FileRepository;
-import com.example.blog.persistence.UserRepository;
-
+/*
+	-> Things should be done more after the code arrangement at the front end;
+	will continue to write test code after those things are finished.
+*/
+public class FileServiceTest {
+	
+}
+/*
 @ExtendWith(SpringExtension.class)
 @Import({FileService.class})
 public class FileServiceTest {
@@ -27,7 +24,7 @@ public class FileServiceTest {
 	@Test
 	@DisplayName("Test for insertNewFile(): successful case")
 	void insertNewFileTest() throws Exception {
-		
+							
 	}
 	
 	@Test
@@ -36,4 +33,4 @@ public class FileServiceTest {
 		
 	}
 
-}
+}*/

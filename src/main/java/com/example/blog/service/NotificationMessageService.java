@@ -31,13 +31,15 @@ public class NotificationMessageService {
 								.orElseThrow(() -> new EntityNotFoundException("Message not found"));
 			
 			List<NotificationMessageDTO> allMessagesDTO =
-						allMessages.stream().map(m -> NotificationMessageDTO.builder()
-																		.id(m.getId())
-																		.message(m.getMessage())
-																		.recipient(m.getRecipient().getUserName())
-																		.where(m.getWhere())
-																		.build()).collect(Collectors.toList());
-			
+						allMessages.stream()
+							.map(m -> NotificationMessageDTO.builder()
+								.id(m.getId())
+								.message(m.getMessage())
+								.recipient(m.getRecipient().getUserName())
+								.where(m.getWhere())
+								.build()).collect(Collectors.toList()
+							);
+
 			return allMessagesDTO;
 		} catch (Exception e) {
 			throw e;

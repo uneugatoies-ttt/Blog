@@ -93,7 +93,6 @@ public class CategoryServiceTest {
 		verify(categoryRepository).deleteById(3L);
 	}
 	
-	
 	// We can designate the object used as the argument:
 	//		-> can set when() with the exact object
 	@Test

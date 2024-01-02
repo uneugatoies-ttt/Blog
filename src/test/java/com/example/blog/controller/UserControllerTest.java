@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.example.blog.domain.User;
 import com.example.blog.dto.UserDTO;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.UserService;
@@ -37,7 +36,6 @@ public class UserControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
-	
 	@MockBean
 	private UserService userService;
 	@MockBean
@@ -82,42 +80,48 @@ public class UserControllerTest {
 	}
 	
 	@Test
-	@DisplayName("Case of Successful signin")
+	@DisplayName("Test for signin(): successful case")
 	void successfulSigninTest() throws Exception {
 		UserDTO userDTO = UserDTO.builder()
 							.userName("TestUser")
-							.password("TestUser_password")
+							.password("TestUserPassword")
 							.build();
 		
+		/*
 		User user = User.builder()
-				.id("TestUser's ID")
+				.id("TestUserID")
 				.userName("TestUser")
-				.password("TestUser_password")
+				.password("TestUserPassword")
 				.email("test@test.com")
 				.blogTitle("TestUser's Blog")
 				.build();
+		*/
 		
-		when(userService.getUserByCredentials("TestUser", "TestUser_password"))
-				.thenReturn(user);
+		UserDTO responseUserDTO = UserDTO.builder()
+								.id("TestUserID")
+								.userName("TestUser")
+								.token("TestUserToken")
+								.build();
 		
-		when(userService.createToken(user))
-				.thenReturn("TestUser's Token");
+		when(userService.getUserByCredentials("TestUser", "TestUserPassword"))
+				.thenReturn(responseUserDTO);
 		
 		ResultActions result = mockMvc.perform(post("/auth/signin")
 							.contentType(MediaType.APPLICATION_JSON)
 							.content(objectMapper.writeValueAsString(userDTO)));
 		
 		result.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value("TestUser's ID"))
+				.andExpect(jsonPath("$.id").value("TestUserID"))
 				.andExpect(jsonPath("$.userName").value("TestUser"))
+				.andExpect(jsonPath("$.token").value("TestUserToken"))
 				.andDo(print());
 		
-		verify(userService).getUserByCredentials("TestUser", "TestUser_password");
-		verify(userService).createToken(user);
+		verify(userService).getUserByCredentials("TestUser", "TestUserPassword");
+		//verify(userService).createToken(user);
 	}
 	
 	@Test
-	@DisplayName("Case of Failed signin: Invalid Credentials")
+	@DisplayName("Test for signin(): the case of invalid credentials")
 	void signinWithInvalidCredentials() throws Exception {
 	    UserDTO userDTO = UserDTO.builder()
 	            .userName("NonExistentUser")

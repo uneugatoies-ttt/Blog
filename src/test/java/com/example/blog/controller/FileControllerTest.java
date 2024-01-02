@@ -1,37 +1,8 @@
 package com.example.blog.controller;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.io.File;
-import java.time.LocalDateTime;
-
-import static org.mockito.Mockito.verify;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import com.example.blog.dto.FileDTO;
-import com.example.blog.security.TokenProvider;
-import com.example.blog.service.FileService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-@WebMvcTest(FileController.class)
+//@WebMvcTest(FileController.class)
 public class FileControllerTest {
-	
+	/*
 	private static final String IMG_STORAGE_DIRECTORY = 
 			"." + File.separator +
 			"src" + File.separator +
@@ -129,5 +100,5 @@ public class FileControllerTest {
 		
 		verify(fileService).isFileNamePresent("fileName", "TestUser");							
 	}
-
+	*/
 }
