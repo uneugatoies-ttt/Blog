@@ -19,23 +19,23 @@ import com.example.blog.security.filters.RedirectUrlCookieFilter;
 
 /*
 	-> ".redirectionEndpoint().baseUri("/oauth2/callback/*")":
-		- This specifies the base URI where OAuth2 redirection call backs are expected.
-		In this case, it's set to "/oauth2/callback/"; this is where the OAuth2 provider
-		(GitHub or Google) will redirect the user after successful authentication.
+	
+		- 이것은 OAuth2 redirection callbacks으로 사용할 기본 URI를 명시한다.
+		이 앱의 경우 "/oauth2/callback/*"라고 설정했는데, 이것이 OAuth2 provider (GitHub 혹은 Google) 가
+		성공적인 인증 이후 사용자를 redirect할 장소가 된다.
+	
 		
 	-> ".authorizationEndpoint().baseUri("/auth/authorize")":
-		- This specifies the base URI where the authorization end point is exposed.
-		The authorization end point is used to initiate the OAuth2 authorization flow.
-		In this case, it's set the "/auth/authorize"; this is the URL pattern you see
-		when initiating OAuth2 authentication with GitHub or Google.
+	
+		- 이것은 authorization end point가 노출될 장소가 될 기본 URI를 명시한다.
+		authorization end point는 OAuth2 인증의 flow를 시작하는 데에 사용된다.
+		이 앱의 경우 "/auth/authorize"라고 설정했는데, 이것이 GitHub이나 Google을 사용해
+		OAuth2 인증을 시작할 때 사용하는 URL pattern이 된다.
 		
-		- So, by setting this configuration, you can simply access the end points like
-		"http://localhost:8080/auth/authorize/github"
-		or 
+		- 이 설정이 있기 때문에 
+		"http://localhost:8080/auth/authorize/github" 혹은
 		"http://localhost:8080/auth/authorize/google"
-		to initiate the OAuth2 authentication flow.
-
-
+		와 같은 end point들에 접속하는 것만으로 OAuth 인증의 flow를 시작할 수 있는 것이다.
 */
 
 @EnableWebSecurity
@@ -90,7 +90,7 @@ public class WebSecurityConfig {
 				.exceptionHandling()
 					.authenticationEntryPoint(new Http403ForbiddenEntryPoint());
 		
-		// register filter
+		// Filter 등록
 		http.addFilterAfter(
 			jwtAuthenticationFilter,
 			CorsFilter.class
@@ -98,7 +98,7 @@ public class WebSecurityConfig {
 		
 		http.addFilterBefore(
 			redirectUrlCookieFilter,
-			// the filter must be executed before redirection is performed.
+			// Filter는 redirection이 수행되기 이전에 반드시 실행되어야 한다.
 			OAuth2AuthorizationRequestRedirectFilter.class
 		);
 		
