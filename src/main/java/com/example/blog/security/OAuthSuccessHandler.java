@@ -83,11 +83,11 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 			ru = redirectUri.get();
 		}
 		
-		String username = userSession.getUsername();
+		String userName = userSession.getUsername();
 		
 		log.info("token {}", token);
-		log.info("username {}", username);
+		log.info("userName {}", userName);
 		
-		response.sendRedirect(ru + "/sociallogin?token=" + token + "&username=" + username);
+		response.sendRedirect(ru + "/sociallogin?token=" + token + "&userName=" + userName);
 	}
 }

@@ -16,9 +16,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import com.example.blog.domain.Article;
 import com.example.blog.domain.File;
 import com.example.blog.domain.User;
 import com.example.blog.dto.FileDTO;
+import com.example.blog.persistence.ArticleRepository;
 import com.example.blog.persistence.FileRepository;
 import com.example.blog.persistence.UserRepository;
 
@@ -37,6 +39,7 @@ public class FileService {
 	
 	private FileRepository fileRepository;
 	private UserRepository userRepository;
+	private ArticleRepository articleRepository;
 	
 	public Resource getFile(String fileName, String userName) {
 		try {
@@ -93,7 +96,8 @@ public class FileService {
 			FileDTO resultingFileDTO = 
 					insertNewFileInDatabase(
 							fileDTO, path.toString(),
-							fileNameWithHyphen, userNameWithHyphen
+							fileNameWithHyphen, userNameWithHyphen,
+							fileDTO.getArticleId()
 					);
 			
 			return resultingFileDTO;
@@ -108,11 +112,14 @@ public class FileService {
 			FileDTO fileDTO,
 			String filePath,
 			String fileNameWithHyphen,
-			String userNameWithHyphen
+			String userNameWithHyphen,
+			Long articleId
 	) {
 		try {
 			User uploader = userRepository.findByUserName(userNameWithHyphen)
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));
+			Article article = articleRepository.findById(articleId)
+					.orElseThrow(() -> new EntityNotFoundException("Article not found"));
 			
 			File fileEntity = File.builder()
 								.fileName(fileNameWithHyphen)
@@ -120,6 +127,7 @@ public class FileService {
 								.description(fileDTO.getDescription())
 								.filePath(filePath)
 								.fileType(fileDTO.getFileType())
+								.article(article)
 								.build();
 			File storedFileEntity = fileRepository.save(fileEntity);
 			
@@ -130,6 +138,7 @@ public class FileService {
 										.createdAt(storedFileEntity.getCreatedAt())
 										.id(storedFileEntity.getId())
 										.fileType(storedFileEntity.getFileType())
+										.articleId(storedFileEntity.getArticle().getId())
 										.build();
 			
 			return storedFileDTO;

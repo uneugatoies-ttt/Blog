@@ -28,6 +28,8 @@ public class FileDTO {
 	
 	private String fileType;
 	
+	private Long articleId;
+	
 	private LocalDateTime createdAt;
 	
 }

@@ -35,6 +35,24 @@ public class ArticleService {
 	private ArticleTagRepository articleTagRepository;
 	
 	@Transactional
+	public List<ArticleDTO> getArticlesForThisUser(String userName) {
+		User user = userRepository.findByUserName(userName)
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
+		List<ArticleDTO> articles= articleRepository.findAllByWriter(user)
+				.stream()
+				.map(a -> ArticleDTO.builder()
+									.id(a.getId())
+									.writer(a.getWriter().getUserName())
+									.content(a.getContent())
+									.title(a.getTitle())
+									.createdAt(a.getCreatedAt())
+									.updatedAt(a.getUpdatedAt())
+									.build())
+				.collect(Collectors.toList());
+		return articles;
+	}
+	
+	@Transactional
 	public List<ArticleDTO> getArticlesByCategory(Long categoryId) {
 		Category c = categoryRepository.findById(categoryId).get();
 		List<ArticleDTO> articles = articleRepository
@@ -70,32 +88,20 @@ public class ArticleService {
 		
 		return articles;
 	}
-	
-	@Transactional
-	public List<ArticleDTO> getArticlesForThisUser(String userName) {
-		User user = userRepository.findByUserName(userName)
-				.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		List<ArticleDTO> articles= articleRepository.findAllByWriter(user)
-				.stream()
-				.map(a -> ArticleDTO.builder()
-									.id(a.getId())
-									.writer(a.getWriter().getUserName())
-									.content(a.getContent())
-									.title(a.getTitle())
-									.createdAt(a.getCreatedAt())
-									.updatedAt(a.getUpdatedAt())
-									.build())
-				.collect(Collectors.toList());
-		return articles;
-	}
-	
+
 	// 생성과 변경의 logic은 상호 간 큰 차이가 없으므로 동일 method로 처리.
 	@Transactional
 	public ArticleDTO createOrEditArticle(ArticleDTO articleDTO) {
 		User writer = userRepository.findByUserName(articleDTO.getWriter())
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		Category category = categoryRepository.findById(articleDTO.getCategory())
+		
+		Category category = null;
+		if (articleDTO.getCategory() != null) {
+			category = categoryRepository.findById(articleDTO.getCategory())
 				.orElseThrow(() -> new EntityNotFoundException("Category not found"));
+		}
+		
+		System.out.println("\n\n\n1111111111111111111111111\n\n\n");
 		
 		Article article = Article.builder()
 								.writer(writer)
@@ -104,11 +110,22 @@ public class ArticleService {
 								.category(category)
 								.build();
 		
+		System.out.println("\n\n\n22222222222222222222222222\n\n\n");
+		
+		
 		if (articleDTO.getId() != null) article.setId(articleDTO.getId());
+		
+		System.out.println("\n\n\n3333333333333333333333333333\n\n\n");
+		
 		
 		Article savedArticle = articleRepository.save(article);
 		
+		System.out.println("\n\n\n44444444444444444444444444444\n\n\n");
+		
+		
 		List<Long> articleTagList = setTagsForArticle(savedArticle, articleDTO.getTag());
+		
+		System.out.println("\n\n\555555555555555555555555555555\n\n\n");
 		
 		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
 													.id(savedArticle.getId())
@@ -120,6 +137,8 @@ public class ArticleService {
 													.createdAt(savedArticle.getCreatedAt())
 													.updatedAt(savedArticle.getUpdatedAt())
 													.build();
+		
+		System.out.println("\n\n\666666666666666666666666666666\n\n\n");
 		
 		return resultingArticleDTO;
 	}

@@ -90,16 +90,15 @@ public class WebSecurityConfig {
 				.exceptionHandling()
 					.authenticationEntryPoint(new Http403ForbiddenEntryPoint());
 		
+		http.addFilterBefore(
+			redirectUrlCookieFilter,
+			OAuth2AuthorizationRequestRedirectFilter.class
+		);
+		
 		// Filter 등록
 		http.addFilterAfter(
 			jwtAuthenticationFilter,
 			CorsFilter.class
-		);
-		
-		http.addFilterBefore(
-			redirectUrlCookieFilter,
-			// Filter는 redirection이 수행되기 이전에 반드시 실행되어야 한다.
-			OAuth2AuthorizationRequestRedirectFilter.class
 		);
 		
 		return http.build();
