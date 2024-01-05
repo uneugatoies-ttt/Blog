@@ -73,6 +73,16 @@ public class ArticleController {
 	@PostMapping
 	public ResponseEntity<?> createArticle(@Validated @RequestBody ArticleDTO articleDTO) {
 		try {
+			/*
+			System.out.println("\n\nArticleDTO:");
+			System.out.println(articleDTO.getContent());
+			System.out.println(articleDTO.getTitle());
+			System.out.println(articleDTO.getWriter());
+			System.out.println(articleDTO.getCategory());
+			System.out.println(articleDTO.getTag());
+			
+			return ResponseEntity.ok().body(articleDTO);
+			*/
 			ArticleDTO resultingArticleDTO = articleService.createOrEditArticle(articleDTO);
 			return ResponseEntity.ok().body(resultingArticleDTO);
 		} catch (Exception e) {

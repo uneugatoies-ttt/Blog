@@ -28,6 +28,19 @@ public class FileController {
 		this.objectMapper = objectMapper;
 	}
 	
+	/*
+	@GetMapping("/by-uploader")
+	public ResponseEntity<?> getFileByUploader(@RequestParam String uploader) {
+		try {
+			String userNameWithHyphen = uploader.replace(' ', '-').replace('_', '-');
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
+		}
+	}*/
+	
 	@GetMapping
 	public ResponseEntity<?> getFile(
 			@RequestParam String fileName,

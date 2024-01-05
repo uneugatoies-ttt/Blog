@@ -1,5 +1,7 @@
 package com.example.blog.service;
 
+import static java.io.File.separator;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.example.blog.domain.Article;
@@ -19,6 +23,7 @@ import com.example.blog.dto.ArticleDTO;
 import com.example.blog.persistence.ArticleRepository;
 import com.example.blog.persistence.ArticleTagRepository;
 import com.example.blog.persistence.CategoryRepository;
+import com.example.blog.persistence.FileRepository;
 import com.example.blog.persistence.TagRepository;
 import com.example.blog.persistence.UserRepository;
 
@@ -33,6 +38,31 @@ public class ArticleService {
 	private CategoryRepository categoryRepository;
 	private TagRepository tagRepository;
 	private ArticleTagRepository articleTagRepository;
+	private FileRepository fileRepository;
+	
+	@Transactional
+	public Resource getMainImage(User uploader) {
+		try {
+			String fileName = fileRepository.findByUploader(uploader)
+									.orElseThrow(() -> new RuntimeException())
+									.getFileName();
+			String userName = uploader.getUserName();
+		
+			Resource fileResource = 
+					new ClassPathResource(
+							"static" + 
+							separator +
+							userName +
+							separator +
+							fileName
+						);
+			if (fileResource.exists())
+				return fileResource;
+			return null;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 	
 	@Transactional
 	public List<ArticleDTO> getArticlesForThisUser(String userName) {
@@ -47,6 +77,7 @@ public class ArticleService {
 									.title(a.getTitle())
 									.createdAt(a.getCreatedAt())
 									.updatedAt(a.getUpdatedAt())
+									.mainImage(getMainImage(user))
 									.build())
 				.collect(Collectors.toList());
 		return articles;
@@ -88,7 +119,7 @@ public class ArticleService {
 		
 		return articles;
 	}
-
+	
 	// 생성과 변경의 logic은 상호 간 큰 차이가 없으므로 동일 method로 처리.
 	@Transactional
 	public ArticleDTO createOrEditArticle(ArticleDTO articleDTO) {
