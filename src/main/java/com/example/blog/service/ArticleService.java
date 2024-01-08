@@ -2,9 +2,12 @@ package com.example.blog.service;
 
 import static java.io.File.separator;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -13,6 +16,7 @@ import javax.transaction.Transactional;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.blog.domain.Article;
 import com.example.blog.domain.ArticleTag;
@@ -20,6 +24,7 @@ import com.example.blog.domain.Category;
 import com.example.blog.domain.Tag;
 import com.example.blog.domain.User;
 import com.example.blog.dto.ArticleDTO;
+import com.example.blog.dto.FileDTO;
 import com.example.blog.persistence.ArticleRepository;
 import com.example.blog.persistence.ArticleTagRepository;
 import com.example.blog.persistence.CategoryRepository;
@@ -39,6 +44,14 @@ public class ArticleService {
 	private TagRepository tagRepository;
 	private ArticleTagRepository articleTagRepository;
 	private FileRepository fileRepository;
+
+	/* 
+	거의 비슷한 FileService의 logic을 그대로 가져오는 것은 지나치게 중복적이라고 판단했기에 FileService를
+	dependency로 설정하고 그 method를 ArticleService에서 call하는 방식으로 사용한다.
+	다만, 한 service에서 다른 service class를 dependency로 가지는 logic이 사용해도 문제가 없는지 여부는
+	아직 불명확하기에 이후 확실해진다면 수정하도록 한다.
+	*/
+	private FileService fileService;
 	
 	@Transactional
 	public Resource getMainImage(User uploader) {
@@ -132,8 +145,6 @@ public class ArticleService {
 				.orElseThrow(() -> new EntityNotFoundException("Category not found"));
 		}
 		
-		System.out.println("\n\n\n1111111111111111111111111\n\n\n");
-		
 		Article article = Article.builder()
 								.writer(writer)
 								.content(articleDTO.getContent())
@@ -141,22 +152,11 @@ public class ArticleService {
 								.category(category)
 								.build();
 		
-		System.out.println("\n\n\n22222222222222222222222222\n\n\n");
-		
-		
 		if (articleDTO.getId() != null) article.setId(articleDTO.getId());
-		
-		System.out.println("\n\n\n3333333333333333333333333333\n\n\n");
-		
 		
 		Article savedArticle = articleRepository.save(article);
 		
-		System.out.println("\n\n\n44444444444444444444444444444\n\n\n");
-		
-		
 		List<Long> articleTagList = setTagsForArticle(savedArticle, articleDTO.getTag());
-		
-		System.out.println("\n\n\555555555555555555555555555555\n\n\n");
 		
 		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
 													.id(savedArticle.getId())
@@ -169,9 +169,61 @@ public class ArticleService {
 													.updatedAt(savedArticle.getUpdatedAt())
 													.build();
 		
-		System.out.println("\n\n\666666666666666666666666666666\n\n\n");
-		
 		return resultingArticleDTO;
+	}
+	
+	@Transactional
+	public Entry<ArticleDTO, FileDTO> createOrEditArticleWithFile(
+		MultipartFile file,
+		ArticleDTO articleDTO,
+		FileDTO fileDTO
+	) throws IOException {
+		
+		System.out.println("\n\n\n\n1111111111111111111\n\n\n\n");
+
+		User writer = userRepository.findByUserName(articleDTO.getWriter())
+				.orElseThrow(() -> new EntityNotFoundException("User not found"));
+		
+		System.out.println("\n\n\n\n22222222222222222\n\n\n\n");
+		
+		Category category = null;
+		if (articleDTO.getCategory() != null) {
+			category = categoryRepository.findById(articleDTO.getCategory())
+				.orElseThrow(() -> new EntityNotFoundException("Category not found"));
+		}
+		
+		System.out.println("\n\n\n\n33333333333333333333\n\n\n\n");
+		
+		Article article = Article.builder()
+								.writer(writer)
+								.content(articleDTO.getContent())
+								.title(articleDTO.getTitle())
+								.category(category)
+								.build();
+		
+		System.out.println("\n\n\n\n444444444444444444444\n\n\n\n");
+		
+		if (articleDTO.getId() != null) article.setId(articleDTO.getId());
+		
+		Article savedArticle = articleRepository.save(article);
+		
+		List<Long> articleTagList = setTagsForArticle(savedArticle, articleDTO.getTag());
+		
+		fileDTO.setArticleId(savedArticle.getId());
+		FileDTO resultingFileDTO = fileService.insertNewFileInSystem(file, fileDTO);
+			
+		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
+													.id(savedArticle.getId())
+													.writer(savedArticle.getWriter().getUserName())
+													.content(savedArticle.getContent())
+													.title(savedArticle.getTitle())
+													.category(savedArticle.getCategory().getId())
+													.tag(articleTagList)
+													.createdAt(savedArticle.getCreatedAt())
+													.updatedAt(savedArticle.getUpdatedAt())
+													.build();
+		
+		return new SimpleImmutableEntry<>(resultingArticleDTO, resultingFileDTO);
 	}
 	
 	@Transactional

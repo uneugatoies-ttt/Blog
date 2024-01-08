@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 import com.example.blog.domain.Article;
@@ -51,6 +52,7 @@ public class FileService {
 							separator +
 							fileName
 						);
+			
 			if (fileResource.exists())
 				return fileResource;
 			return null;
@@ -79,6 +81,7 @@ public class FileService {
 		try {
 			String fileNameWithHyphen = fileDTO.getFileName().replace(' ', '-').replace('_', '-');
 			String userNameWithHyphen = fileDTO.getUploader().replace(' ', '-').replace('_', '-');
+			String extension = extractFileExtension(file.getOriginalFilename());
 			
 			byte[] bytes = file.getBytes();
 			Path directoryPath = Paths.get(IMG_STORAGE_DIRECTORY + userNameWithHyphen);
@@ -88,8 +91,7 @@ public class FileService {
 					directoryPath.toString() + 
 					separator + 
 					fileNameWithHyphen +
-					"." +
-					extractFileExtension(file.getOriginalFilename())
+					'.' + extension
 			);
 			Files.write(path, bytes);
 			
@@ -97,7 +99,8 @@ public class FileService {
 					insertNewFileInDatabase(
 							fileDTO, path.toString(),
 							fileNameWithHyphen, userNameWithHyphen,
-							fileDTO.getArticleId()
+							fileDTO.getArticleId(),
+							extension
 					);
 			
 			return resultingFileDTO;
@@ -113,7 +116,8 @@ public class FileService {
 			String filePath,
 			String fileNameWithHyphen,
 			String userNameWithHyphen,
-			Long articleId
+			Long articleId,
+			String extension
 	) {
 		try {
 			User uploader = userRepository.findByUserName(userNameWithHyphen)
@@ -122,7 +126,7 @@ public class FileService {
 					.orElseThrow(() -> new EntityNotFoundException("Article not found"));
 			
 			File fileEntity = File.builder()
-								.fileName(fileNameWithHyphen)
+								.fileName(fileNameWithHyphen + '.' + extension)
 								.uploader(uploader)
 								.description(fileDTO.getDescription())
 								.filePath(filePath)
