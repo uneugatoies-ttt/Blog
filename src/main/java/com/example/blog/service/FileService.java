@@ -13,7 +13,6 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -31,27 +30,54 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class FileService {
 	
+	/*
 	private static final String IMG_STORAGE_DIRECTORY = 
 			"." + separator +
 			"src" + separator +
 			"main" + separator +
 			"resources" + separator + 
 			"static" + separator;
+	*/
+	
+	// Using this should be replaced by something like @Value("${image.directory}")
+	// after you define that value within the configuration file (.yml or .properties)
+	private static final String FORFILE_FILEPATH = 
+			"." + separator +
+			"src" + separator +
+			"main" + separator +
+			"java" + separator +
+			"com" + separator + 
+			"example" + separator +
+			"blog" + separator +
+			"service" + separator +
+			"forfile.txt";
 	
 	private FileRepository fileRepository;
 	private UserRepository userRepository;
 	private ArticleRepository articleRepository;
+	//private ResourceLoader resourceLoader;
 	
-	public Resource getFile(String fileName, String userName) {
+	private String getPath() throws IOException {
+		Path p = Paths.get(FORFILE_FILEPATH);
+		byte[] forfileByte = Files.readAllBytes(p);
+		return new String(forfileByte, "UTF-8");
+	}
+	
+	
+	public Resource getFile(String fileName, String userName) throws IOException {
 		try {
-			Resource fileResource = 
-					new ClassPathResource(
-							"static" + 
-							separator +
-							userName +
-							separator +
-							fileName
-						);
+			// if fileName에 extension이 포함되어 있지 않다면 default로 .jpg를 append함.
+			String extension = extractFileExtension(fileName);
+			if (extension.trim().equals(""))
+				fileName = fileName + ".jpg";
+			
+			String path = getPath();
+			path = path + userName + separator + fileName;
+			Resource fileResource = new FileSystemResource(path);
+			
+			System.out.print("\n\n\nFile Length: ");
+			System.out.println(fileResource.contentLength());
+			System.out.println("\n\n");
 			
 			if (fileResource.exists())
 				return fileResource;
@@ -62,8 +88,12 @@ public class FileService {
 	}
 
 	@Transactional
-	public boolean isFileNamePresent(String fileName, String userName) {
+	public boolean isFileNamePresent(String fileName, String userName) throws IOException {
 		try {
+			String extension = extractFileExtension(fileName);
+			if (extension.trim().equals(""))
+				fileName = fileName + ".jpg";
+			
 			User uploader = userRepository.findByUserName(userName)
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));
 			boolean presence = fileRepository.existsByFileNameAndUploader(fileName, uploader);
@@ -84,7 +114,8 @@ public class FileService {
 			String extension = extractFileExtension(file.getOriginalFilename());
 			
 			byte[] bytes = file.getBytes();
-			Path directoryPath = Paths.get(IMG_STORAGE_DIRECTORY + userNameWithHyphen);
+			Path directoryPath = Paths.get( getPath() + userNameWithHyphen );
+			
 			// Create the corresponding directory if it doesn't exist.
 			Files.createDirectories(directoryPath);
 			Path path = Paths.get(

@@ -1,6 +1,6 @@
 package com.example.blog.service;
 
-import static java.io.File.separator;
+//import static java.io.File.separator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,10 +51,11 @@ public class ArticleService {
 	*/
 	private FileService fileService;
 	
+	/*
 	@Transactional
-	public Resource getMainImage(User uploader) {
+	public Resource getMainImage(Long articleId) {
 		try {
-			String fileName = fileRepository.findByUploader(uploader)
+			String fileName = fileRepository.findBy(uploader)
 									.orElseThrow(() -> new RuntimeException())
 									.getFileName();
 			String userName = uploader.getUserName();
@@ -75,12 +74,20 @@ public class ArticleService {
 		} catch (Exception e) {
 			throw e;
 		}
+	}*/
+	
+	@Transactional
+	public String getMainImageName(Article article) {
+		return fileRepository.findByArticle(article)
+					.orElseThrow(() -> new EntityNotFoundException("File not found"))
+					.getFileName();
 	}
 	
 	@Transactional
 	public List<ArticleDTO> getArticlesForThisUser(String userName) {
 		User user = userRepository.findByUserName(userName)
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
+		
 		List<ArticleDTO> articles= articleRepository.findAllByWriter(user)
 				.stream()
 				.map(a -> ArticleDTO.builder()
@@ -90,9 +97,10 @@ public class ArticleService {
 									.title(a.getTitle())
 									.createdAt(a.getCreatedAt())
 									.updatedAt(a.getUpdatedAt())
-									.mainImage(getMainImage(user))
+									.mainImage(getMainImageName(a))
 									.build())
 				.collect(Collectors.toList());
+		
 		return articles;
 	}
 	
@@ -178,13 +186,8 @@ public class ArticleService {
 		ArticleDTO articleDTO,
 		FileDTO fileDTO
 	) throws IOException {
-		
-		System.out.println("\n\n\n\n1111111111111111111\n\n\n\n");
-
 		User writer = userRepository.findByUserName(articleDTO.getWriter())
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		
-		System.out.println("\n\n\n\n22222222222222222\n\n\n\n");
 		
 		Category category = null;
 		if (articleDTO.getCategory() != null) {
@@ -192,16 +195,12 @@ public class ArticleService {
 				.orElseThrow(() -> new EntityNotFoundException("Category not found"));
 		}
 		
-		System.out.println("\n\n\n\n33333333333333333333\n\n\n\n");
-		
 		Article article = Article.builder()
 								.writer(writer)
 								.content(articleDTO.getContent())
 								.title(articleDTO.getTitle())
 								.category(category)
 								.build();
-		
-		System.out.println("\n\n\n\n444444444444444444444\n\n\n\n");
 		
 		if (articleDTO.getId() != null) article.setId(articleDTO.getId());
 		

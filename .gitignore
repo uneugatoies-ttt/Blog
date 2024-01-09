@@ -5,6 +5,7 @@ src/main/java/com/example/blog/security/secret-key.txt
 src/main/java/com/example/blog/practice/
 src/main/java/com/example/blog/exception/
 src/test/java/com/example/test/
+src/main/java/com/example/blog/service/forfile.txt
 .metadata/
 .github/
 

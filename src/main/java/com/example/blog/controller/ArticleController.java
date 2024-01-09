@@ -3,11 +3,7 @@ package com.example.blog.controller;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +21,6 @@ import com.example.blog.dto.FileDTO;
 import com.example.blog.dto.ResponseDTO;
 import com.example.blog.dto.ResponseListDTO;
 import com.example.blog.service.ArticleService;
-import com.example.blog.service.FileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -33,22 +28,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ArticleController {
 	
 	private ArticleService articleService;
-	private FileService fileService;
 	private ObjectMapper objectMapper;
+	//private FileService fileService;
 	
 	public ArticleController(
 		ArticleService articleService,
 		ObjectMapper objectMapper
+		//FileService fileService
 	) {
 		this.articleService = articleService;
 		this.objectMapper = objectMapper;
+		//this.fileService = fileService;
 	}
-
+	
 	@GetMapping("/by-user")
 	public ResponseEntity<?> getArticlesForThisUser(@RequestParam String userName) {
 		try {
-			Entry<List<ArticleDTO>, Resource> articles = articleService
-					.getArticlesForThisUser(userName);
+			List<ArticleDTO> articles = articleService.getArticlesForThisUser(userName);
 			ResponseListDTO<ArticleDTO> res = ResponseListDTO.<ArticleDTO>builder()
 										.data(articles)
 										.build();
@@ -97,30 +93,62 @@ public class ArticleController {
 		try {
 			ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
 			FileDTO fileDTO = objectMapper.readValue(fileDTOJson, FileDTO.class);
+			
 			Entry<ArticleDTO, FileDTO> resDTOs =
 					articleService.createOrEditArticleWithFile(file, articleDTO, fileDTO);
 			ArticleDTO resultingArticleDTO = resDTOs.getKey();
 			FileDTO resultingFileDTO = resDTOs.getValue();
-			String fileName = resultingFileDTO.getFileName().replace(' ', '-').replace('_', '-');
-			String userName = resultingFileDTO.getUploader().replace(' ', '-').replace('_', '-');
 			
-			Resource mi = fileService.getFile(fileName, userName);
-			
-			byte[] imageBytes = FileCopyUtils.copyToByteArray(mi.getInputStream());
-			resultingArticleDTO.setMainImage(null);
-			byte[] jsonBytes = objectMapper.writeValueAsBytes(resultingArticleDTO);
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.MULTIPART_MIXED);
-			byte[] combinedBytes = new byte[jsonBytes.length + imageBytes.length];
-			System.arraycopy(jsonBytes, 0, combinedBytes, 0, jsonBytes.length);
-			System.arraycopy(imageBytes, 0, combinedBytes, 0, imageBytes.length);
-			
-			return new ResponseEntity<>(combinedBytes, headers, 200);
+			return ResponseEntity.ok().body(ResponseDTO.builder().data("Article successfully inserted").build());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
+	
+	/*
+	@PostMapping("/with-file")
+	public ResponseEntity<?> createArticleWithFile(
+		@RequestPart("file") MultipartFile file,
+		@RequestPart("articleDTO") String articleDTOJson,
+		@RequestPart("fileDTO") String fileDTOJson
+	) {
+		if (file.isEmpty())
+			return ResponseEntity.badRequest().body("No file has been sent");
+		try {
+			ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
+			FileDTO fileDTO = objectMapper.readValue(fileDTOJson, FileDTO.class);
+			
+			Entry<ArticleDTO, FileDTO> resDTOs =
+					articleService.createOrEditArticleWithFile(file, articleDTO, fileDTO);
+			ArticleDTO resultingArticleDTO = resDTOs.getKey();
+			FileDTO resultingFileDTO = resDTOs.getValue();
+			
+			String fileName = resultingFileDTO.getFileName().replace(' ', '-').replace('_', '-');
+			String userName = resultingFileDTO.getUploader().replace(' ', '-').replace('_', '-');
+			
+			System.out.println("\n\n\n" + fileName);
+			System.out.println(userName + "\n\n\n");
+			Resource mi = fileService.getFile(fileName, userName);
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.MULTIPART_MIXED);
+			
+			byte[] imageBytes = FileCopyUtils.copyToByteArray(mi.getInputStream());
+			byte[] jsonBytes = objectMapper.writeValueAsBytes(resultingArticleDTO);
+			
+			byte[] combinedBytes = new byte[jsonBytes.length + imageBytes.length];
+			System.arraycopy(jsonBytes, 0, combinedBytes, 0, jsonBytes.length);
+			System.arraycopy(imageBytes, 0, combinedBytes, 0, imageBytes.length);
+			
+			return new ResponseEntity<>(combinedBytes, headers, 200);
+			
+			//return ResponseEntity.ok().body(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
+		}
+	}*/
 	
 	@PostMapping
 	public ResponseEntity<?> createArticle(@Validated @RequestBody ArticleDTO articleDTO) {

@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.validation.constraints.Pattern;
 
-import org.springframework.core.io.Resource;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +34,6 @@ public class ArticleDTO {
 	
 	private LocalDateTime updatedAt;
 	
-	private Resource mainImage;
+	private String mainImage;
 	
 }
