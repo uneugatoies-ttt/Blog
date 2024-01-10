@@ -1,4 +1,4 @@
-package com.example.blog.controller;
+package com.example.blog.practice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import com.example.blog.dto.TestRegexDTO;
 
 @RestController
 @RequestMapping("/test")
-public class TestController {
+public class PracticeController001 {
 	
 	@GetMapping("/test1")
 	public ResponseEntity<?> testHandler() {

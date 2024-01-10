@@ -28,7 +28,11 @@ public class ArticleDTO {
 	// tags and category represent their ID in the database.
 	private Long category;
 	
+	private String categoryName;
+	
 	private List<Long> tag;
+	
+	private List<String> tagName;
 	
 	private LocalDateTime createdAt;
 	

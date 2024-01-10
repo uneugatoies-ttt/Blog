@@ -12,6 +12,8 @@ public interface FileRepository extends JpaRepository<File, Long> {
 	
 	Boolean existsByFileNameAndUploader(String fileName, User uploader);
 	
+	Boolean existsByArticle(Article article);
+	
 	Optional<File> findByUploader(User uploader);
 	
 	Optional<File> findByArticle(Article article);

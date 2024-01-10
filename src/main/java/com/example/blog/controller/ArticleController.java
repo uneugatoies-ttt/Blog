@@ -41,6 +41,16 @@ public class ArticleController {
 		//this.fileService = fileService;
 	}
 	
+	@GetMapping("/by-id")
+	public ResponseEntity<?> getArticlesById(@RequestParam Long articleId) {
+		try {
+			ArticleDTO resultingArticleDTO = articleService.getArticleById(articleId);
+			return ResponseEntity.ok().body(resultingArticleDTO);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
+		}
+	}
+	
 	@GetMapping("/by-user")
 	public ResponseEntity<?> getArticlesForThisUser(@RequestParam String userName) {
 		try {
@@ -161,20 +171,42 @@ public class ArticleController {
 	}
 	
 	@PutMapping
-	public ResponseEntity<?> editArticle(@Validated @RequestBody ArticleDTO articleDTO) {
+	public ResponseEntity<?> editArticleWithFile(
+			@RequestPart("file") MultipartFile file,
+			@RequestPart("articleDTO") String articleDTOJson,
+			@RequestPart("fileDTO") String fileDTOJson
+	) {
 		try {
-			ArticleDTO resultingArticleDTO = articleService.createOrEditArticle(articleDTO);
-			return ResponseEntity.ok().body(resultingArticleDTO);
+			ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
+			
+			if (articleDTOJson != null && fileDTOJson != null) {
+				FileDTO fileDTO = objectMapper.readValue(articleDTOJson, FileDTO.class);
+				Entry<ArticleDTO, FileDTO> resultingDTOs = articleService.createOrEditArticleWithFile(file, articleDTO, fileDTO);
+			} else {
+				ArticleDTO resultingArticleDTO = articleService.createOrEditArticle(articleDTO);
+			}
+			
+			return ResponseEntity
+					.ok()
+					.body(ResponseDTO
+						.builder()
+						.data("Article successfully modified")
+						.build()
+					);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
 	
+	/*
+	원래는 204 NO CONTENT status를 response에 지정하려고 했지만, 이 application은 명시적 설정이 없다면
+	기본적으로 JSON을 frontend-backend communication에 사용하므로 일관성을 위해 ResponseDTO를 사용.
+	*/
 	@DeleteMapping
 	public ResponseEntity<?> deleteArticle(@RequestParam Long articleId) {
 		try {
 			articleService.deleteArticle(articleId);
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.ok().body(ResponseDTO.builder().data("Article deleted successfully").build());
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}

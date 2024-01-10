@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.blog.domain.Article;
 import com.example.blog.domain.ArticleTag;
 import com.example.blog.domain.Category;
+import com.example.blog.domain.File;
 import com.example.blog.domain.Tag;
 import com.example.blog.domain.User;
 import com.example.blog.dto.ArticleDTO;
@@ -51,36 +52,31 @@ public class ArticleService {
 	*/
 	private FileService fileService;
 	
-	/*
-	@Transactional
-	public Resource getMainImage(Long articleId) {
-		try {
-			String fileName = fileRepository.findBy(uploader)
-									.orElseThrow(() -> new RuntimeException())
-									.getFileName();
-			String userName = uploader.getUserName();
-		
-			Resource fileResource = 
-					new ClassPathResource(
-							"static" + 
-							separator +
-							userName +
-							separator +
-							fileName
-						);
-			if (fileResource.exists())
-				return fileResource;
-			return null;
-		} catch (Exception e) {
-			throw e;
-		}
-	}*/
-	
 	@Transactional
 	public String getMainImageName(Article article) {
 		return fileRepository.findByArticle(article)
 					.orElseThrow(() -> new EntityNotFoundException("File not found"))
 					.getFileName();
+	}
+	
+	@Transactional
+	public ArticleDTO getArticleById(Long articleId) {
+		Article article = articleRepository.findById(articleId)
+				.orElseThrow(() -> new EntityNotFoundException("Article not found"));
+		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
+										.id(article.getId())
+										.writer(article.getWriter().getUserName())
+										.content(article.getContent())
+										.title(article.getTitle())
+										.category(article.getCategory().getId())
+										.categoryName(article.getCategory().getName())
+										.tag(article.getTag().stream().map(at -> at.getTag().getId()).collect(Collectors.toList()))
+										.tagName(article.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
+										.createdAt(article.getCreatedAt())
+										.updatedAt(article.getUpdatedAt())
+										.mainImage(getMainImageName(article))
+										.build();
+		return resultingArticleDTO;
 	}
 	
 	@Transactional
@@ -95,6 +91,10 @@ public class ArticleService {
 									.writer(a.getWriter().getUserName())
 									.content(a.getContent())
 									.title(a.getTitle())
+									.category(a.getCategory().getId())
+									.categoryName(a.getCategory().getName())
+									.tag(a.getTag().stream().map(at -> at.getTag().getId()).collect(Collectors.toList()))
+									.tagName(a.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
 									.createdAt(a.getCreatedAt())
 									.updatedAt(a.getUpdatedAt())
 									.mainImage(getMainImageName(a))
@@ -115,8 +115,13 @@ public class ArticleService {
 									.writer(ar.getWriter().getUserName())
 									.content(ar.getContent())
 									.title(ar.getTitle())
+									.category(ar.getCategory().getId())
+									.categoryName(ar.getCategory().getName())
+									.tag(ar.getTag().stream().map(at -> at.getTag().getId()).collect(Collectors.toList()))
+									.tagName(ar.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
 									.createdAt(ar.getCreatedAt())
 									.updatedAt(ar.getUpdatedAt())
+									.mainImage(getMainImageName(ar))
 									.build())
 				.collect(Collectors.toList());
 		return articles;
@@ -133,8 +138,13 @@ public class ArticleService {
 							.writer(at.getArticle().getWriter().getUserName())
 							.content(at.getArticle().getContent())
 							.title(at.getArticle().getTitle())
+							.category(at.getArticle().getCategory().getId())
+							.categoryName(at.getArticle().getCategory().getName())
+							.tag(at.getArticle().getTag().stream().map(aatt -> aatt.getTag().getId()).collect(Collectors.toList()))
+							.tagName(at.getArticle().getTag().stream().map(aatt -> aatt.getTag().getName()).collect(Collectors.toList()))							
 							.createdAt(at.getCreatedAt())
 							.updatedAt(at.getUpdatedAt())
+							.mainImage(getMainImageName(at.getArticle()))
 							.build())
 				.collect(Collectors.toList());
 		
@@ -208,6 +218,15 @@ public class ArticleService {
 		
 		List<Long> articleTagList = setTagsForArticle(savedArticle, articleDTO.getTag());
 		
+		Optional<File> existingFileOpt = fileRepository.findByArticle(article);
+		
+		// 만약 edit의 경우라면 기존의 file을 삭제.
+		if (existingFileOpt.isPresent()) {
+			File existingFile = existingFileOpt.get();
+			fileRepository.delete(existingFile);
+			fileService.deleteFileInSystem(existingFile);
+		}
+		
 		fileDTO.setArticleId(savedArticle.getId());
 		FileDTO resultingFileDTO = fileService.insertNewFileInSystem(file, fileDTO);
 			
@@ -251,15 +270,22 @@ public class ArticleService {
 	}
 	
 	@Transactional
-	public void deleteArticle(Long articleId) {
+	public void deleteArticle(Long articleId) throws IOException {
 		Article article = articleRepository.findById(articleId)
 				.orElseThrow(() -> new EntityNotFoundException("Article not found"));
 		
 		Optional<List<ArticleTag>> articleTagList = articleTagRepository.findAllByArticle(article);
+		Optional<File> existingFileOpt = fileRepository.findByArticle(article);
 		
 		if (articleTagList.isPresent()) {
 			for (ArticleTag at : articleTagList.get())
 				articleTagRepository.delete(at);
+		}
+		
+		if (existingFileOpt.isPresent()) {
+			File existingFile = existingFileOpt.get();
+			fileRepository.delete(existingFile);
+			fileService.deleteFileInSystem(existingFile);
 		}
 		
 		articleRepository.deleteById(articleId);

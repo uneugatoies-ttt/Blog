@@ -63,7 +63,6 @@ public class FileService {
 		return new String(forfileByte, "UTF-8");
 	}
 	
-	
 	public Resource getFile(String fileName, String userName) throws IOException {
 		try {
 			// if fileName에 extension이 포함되어 있지 않다면 default로 .jpg를 append함.
@@ -177,6 +176,23 @@ public class FileService {
 										.build();
 			
 			return storedFileDTO;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	public void deleteFileInSystem(com.example.blog.domain.File existingFile) throws IOException {
+		try {
+			String path1 = getPath() +
+					existingFile.getUploader().getUserName() +
+					separator + 
+					existingFile.getFileName();
+			Path path = Paths.get(path1);
+			if (Files.deleteIfExists(path)) {
+				System.out.println("File deleted successfully");
+			} else {
+				throw new RuntimeException("File wasn't properly deleted");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
