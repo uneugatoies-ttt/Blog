@@ -21,25 +21,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class FileController {
 	
 	private FileService fileService;
-	private ObjectMapper objectMapper;
 	
-	public FileController(FileService fileService, ObjectMapper objectMapper) {
+	public FileController(
+			FileService fileService
+			//ObjectMapper objectMapper
+	) {
 		this.fileService = fileService;
-		this.objectMapper = objectMapper;
+		//this.objectMapper = objectMapper;
 	}
-	
-	/*
-	@GetMapping("/by-uploader")
-	public ResponseEntity<?> getFileByUploader(@RequestParam String uploader) {
-		try {
-			String userNameWithHyphen = uploader.replace(' ', '-').replace('_', '-');
-			
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
-		}
-	}*/
 	
 	@GetMapping
 	public ResponseEntity<?> getFile(
@@ -76,13 +65,13 @@ public class FileController {
 	@PostMapping
 	public ResponseEntity<?> insertNewFile(
 			@RequestPart("file") MultipartFile file,
-			@RequestPart("fileDTO") String fileDTOJson
+			@RequestPart("userName") String userName,
+			@RequestPart("articleId") Long articleId
 	) {
 		if (file.isEmpty())
 			return ResponseEntity.badRequest().body("No file has been sent");
 		try {
-			FileDTO fileDTO = objectMapper.readValue(fileDTOJson, FileDTO.class);
-			FileDTO resultingFileDTO = fileService.insertNewFileInSystem(file, fileDTO);
+			FileDTO resultingFileDTO = fileService.insertNewFileInSystem(file, userName, articleId);
 			return ResponseEntity.ok().body(resultingFileDTO);
 		} catch (Exception e) {
 			e.printStackTrace();

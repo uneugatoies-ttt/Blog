@@ -12,11 +12,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ReplyDTO {
+	
 	private Long id;
+	
 	private String content;
+	
 	private String writer;
-	private Long article;
+	
+	private Long articleId;
+	
 	private String where;
+	
 	private LocalDateTime createdAt;
+	
 	private LocalDateTime updatedAt;
+	
 }

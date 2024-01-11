@@ -29,20 +29,17 @@ public class ArticleController {
 	
 	private ArticleService articleService;
 	private ObjectMapper objectMapper;
-	//private FileService fileService;
 	
 	public ArticleController(
 		ArticleService articleService,
 		ObjectMapper objectMapper
-		//FileService fileService
 	) {
 		this.articleService = articleService;
 		this.objectMapper = objectMapper;
-		//this.fileService = fileService;
 	}
 	
 	@GetMapping("/by-id")
-	public ResponseEntity<?> getArticlesById(@RequestParam Long articleId) {
+	public ResponseEntity<?> getArticleById(@RequestParam Long articleId) {
 		try {
 			ArticleDTO resultingArticleDTO = articleService.getArticleById(articleId);
 			return ResponseEntity.ok().body(resultingArticleDTO);
@@ -92,20 +89,26 @@ public class ArticleController {
 		}
 	}
 	
-	@PostMapping("/with-file")
+	/*
+	-> 원래는 FileDTO를 받았지만, 다음의 변경점으로 인해 FileDTO를 request에서 받을 이유가 없어졌다:
+		1) user input으로 fileName을 지정했던 원래의 logic을, 원래 fileName을
+		그대로 사용하는 대신 이 application의 naming convention을 따르도록 변경하는 것으로 수정
+		2) File에서 "description" 과 "fileType" 에 해당하는 metadata field 두 개를
+		삭제하는 것으로 수정
+	따라서 삭제했다.
+	*/
+	@PostMapping
 	public ResponseEntity<?> createArticleWithFile(
 		@RequestPart("file") MultipartFile file,
-		@RequestPart("articleDTO") String articleDTOJson,
-		@RequestPart("fileDTO") String fileDTOJson
+		@RequestPart("articleDTO") String articleDTOJson
 	) {
 		if (file.isEmpty())
 			return ResponseEntity.badRequest().body("No file has been sent");
 		try {
 			ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
-			FileDTO fileDTO = objectMapper.readValue(fileDTOJson, FileDTO.class);
 			
 			Entry<ArticleDTO, FileDTO> resDTOs =
-					articleService.createOrEditArticleWithFile(file, articleDTO, fileDTO);
+					articleService.createOrEditArticle(articleDTO, file);
 			ArticleDTO resultingArticleDTO = resDTOs.getKey();
 			FileDTO resultingFileDTO = resDTOs.getValue();
 			
@@ -115,76 +118,29 @@ public class ArticleController {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
-	
-	/*
-	@PostMapping("/with-file")
-	public ResponseEntity<?> createArticleWithFile(
-		@RequestPart("file") MultipartFile file,
-		@RequestPart("articleDTO") String articleDTOJson,
-		@RequestPart("fileDTO") String fileDTOJson
-	) {
-		if (file.isEmpty())
-			return ResponseEntity.badRequest().body("No file has been sent");
-		try {
-			ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
-			FileDTO fileDTO = objectMapper.readValue(fileDTOJson, FileDTO.class);
-			
-			Entry<ArticleDTO, FileDTO> resDTOs =
-					articleService.createOrEditArticleWithFile(file, articleDTO, fileDTO);
-			ArticleDTO resultingArticleDTO = resDTOs.getKey();
-			FileDTO resultingFileDTO = resDTOs.getValue();
-			
-			String fileName = resultingFileDTO.getFileName().replace(' ', '-').replace('_', '-');
-			String userName = resultingFileDTO.getUploader().replace(' ', '-').replace('_', '-');
-			
-			System.out.println("\n\n\n" + fileName);
-			System.out.println(userName + "\n\n\n");
-			Resource mi = fileService.getFile(fileName, userName);
 
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.MULTIPART_MIXED);
-			
-			byte[] imageBytes = FileCopyUtils.copyToByteArray(mi.getInputStream());
-			byte[] jsonBytes = objectMapper.writeValueAsBytes(resultingArticleDTO);
-			
-			byte[] combinedBytes = new byte[jsonBytes.length + imageBytes.length];
-			System.arraycopy(jsonBytes, 0, combinedBytes, 0, jsonBytes.length);
-			System.arraycopy(imageBytes, 0, combinedBytes, 0, imageBytes.length);
-			
-			return new ResponseEntity<>(combinedBytes, headers, 200);
-			
-			//return ResponseEntity.ok().body(null);
+	/*
+	@PostMapping
+	public ResponseEntity<?> createArticle(@Validated @RequestBody ArticleDTO articleDTO) {
+		try {
+			Entry<ArticleDTO, FileDTO> resultingArticleDTO = 
+					articleService.createOrEditArticleWithOrWithoutFile(articleDTO, null, null);
+			return ResponseEntity.ok().body(resultingArticleDTO.getKey());
 		} catch (Exception e) {
-			e.printStackTrace();
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}*/
 	
-	@PostMapping
-	public ResponseEntity<?> createArticle(@Validated @RequestBody ArticleDTO articleDTO) {
-		try {
-			ArticleDTO resultingArticleDTO = articleService.createOrEditArticle(articleDTO);
-			return ResponseEntity.ok().body(resultingArticleDTO);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
-		}
-	}
-	
 	@PutMapping
 	public ResponseEntity<?> editArticleWithFile(
 			@RequestPart("file") MultipartFile file,
-			@RequestPart("articleDTO") String articleDTOJson,
-			@RequestPart("fileDTO") String fileDTOJson
+			@RequestPart("articleDTO") String articleDTOJson
 	) {
 		try {
 			ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
+			FileDTO fileDTO = null;
 			
-			if (articleDTOJson != null && fileDTOJson != null) {
-				FileDTO fileDTO = objectMapper.readValue(articleDTOJson, FileDTO.class);
-				Entry<ArticleDTO, FileDTO> resultingDTOs = articleService.createOrEditArticleWithFile(file, articleDTO, fileDTO);
-			} else {
-				ArticleDTO resultingArticleDTO = articleService.createOrEditArticle(articleDTO);
-			}
+			Entry<ArticleDTO, FileDTO> resDTOs = articleService.createOrEditArticle(articleDTO, file);
 			
 			return ResponseEntity
 					.ok()

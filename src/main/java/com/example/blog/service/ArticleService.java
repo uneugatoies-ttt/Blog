@@ -3,6 +3,7 @@ package com.example.blog.service;
 //import static java.io.File.separator;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -151,50 +152,24 @@ public class ArticleService {
 		return articles;
 	}
 	
-	// 생성과 변경의 logic은 상호 간 큰 차이가 없으므로 동일 method로 처리.
+	/*
+	-> 생성과 변경의 logic은 상호 간 큰 차이가 없으므로 동일 method로 처리한다.
+ 	이 때 file 관련 처리는 application 특성 상 항상 동반되므로 원래는 구분되어 있었던
+ 	createOrEditArticle() 과 createOrEditArticleWithFile()을 통합해서
+ 	createOrEditArticleWithOrWithoutFile()으로 만들었다.
+ 	
+ 	-> 항상 file이 동반되므로 "WithOrWithoutFile"이라는 suffix를 붙일 필요도, body 내부에서
+ 	file이 null인지 여부를 확인할 필요도 없지 않은가 생각되지만, 일단은 남겨두고 이후 무의미하다고 여겨진다면
+ 	그 부분들도 삭제하도록 하겠다.
+ 	
+ 	-> 원래는 article에 부수되는 file은 그대로 유지하며 file name만을 변경할 수 있게 하려고 했지만,
+ 	그럴 이유가 별로 없다고 판단했기에 관련된 logic은 삭제하는 것으로 수정했다.
+	*/
 	@Transactional
-	public ArticleDTO createOrEditArticle(ArticleDTO articleDTO) {
-		User writer = userRepository.findByUserName(articleDTO.getWriter())
-				.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		
-		Category category = null;
-		if (articleDTO.getCategory() != null) {
-			category = categoryRepository.findById(articleDTO.getCategory())
-				.orElseThrow(() -> new EntityNotFoundException("Category not found"));
-		}
-		
-		Article article = Article.builder()
-								.writer(writer)
-								.content(articleDTO.getContent())
-								.title(articleDTO.getTitle())
-								.category(category)
-								.build();
-		
-		if (articleDTO.getId() != null) article.setId(articleDTO.getId());
-		
-		Article savedArticle = articleRepository.save(article);
-		
-		List<Long> articleTagList = setTagsForArticle(savedArticle, articleDTO.getTag());
-		
-		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
-													.id(savedArticle.getId())
-													.writer(savedArticle.getWriter().getUserName())
-													.content(savedArticle.getContent())
-													.title(savedArticle.getTitle())
-													.category(savedArticle.getCategory().getId())
-													.tag(articleTagList)
-													.createdAt(savedArticle.getCreatedAt())
-													.updatedAt(savedArticle.getUpdatedAt())
-													.build();
-		
-		return resultingArticleDTO;
-	}
-	
-	@Transactional
-	public Entry<ArticleDTO, FileDTO> createOrEditArticleWithFile(
-		MultipartFile file,
+	public Entry<ArticleDTO, FileDTO> createOrEditArticle(
 		ArticleDTO articleDTO,
-		FileDTO fileDTO
+		MultipartFile file
+		//FileDTO fileDTO
 	) throws IOException {
 		User writer = userRepository.findByUserName(articleDTO.getWriter())
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -212,24 +187,31 @@ public class ArticleService {
 								.category(category)
 								.build();
 		
-		if (articleDTO.getId() != null) article.setId(articleDTO.getId());
+		if (articleDTO.getId() != null) {
+			article.setId(articleDTO.getId());
+			article.setUpdatedAt(LocalDateTime.now());
+		} 
 		
 		Article savedArticle = articleRepository.save(article);
 		
 		List<Long> articleTagList = setTagsForArticle(savedArticle, articleDTO.getTag());
 		
-		Optional<File> existingFileOpt = fileRepository.findByArticle(article);
+		FileDTO resultingFileDTO = null;
 		
-		// 만약 edit의 경우라면 기존의 file을 삭제.
-		if (existingFileOpt.isPresent()) {
-			File existingFile = existingFileOpt.get();
-			fileRepository.delete(existingFile);
-			fileService.deleteFileInSystem(existingFile);
+		if (file != null) {
+			// 만약 file이 있다면
+			Optional<File> existingFileOpt = fileRepository.findByArticle(savedArticle);
+			if (existingFileOpt.isPresent()) {
+				File existingFile = existingFileOpt.get();
+				fileRepository.delete(existingFile);
+				fileService.deleteFileInSystem(existingFile);
+			}
+			resultingFileDTO = fileService.insertNewFileInSystem(
+					file, 
+					savedArticle.getWriter().getUserName(),
+					savedArticle.getId());
 		}
 		
-		fileDTO.setArticleId(savedArticle.getId());
-		FileDTO resultingFileDTO = fileService.insertNewFileInSystem(file, fileDTO);
-			
 		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
 													.id(savedArticle.getId())
 													.writer(savedArticle.getWriter().getUserName())
@@ -243,6 +225,37 @@ public class ArticleService {
 		
 		return new SimpleImmutableEntry<>(resultingArticleDTO, resultingFileDTO);
 	}
+
+	@Transactional
+	public void deleteArticle(Long articleId) throws IOException {
+		Article article = articleRepository.findById(articleId)
+				.orElseThrow(() -> new EntityNotFoundException("Article not found"));
+		
+		Optional<List<ArticleTag>> articleTagList = articleTagRepository.findAllByArticle(article);
+		Optional<File> existingFileOpt = fileRepository.findByArticle(article);
+		
+		if (articleTagList.isPresent()) {
+			for (ArticleTag at : articleTagList.get())
+				articleTagRepository.delete(at);
+		}
+		
+		if (existingFileOpt.isPresent()) {
+			File existingFile = existingFileOpt.get();
+			fileRepository.delete(existingFile);
+			fileService.deleteFileInSystem(existingFile);
+		}
+		
+		articleRepository.deleteById(articleId);
+	}
+	
+	
+
+	
+	/********************************************
+	 * 											*
+	 * 			private methods					*
+	 * 											*
+	 ********************************************/
 	
 	@Transactional
 	private List<Long> setTagsForArticle(Article article, List<Long> tags) {
@@ -267,28 +280,6 @@ public class ArticleService {
 			articleTagList.add(articleTagRepository.save(at).getTag().getId());
 		}
 		return articleTagList;
-	}
-	
-	@Transactional
-	public void deleteArticle(Long articleId) throws IOException {
-		Article article = articleRepository.findById(articleId)
-				.orElseThrow(() -> new EntityNotFoundException("Article not found"));
-		
-		Optional<List<ArticleTag>> articleTagList = articleTagRepository.findAllByArticle(article);
-		Optional<File> existingFileOpt = fileRepository.findByArticle(article);
-		
-		if (articleTagList.isPresent()) {
-			for (ArticleTag at : articleTagList.get())
-				articleTagRepository.delete(at);
-		}
-		
-		if (existingFileOpt.isPresent()) {
-			File existingFile = existingFileOpt.get();
-			fileRepository.delete(existingFile);
-			fileService.deleteFileInSystem(existingFile);
-		}
-		
-		articleRepository.deleteById(articleId);
 	}
 	
 }

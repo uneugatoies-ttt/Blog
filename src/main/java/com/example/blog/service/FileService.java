@@ -105,32 +105,33 @@ public class FileService {
 	@Transactional
 	public FileDTO insertNewFileInSystem(
 			MultipartFile file,
-			@Validated FileDTO fileDTO
+			String userName,
+			Long articleId
+			//@Validated FileDTO fileDTO
 	) throws IOException {
 		try {
-			String fileNameWithHyphen = fileDTO.getFileName().replace(' ', '-').replace('_', '-');
-			String userNameWithHyphen = fileDTO.getUploader().replace(' ', '-').replace('_', '-');
-			String extension = extractFileExtension(file.getOriginalFilename());
+			String fileNameWithHyphen = file.getOriginalFilename().replace(' ', '-').replace('_', '-');
+			String userNameWithHyphen = userName.replace(' ', '-').replace('_', '-');
+			//String extension = extractFileExtension(file.getOriginalFilename());
 			
 			byte[] bytes = file.getBytes();
 			Path directoryPath = Paths.get( getPath() + userNameWithHyphen );
-			
 			// Create the corresponding directory if it doesn't exist.
 			Files.createDirectories(directoryPath);
+			
 			Path path = Paths.get(
 					directoryPath.toString() + 
 					separator + 
-					fileNameWithHyphen +
-					'.' + extension
+					fileNameWithHyphen
 			);
 			Files.write(path, bytes);
 			
 			FileDTO resultingFileDTO = 
-					insertNewFileInDatabase(
-							fileDTO, path.toString(),
-							fileNameWithHyphen, userNameWithHyphen,
-							fileDTO.getArticleId(),
-							extension
+					insertOrUpdateFileInDatabase(
+							path.toString(),
+							fileNameWithHyphen,
+							userNameWithHyphen,
+							articleId
 					);
 			
 			return resultingFileDTO;
@@ -141,13 +142,11 @@ public class FileService {
 	}
 	
 	@Transactional
-	private FileDTO insertNewFileInDatabase(
-			FileDTO fileDTO,
+	public FileDTO insertOrUpdateFileInDatabase(
 			String filePath,
 			String fileNameWithHyphen,
 			String userNameWithHyphen,
-			Long articleId,
-			String extension
+			Long articleId
 	) {
 		try {
 			User uploader = userRepository.findByUserName(userNameWithHyphen)
@@ -156,11 +155,9 @@ public class FileService {
 					.orElseThrow(() -> new EntityNotFoundException("Article not found"));
 			
 			File fileEntity = File.builder()
-								.fileName(fileNameWithHyphen + '.' + extension)
+								.fileName(fileNameWithHyphen)
 								.uploader(uploader)
-								.description(fileDTO.getDescription())
 								.filePath(filePath)
-								.fileType(fileDTO.getFileType())
 								.article(article)
 								.build();
 			File storedFileEntity = fileRepository.save(fileEntity);
@@ -168,10 +165,8 @@ public class FileService {
 			FileDTO storedFileDTO = FileDTO.builder()
 										.fileName(storedFileEntity.getFileName())
 										.uploader(storedFileEntity.getUploader().getUserName())
-										.description(storedFileEntity.getDescription())
 										.createdAt(storedFileEntity.getCreatedAt())
 										.id(storedFileEntity.getId())
-										.fileType(storedFileEntity.getFileType())
 										.articleId(storedFileEntity.getArticle().getId())
 										.build();
 			

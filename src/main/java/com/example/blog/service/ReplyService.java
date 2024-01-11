@@ -1,5 +1,6 @@
 package com.example.blog.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class ReplyService {
 	public ReplyDTO createReply(ReplyDTO replyDTO) {
 		User writer = userRepository.findByUserName(replyDTO.getWriter())
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		Article article = articleRepository.findById(replyDTO.getArticle())
+		Article article = articleRepository.findById(replyDTO.getArticleId())
 				.orElseThrow(() -> new EntityNotFoundException("Article not found"));
 		
 		Reply reply = Reply.builder()
@@ -44,7 +45,7 @@ public class ReplyService {
 							.id(savedReply.getId())
 							.content(savedReply.getContent())
 							.writer(savedReply.getWriter().getUserName())
-							.article(savedReply.getArticle().getId())
+							.articleId(savedReply.getArticle().getId())
 							.where(savedReply.getWhere())
 							.createdAt(savedReply.getCreatedAt())
 							.updatedAt(savedReply.getUpdatedAt())
@@ -66,7 +67,7 @@ public class ReplyService {
 								.id(r.getId())
 								.content(r.getContent())
 								.writer(r.getWriter().getUserName())
-								.article(r.getArticle().getId())
+								.articleId(r.getArticle().getId())
 								.where(r.getWhere())
 								.createdAt(r.getCreatedAt())
 								.updatedAt(r.getUpdatedAt())
@@ -74,6 +75,27 @@ public class ReplyService {
 				.collect(Collectors.toList());
 		
 		return replyDTOList;
+	}
+	
+	public ReplyDTO editReply(ReplyDTO replyDTO) {
+		Reply existingReply = replyRepository.findById(replyDTO.getId())
+				.orElseThrow(() -> new EntityNotFoundException("Reply not found"));
+		existingReply.setContent(replyDTO.getContent());
+		existingReply.setUpdatedAt(LocalDateTime.now());
+		
+		Reply modifiedReply = replyRepository.save(existingReply);
+		
+		ReplyDTO resultingReplyDTO = ReplyDTO.builder()
+							.id(modifiedReply.getId())
+							.content(modifiedReply.getContent())
+							.writer(modifiedReply.getWriter().getUserName())
+							.articleId(modifiedReply.getArticle().getId())
+							.where(modifiedReply.getWhere())
+							.createdAt(modifiedReply.getCreatedAt())
+							.updatedAt(modifiedReply.getUpdatedAt())
+							.build();
+		
+		return resultingReplyDTO;
 	}
 
 	public void deleteReply(Long replyId) {

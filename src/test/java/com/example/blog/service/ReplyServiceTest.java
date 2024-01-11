@@ -48,7 +48,7 @@ public class ReplyServiceTest {
 		ReplyDTO replyDTO = ReplyDTO.builder()
 								.content("Test Reply Contents")
 								.writer("TestUser")
-								.article(3L)
+								.articleId(3L)
 								.where("/blog/testuser/article/2")
 								.build();
 		User writer = User.builder()
@@ -92,13 +92,13 @@ public class ReplyServiceTest {
 										.id(13L)
 										.content("Test Reply Contents")
 										.writer("TestUser")
-										.article(3L)
+										.articleId(3L)
 										.where("/blog/testuser/article/2")
 										.build();
 		
 		when(userRepository.findByUserName(replyDTO.getWriter()))
 			.thenReturn(Optional.of(writer));
-		when(articleRepository.findById(replyDTO.getArticle()))
+		when(articleRepository.findById(replyDTO.getArticleId()))
 			.thenReturn(Optional.of(article));
 		when(replyRepository.save(any(Reply.class)))
 			.thenReturn(resultingReply);
@@ -113,13 +113,13 @@ public class ReplyServiceTest {
 			.isEqualTo(resultingReplyDTO.getContent());
 		assertThat(resultingReplyDTOFromService.getWriter())
 			.isEqualTo(resultingReplyDTO.getWriter());
-		assertThat(resultingReplyDTOFromService.getArticle())
-			.isEqualTo(resultingReplyDTO.getArticle());
+		assertThat(resultingReplyDTOFromService.getArticleId())
+			.isEqualTo(resultingReplyDTO.getArticleId());
 		assertThat(resultingReplyDTOFromService.getWhere())
 			.isEqualTo(resultingReplyDTO.getWhere());
 		
 		verify(userRepository).findByUserName(replyDTO.getWriter());
-		verify(articleRepository).findById(replyDTO.getArticle());
+		verify(articleRepository).findById(replyDTO.getArticleId());
 		verify(replyRepository).save(any(Reply.class));
 	}
 	
@@ -195,7 +195,7 @@ public class ReplyServiceTest {
 								.id(r.getId())
 								.content(r.getContent())
 								.writer(r.getWriter().getUserName())
-								.article(r.getArticle().getId())
+								.articleId(r.getArticle().getId())
 								.where(r.getWhere())
 								.createdAt(r.getCreatedAt())
 								.updatedAt(r.getUpdatedAt())
@@ -217,14 +217,14 @@ public class ReplyServiceTest {
 			assertThat(replyDTOListFromService.get(i))
 				.extracting(
 					ReplyDTO::getId, ReplyDTO::getContent,
-					ReplyDTO::getWriter, ReplyDTO::getArticle,
+					ReplyDTO::getWriter, ReplyDTO::getArticleId,
 					ReplyDTO::getWhere
 				)
 				.containsExactly(
 					replyDTOList.get(i).getId(),
 					replyDTOList.get(i).getContent(),
 					replyDTOList.get(i).getWriter(),
-					replyDTOList.get(i).getArticle(),
+					replyDTOList.get(i).getArticleId(),
 					replyDTOList.get(i).getWhere()
 				);
 		}

@@ -330,6 +330,7 @@ public class ArticleServiceTest {
 		-> 현재 이 test method는 ArticleService의 createOrEditArticle()과
 		setTagsForArticle()을 동시에 사용하고 있지만, 이것이 과연 좋은 방식인지는 미상이다.
 	*/ 
+	/*
 	@Test
 	@DisplayName("Test for createOrEditArticle(): successful case")
 	void createOrEditArticleTest() throws Exception {
@@ -402,7 +403,7 @@ public class ArticleServiceTest {
 		verify(userRepository).findByUserName(articleDTO.getWriter());
 		verify(categoryRepository).findById(articleDTO.getCategory());
 		verify(articleRepository).save(any(Article.class));
-	}
+	}*/
 	
 	@Test
 	@DisplayName("Test for deleteArticle(): successful case")

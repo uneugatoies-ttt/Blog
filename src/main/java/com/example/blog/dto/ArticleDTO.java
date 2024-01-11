@@ -25,7 +25,8 @@ public class ArticleDTO {
 	@Pattern(regexp = "[^_-]+")
 	private String title;
 	
-	// tags and category represent their ID in the database.
+	// "category" and "tag" represent their ID in the database.
+	// "categoryName" and "tagName" represent their name.
 	private Long category;
 	
 	private String categoryName;
@@ -38,6 +39,7 @@ public class ArticleDTO {
 	
 	private LocalDateTime updatedAt;
 	
+	// 이 article의 main image에 해당하는 file의 fileName
 	private String mainImage;
 	
 }

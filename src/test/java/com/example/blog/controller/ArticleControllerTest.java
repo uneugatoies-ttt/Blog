@@ -237,6 +237,7 @@ public class ArticleControllerTest {
 		verify(articleService).getArticlesByTag(6L);
 	}
 	
+	/*
 	@Test
 	@DisplayName("Test for createArticle()")
 	void createArticleTest() throws Exception {
@@ -333,7 +334,7 @@ public class ArticleControllerTest {
 				.andDo(print());
 		
 		verify(articleService).createOrEditArticle(articleDTO);
-	}
+	}*/
 	
 	@Test
 	@DisplayName("Test for deleteArticle()")

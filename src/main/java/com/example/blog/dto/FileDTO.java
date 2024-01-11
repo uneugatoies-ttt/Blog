@@ -24,10 +24,6 @@ public class FileDTO {
 	
 	private String filePath;
 	
-	private String description;
-	
-	private String fileType;
-	
 	private Long articleId;
 	
 	private LocalDateTime createdAt;

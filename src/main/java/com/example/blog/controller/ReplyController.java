@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,11 +50,21 @@ public class ReplyController {
 		}
 	}
 	
+	@PutMapping
+	public ResponseEntity<?> editReply(@RequestBody ReplyDTO replyDTO) {
+		try {
+			ReplyDTO resultingReplyDTO = replyService.editReply(replyDTO);
+			return ResponseEntity.ok().body(resultingReplyDTO);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
+		}
+	}
+	
 	@DeleteMapping
 	public ResponseEntity<?> deleteReply(@RequestParam Long replyId) {
 		try {
 			replyService.deleteReply(replyId);
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.ok().body(ResponseDTO.builder().data("Reply deleted successfully").build());
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
