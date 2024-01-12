@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,16 +37,6 @@ public class TagController {
 		}
 	}
 	
-	@DeleteMapping
-	public ResponseEntity<?> deleteTag(@RequestParam Long id) {
-		try {
-			tagService.deleteTag(id);
-			return ResponseEntity.noContent().build();
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
-		}
-	}
-	
 	@GetMapping
 	public ResponseEntity<?> getTag(@RequestParam String userName) {
 		try {
@@ -58,5 +49,26 @@ public class TagController {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
+	
+	@PutMapping
+	public ResponseEntity<?> editTag(@RequestBody TagDTO tagDTO) {
+		try {
+			TagDTO resultingTagDTO = tagService.editTag(tagDTO);
+			return ResponseEntity.ok().body(resultingTagDTO);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
+		}
+	}
+	
+	@DeleteMapping
+	public ResponseEntity<?> deleteTag(@RequestParam Long id) {
+		try {
+			tagService.deleteTag(id);
+			return ResponseEntity.ok().body(ResponseDTO.builder().data("Tag deleted successfully").build());
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
+		}
+	}
+
 	
 }

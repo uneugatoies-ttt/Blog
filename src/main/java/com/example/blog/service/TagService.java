@@ -1,5 +1,6 @@
 package com.example.blog.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,11 +46,6 @@ public class TagService {
 	}
 
 	@Transactional
-	public void deleteTag(Long id) {
-		tagRepository.deleteById(id);
-	}
-	
-	@Transactional
 	public List<TagDTO> getTag(String userName) {
 		User user = userRepository.findByUserName(userName)
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -63,6 +59,31 @@ public class TagService {
 									.build())
 					.collect(Collectors.toList());
 		return tags;
+	}
+	
+	@Transactional
+	public TagDTO editTag(TagDTO tagDTO) {
+		Tag existingTag = tagRepository.findById(tagDTO.getId())
+				.orElseThrow(() -> new EntityNotFoundException("Tag not found"));
+		
+		existingTag.setName(tagDTO.getName());
+		existingTag.setUpdatedAt(LocalDateTime.now());
+		
+		Tag savedTag = tagRepository.save(existingTag);
+		
+		TagDTO resultingTagDTO = TagDTO.builder()
+										.id(savedTag.getId())
+										.user(savedTag.getUser().getUserName())
+										.name(savedTag.getName())
+										.build();
+
+		return resultingTagDTO;
+	}
+	
+
+	@Transactional
+	public void deleteTag(Long id) {
+		tagRepository.deleteById(id);
 	}
 
 }

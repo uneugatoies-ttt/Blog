@@ -45,5 +45,18 @@ public class UserController {
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
 		}
 	}
+	
+
+	@PostMapping("/user-deletion")
+	public ResponseEntity<?> deleteUser(@Validated @RequestBody UserDTO userDTO) {
+		try {
+			if (userDTO == null || userDTO.getPassword() == null) 
+				throw new RuntimeException("invalid password");
+			String message = userService.deleteUser(userDTO);
+			return ResponseEntity.ok().body(ResponseDTO.builder().data(message).build());
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
+		}
+	}
 
 }

@@ -9,10 +9,12 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.example.blog.domain.Article;
+import com.example.blog.domain.NotificationMessage;
 import com.example.blog.domain.Reply;
 import com.example.blog.domain.User;
 import com.example.blog.dto.ReplyDTO;
 import com.example.blog.persistence.ArticleRepository;
+import com.example.blog.persistence.NotificationMessageRepository;
 import com.example.blog.persistence.ReplyRepository;
 import com.example.blog.persistence.UserRepository;
 
@@ -25,6 +27,7 @@ public class ReplyService {
 	private ReplyRepository replyRepository;
 	private UserRepository userRepository;
 	private ArticleRepository articleRepository;
+	private NotificationMessageRepository notificationMessageRepository;
 
 	public ReplyDTO createReply(ReplyDTO replyDTO) {
 		User writer = userRepository.findByUserName(replyDTO.getWriter())
@@ -50,6 +53,14 @@ public class ReplyService {
 							.createdAt(savedReply.getCreatedAt())
 							.updatedAt(savedReply.getUpdatedAt())
 							.build();
+		
+		NotificationMessage message = NotificationMessage.builder()
+											.message("New reply has been made for the following article: " + reply.getArticle().getTitle())
+											.recipient(reply.getArticle().getWriter())
+											.where(reply.getWhere())
+											.build();
+		
+		notificationMessageRepository.save(message);
 		
 		return resultingReplyDTO;
 	}

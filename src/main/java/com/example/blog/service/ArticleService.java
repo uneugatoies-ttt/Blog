@@ -21,6 +21,7 @@ import com.example.blog.domain.Article;
 import com.example.blog.domain.ArticleTag;
 import com.example.blog.domain.Category;
 import com.example.blog.domain.File;
+import com.example.blog.domain.Reply;
 import com.example.blog.domain.Tag;
 import com.example.blog.domain.User;
 import com.example.blog.dto.ArticleDTO;
@@ -29,6 +30,7 @@ import com.example.blog.persistence.ArticleRepository;
 import com.example.blog.persistence.ArticleTagRepository;
 import com.example.blog.persistence.CategoryRepository;
 import com.example.blog.persistence.FileRepository;
+import com.example.blog.persistence.ReplyRepository;
 import com.example.blog.persistence.TagRepository;
 import com.example.blog.persistence.UserRepository;
 
@@ -44,6 +46,7 @@ public class ArticleService {
 	private TagRepository tagRepository;
 	private ArticleTagRepository articleTagRepository;
 	private FileRepository fileRepository;
+	private ReplyRepository replyRepository;
 
 	/* 
 	거의 비슷한 FileService의 logic을 그대로 가져오는 것은 지나치게 중복적이라고 판단했기에 FileService를
@@ -228,28 +231,35 @@ public class ArticleService {
 
 	@Transactional
 	public void deleteArticle(Long articleId) throws IOException {
-		Article article = articleRepository.findById(articleId)
-				.orElseThrow(() -> new EntityNotFoundException("Article not found"));
-		
-		Optional<List<ArticleTag>> articleTagList = articleTagRepository.findAllByArticle(article);
-		Optional<File> existingFileOpt = fileRepository.findByArticle(article);
-		
-		if (articleTagList.isPresent()) {
-			for (ArticleTag at : articleTagList.get())
-				articleTagRepository.delete(at);
+		try {
+			Article article = articleRepository.findById(articleId)
+					.orElseThrow(() -> new EntityNotFoundException("Article not found"));
+			
+			Optional<List<ArticleTag>> articleTagList = articleTagRepository.findAllByArticle(article);
+			Optional<File> existingFileOpt = fileRepository.findByArticle(article);
+			Optional<List<Reply>> replyForThisArticle = replyRepository.findAllByArticle(article);
+			
+			if (articleTagList.isPresent()) {
+				for (ArticleTag at : articleTagList.get())
+					articleTagRepository.deleteById(at.getId());
+			}
+			
+			if (existingFileOpt.isPresent()) {
+				File existingFile = existingFileOpt.get();
+				fileRepository.deleteById(existingFile.getId());
+				fileService.deleteFileInSystem(existingFile);
+			}
+			
+			if (replyForThisArticle.isPresent()) {
+				for (Reply reply : replyForThisArticle.get())
+					replyRepository.deleteById(reply.getId());
+			}
+			
+			articleRepository.deleteById(articleId);
+		} catch (Exception e) {
+			throw e;
 		}
-		
-		if (existingFileOpt.isPresent()) {
-			File existingFile = existingFileOpt.get();
-			fileRepository.delete(existingFile);
-			fileService.deleteFileInSystem(existingFile);
-		}
-		
-		articleRepository.deleteById(articleId);
 	}
-	
-	
-
 	
 	/********************************************
 	 * 											*

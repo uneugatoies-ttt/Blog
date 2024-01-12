@@ -14,7 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.blog.dto.FileDTO;
 import com.example.blog.dto.ResponseDTO;
 import com.example.blog.service.FileService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+/*
+	-> 기존에는 file의 이름을 user로부터 input으로 받아 지정하고, 이후 user가 그 이름을 수정하게
+	하려고 했지만 불필요하고 거의 무의미한 기능이라고 여겼기에 그것은 구현하지 않는 것으로 방향을 변경했다.
+*/
 
 @RestController
 @RequestMapping("/file")
@@ -24,10 +28,8 @@ public class FileController {
 	
 	public FileController(
 			FileService fileService
-			//ObjectMapper objectMapper
 	) {
 		this.fileService = fileService;
-		//this.objectMapper = objectMapper;
 	}
 	
 	@GetMapping

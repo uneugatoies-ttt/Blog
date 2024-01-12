@@ -1,5 +1,6 @@
 package com.example.blog.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,10 +44,6 @@ public class CategoryService {
 		
 		return resultingCategoryDTO;
 	}
-	
-	public void deleteCategory(Long id) {
-		categoryRepository.deleteById(id);
-	}
 
 	@Transactional
 	public List<CategoryDTO> getCategories(String userName) {
@@ -63,6 +60,30 @@ public class CategoryService {
 								.collect(Collectors.toList());
 				
 		return categories;
+	}
+	
+	@Transactional
+	public CategoryDTO editCategory(CategoryDTO categoryDTO) {
+		Category existingCategory = categoryRepository.findById(categoryDTO.getId())
+				.orElseThrow(() -> new EntityNotFoundException("Category not found"));
+		
+		existingCategory.setName(categoryDTO.getName());
+		existingCategory.setUpdatedAt(LocalDateTime.now());
+		
+		Category savedCategory = categoryRepository.save(existingCategory);
+		
+		CategoryDTO resultingCategoryDTO = CategoryDTO.builder()
+												.id(savedCategory.getId())
+												.user(savedCategory.getUser().getUserName())
+												.name(savedCategory.getName())
+												.build();
+		
+		return resultingCategoryDTO;
+	}
+	
+	@Transactional
+	public void deleteCategory(Long id) {
+		categoryRepository.deleteById(id);
 	}
 
 }

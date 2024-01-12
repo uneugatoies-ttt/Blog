@@ -23,6 +23,7 @@ public class UserService {
 	private TokenProvider tokenProvider;
 	private PasswordEncoder passwordEncoder;
 	
+	@Transactional
 	public UserDTO getUserByCredentials(
 			final String userName,
 			final String password
@@ -74,6 +75,7 @@ public class UserService {
 		return resultingUserDTO;
 	}
 
+	@Transactional
 	public String getBlogTitleByUserName(String userName) {
 		try {
 			return userRepository.findByUserName(userName)
@@ -83,20 +85,36 @@ public class UserService {
 			throw e;
 		}
 	}
-	
-	private String createToken(User user) throws IOException {
-		return tokenProvider.create(user);
-	}
 
-	/*
-	public User findUserByUserName(String userName) {
+	@Transactional
+	public String deleteUser(UserDTO userDTO) {
 		try {
-			return userRepository.findByUserName(userName)
+			User existingUser = userRepository.findByUserName(userDTO.getUserName())
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));
+			
+			if (
+					existingUser == null 	||
+					!passwordEncoder.matches(userDTO.getPassword(), existingUser.getPassword())
+			) return null;
+		
+			userRepository.deleteById(existingUser.getId());
+			
+			return "User deleted successfully";
 		} catch (Exception e) {
 			throw e;
 		}
 	}
-	*/
+	
+
+	
+	/********************************************
+	 * 											*
+	 * 			private methods					*
+	 * 											*
+	 ********************************************/
+	
+	private String createToken(User user) throws IOException {
+		return tokenProvider.create(user);
+	}
 
 }
