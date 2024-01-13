@@ -17,14 +17,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /*
-	- This class is for checking whether the returned user information from GitHub (or Google)
-	is present in the database or not. And if it isn't, then the new account for
-	the user must be made.
+	-> 이 class는 GitHub나 Google에서 return된 user information이 이 application의 database 내부에
+	있는지의 여부를 확인하기 위해서 존재한다. 만약 이 확인 과정에서 해당하는 user가 없다면, 새로운 account가 만들어진다.
 */
 
 @Slf4j
 @Service
 public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
+	
 	private UserRepository userRepository;
 	private UserSession userSession;
 	
@@ -36,13 +36,17 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 	
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		// calling the existing loadUser of DefaultOAuth2UserService.
-		// this method uses user-info-uri to bring the user information.
+		/* 
+		DefaultOAuth2UserService의 존재하는 loadUser를 call한다.
+		이 method는 "user-info-uri"를 사용해 user information을 가져온다.
+		*/
 		final OAuth2User oAuth2User = super.loadUser(userRequest);
 		
 		try {
-			// for debugging, log the user information.
-			// this has to be used only when testing is performed.
+			/*
+			debugging을 위해서 user information을 log한다.
+			test할 때만 사용.
+			*/
 			log.info("oAuth2User attributes {} ", new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
@@ -52,11 +56,13 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 
 		String username = null;
 		if (authProvider.equals("GitHub")) {
-			// getting the login field.
+			// "login" field를 가져온다.
 			username = (String) oAuth2User.getAttributes().get("login");
 		} else if (authProvider.equals("Google")) {
-			// Since there is no "login" field when doing the OAuth2 flow with Google,
-			// you have to get the "name" field instead.
+			/*
+			Google의 OAuth2 flow에서는 "login" field가 존재하지 않기 때문에,
+			"name" field를 대신해서 가져와야 한다.
+			*/
 			username = (String) oAuth2User.getAttributes().get("name");
 		}
 		
@@ -65,7 +71,7 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 		
 		User userEntity = null;
 		
-		// if the user does not exist, create it.
+		// 만약 user가 존재하지 않는다면 새롭게 만들어 추가한다.
 		if (!userRepository.existsByUserName(username)) {
 			userEntity = User.builder()
 									.userName(username)
@@ -76,9 +82,6 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 			userEntity = userRepository.findByUserName(username)
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));;
 		}
-		
-		log.info("Successfully pulled user info");
-		log.info("username: {} authProvider: {}", username, authProvider);
 		
 		userSession.setUsername(username);
 		

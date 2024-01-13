@@ -15,7 +15,7 @@ import org.springframework.web.filter.CorsFilter;
 import com.example.blog.security.OAuthSuccessHandler;
 import com.example.blog.security.OAuthUserServiceImpl;
 import com.example.blog.security.filters.JwtAuthenticationFilter;
-import com.example.blog.security.filters.RedirectUrlCookieFilter;
+import com.example.blog.security.filters.RedirectUrlSessionFilter;
 
 /*
 	-> ".redirectionEndpoint().baseUri("/oauth2/callback/*")":
@@ -45,18 +45,18 @@ public class WebSecurityConfig {
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 	private OAuthUserServiceImpl oAuthUserService;
 	private OAuthSuccessHandler oAuthSuccessHandler;
-	private RedirectUrlCookieFilter redirectUrlCookieFilter;
+	private RedirectUrlSessionFilter redirectUrlSessionFilter;
 	
 	public WebSecurityConfig(
 			JwtAuthenticationFilter jwtAuthenticationFilter,
 			OAuthUserServiceImpl oAuthUserService,
 			OAuthSuccessHandler oAuthSuccessHandler,
-			RedirectUrlCookieFilter redirectUrlCookieFilter
+			RedirectUrlSessionFilter redirectUrlSessionFilter
 	) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.oAuthUserService = oAuthUserService;
 		this.oAuthSuccessHandler = oAuthSuccessHandler;
-		this.redirectUrlCookieFilter = redirectUrlCookieFilter;
+		this.redirectUrlSessionFilter = redirectUrlSessionFilter;
 	}
 	
 	@Bean
@@ -90,8 +90,11 @@ public class WebSecurityConfig {
 				.exceptionHandling()
 					.authenticationEntryPoint(new Http403ForbiddenEntryPoint());
 		
+		/*
+		이 설정이 있기 때문에 RedirectUrlCookieFilter가 사용된다.
+		*/
 		http.addFilterBefore(
-			redirectUrlCookieFilter,
+			redirectUrlSessionFilter,
 			OAuth2AuthorizationRequestRedirectFilter.class
 		);
 		

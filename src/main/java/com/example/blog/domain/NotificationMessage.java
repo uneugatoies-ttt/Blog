@@ -37,7 +37,11 @@ public class NotificationMessage extends BaseEntity {
 	@JoinColumn(name = "recipient")
 	private User recipient;
 	
-	// The pathname where the event that caused this message has happened.
+	/* 
+	이 Message를 발생시킨 frontend의 page가 가지는 pathname에 해당한다.
+	예를 들어 "testuser"가 작성한 article 중 "35"의 ID를 가지는 것에 reply가 달려서 그에 대한
+	notification message가 생성되었다면, 이 field의 value는 "/testuser/article/35"와 같이 될 것이다.
+	*/
 	private String where;
 
 }

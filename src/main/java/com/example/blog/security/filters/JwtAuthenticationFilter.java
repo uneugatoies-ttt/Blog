@@ -19,7 +19,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.blog.security.TokenProvider;
 
-
+/*
+	-> 이 filter class는 request로부터 "Authorization" header를 확인해 token을 회수하고,
+	그것으로 얻을 수 있는 userId를 TokenProvider의 validateAndGetUserId()로부터 받아,
+	
+	
+*/
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

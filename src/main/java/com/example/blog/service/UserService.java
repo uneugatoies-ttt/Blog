@@ -9,10 +9,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.blog.domain.User;
+import com.example.blog.dto.CheckUserDTO;
 import com.example.blog.dto.UserDTO;
 import com.example.blog.persistence.UserRepository;
 import com.example.blog.security.TokenProvider;
 
+import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -85,10 +87,39 @@ public class UserService {
 			throw e;
 		}
 	}
+	
+	@Transactional
+	public boolean checkThisUser(CheckUserDTO checkUserDTO) throws IOException {
+		try {
+			String pathID = userRepository.findByUserName(checkUserDTO.getPathUserName())
+						.orElseThrow(() -> new EntityNotFoundException("User not found"))
+						.getId();
+			String notCertifiedID = tokenProvider.validateAndGetUserId(checkUserDTO.getNotCertifiedToken());
+			
+			if (!pathID.equals(notCertifiedID))
+				return false;
+			
+			return true;
+		} catch (JwtException jwtException) {
+			return false;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 
 	@Transactional
-	public String deleteUser(UserDTO userDTO) {
+	public String deleteUser(UserDTO userDTO) throws IOException {
 		try {
+			CheckUserDTO checkUserDTO = CheckUserDTO.builder()
+											.pathUserName(userDTO.getUserName())
+											.notCertifiedUserName(userDTO.getUserName())
+											.notCertifiedToken(userDTO.getToken())
+											.build();
+			
+			if (!this.checkThisUser(checkUserDTO)) {
+				throw new RuntimeException("Something went wrong");
+			}
+			
 			User existingUser = userRepository.findByUserName(userDTO.getUserName())
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));
 			
@@ -104,8 +135,6 @@ public class UserService {
 			throw e;
 		}
 	}
-	
-
 	
 	/********************************************
 	 * 											*

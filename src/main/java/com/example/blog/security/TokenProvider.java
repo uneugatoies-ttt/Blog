@@ -16,11 +16,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.AllArgsConstructor;
 
 /*
- 	-> 이 class는 token을 만드는 데에 쓰인다.
- 	-> authentication 결과의 token은 이 class에서 만들어진다는 점을 기억할 것.
- 	database에 저장되었다가 fetch되는 것이 아니다.
+ 	-> 이 class는 JWT를 생성한다.
+ 	
+ 	-> authentication 결과의 token은 이 class에서 만들어진다는 점을 기억할 것. database에 저장되었다가
+ 	fetch되는 것이 아니다.
+ 	
+ 	-> Jwts를 사용해서 JWT가 만들어지는 과정이 이곳에 모두 명시되어 있다:
+ 		-> ".setSubject(userEntity.getId())": 이렇게 지정하기 때문에 이후 subject를 retrieve하면 
+ 		그 value는 database의 user의 ID와 동일한 값이 있는 것을 확인할 수 있다.
 */
-
 
 @AllArgsConstructor
 @Service
@@ -35,13 +39,20 @@ public class TokenProvider {
 		
 		return Jwts.builder()
 				.signWith(SignatureAlgorithm.HS512, secretKey)
-				.setSubject(userEntity.getId())
+				.setSubject(userEntity.getId())		
 				.setIssuer("blog")
 				.setIssuedAt(new Date())
 				.setExpiration(expiryDate)
 				.compact();
 	}
 	
+	/*
+		-> OAuth 2의 흐름에서 token을 생성할 때, User가 아닌 Authentication을 사용해서 생성하기 위한
+		method이다.
+		
+		-> 이 method를 위해서 ApplicationOAuth2User를 정의한 것이다. 이를 사용함으로써 결과물로 나오는
+		JWT의 subject에 들어갈 값을 만들 수 있다.
+	*/
 	public String create(final Authentication authentication) throws IOException {
 		final String secretKey = JwtKeyReader.readKey();
 		
@@ -61,6 +72,10 @@ public class TokenProvider {
 				.compact();
 	}
 	
+	/*
+		-> 이 application에서 JWT를 생성할 때에 subject로 ID를 지정하고 있기 때문에,
+		이 method는 해당 token에 상응하는 user의 ID 값을 return하게 될 것이다.
+	*/
 	public String validateAndGetUserId(String token) throws IOException {
 		final String secretKey = JwtKeyReader.readKey();
 		

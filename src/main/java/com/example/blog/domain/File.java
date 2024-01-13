@@ -39,6 +39,10 @@ public class File extends BaseEntity {
 	private User uploader;
 
 	private String filePath;
+
+	@OneToOne
+	@JoinColumn(name = "article_id")
+	private Article article;
 	
 	/*
 	원래는 각 file에 대한 설명을 담는 용도로 설정한 field이다; 현재는 불필요하기에 삭제한다.
@@ -52,8 +56,4 @@ public class File extends BaseEntity {
 	*/
 	//private String fileType;
 	
-	@OneToOne
-	@JoinColumn(name = "article_id")
-	private Article article;
-
 }

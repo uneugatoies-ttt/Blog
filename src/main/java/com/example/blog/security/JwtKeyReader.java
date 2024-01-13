@@ -11,14 +11,11 @@ import org.springframework.stereotype.Component;
 import lombok.AllArgsConstructor;
 
 /*
-	I need to know if there is a better way to use a secret key
-	than directly reading it from the local directory.
-*/
+	-> 이 class는 local에 저장된 text file로부터 JWT를 생성하는 데에 필요한 secret key를 읽는
+	기능을 하는 static method를 정의하고 있다.
 
-/*
-	I tried to bring the file that contains the secret key with a relative path.
-	But it seems that you cannot 
-
+	-> 현재는 local directory에 secret key를 담는 text file (.gitignore에 포함)을 만들어,
+	이것을 이 file에서 읽어오는 식으로 secret key를 사용하고 있지만, 더 좋은 방법이 있지 않을까 싶다.
 */
 
 @Component
@@ -42,22 +39,4 @@ public class JwtKeyReader {
 		return new String(keyBytes, "UTF-8");
 	}
 
-	// for key generation
-	/*
-	public static SecretKey generate() throws NoSuchAlgorithmException {
-		SecureRandom secureRandom = new SecureRandom();
-		KeyGenerator generator = KeyGenerator.getInstance("HmacSHA512");
-		generator.init(secureRandom);
-		SecretKey key = generator.generateKey();
-		return key;
-	}
-	
-	public static void main(String[] args) {
-		try {
-			byte[] keyBytes = generate().getEncoded();
-			System.out.println("sususus");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-	}*/
 }

@@ -9,8 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TestInputDTO {
+public class CheckUserDTO {
 	
-	private String someInputField;
+	private String pathUserName;
+	
+	private String notCertifiedUserName;
+	
+	private String notCertifiedToken;
 
 }

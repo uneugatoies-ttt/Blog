@@ -9,10 +9,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 /*
-	This class acts as the intermediary between OAuth2User and the User entity:
-	Since the class 'Authentication' has no ID by default, we have nothing
-	to put into Jwts's setSubject() method. This intermediary is
-	for filling the contents of the setSubject's argument.
+	-> 이 class는 OAuth2User와 User entity 사이의 중간자 역할을 한다:
+	class "Authentication"에는 ID가 없으므로, Jwts를 사용해서 JWT를 생성할 때 setSubject()에
+	argument로 줄 값이 없다. 이 때 이 class는 setSubject()의 argument의 자리를 채우는 역할을 하게 된다.
 */
 
 public class ApplicationOAuth2User implements OAuth2User {

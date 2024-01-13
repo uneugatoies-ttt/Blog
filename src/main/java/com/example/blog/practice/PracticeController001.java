@@ -1,5 +1,5 @@
 package com.example.blog.practice;
-
+/*
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,4 +45,4 @@ public class PracticeController001 {
 		}
 	}
 	
-}
+}*/
