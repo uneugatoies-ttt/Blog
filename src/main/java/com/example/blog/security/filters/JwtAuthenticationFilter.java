@@ -20,10 +20,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.blog.security.TokenProvider;
 
 /*
-	-> 이 filter class는 request로부터 "Authorization" header를 확인해 token을 회수하고,
-	그것으로 얻을 수 있는 userId를 TokenProvider의 validateAndGetUserId()로부터 받아,
-	
-	
+	-> 이 filter class는 request로부터:
+		1) "Authorization" header를 확인해 token을 회수하고,
+		2) 그것으로 얻을 수 있는 userId를 TokenProvider의 validateAndGetUserId()로부터 받아,
+		3) ID를 "username"으로 사용하는 UsernamePasswordAuthenticationToken을 정의해,
+		4) 그것의 detail에 이 request를 설정하고,
+		5) SecurityContext에 이 authentication token를 담아 SecurityContextHolder에 저장한다.
 */
 
 @Component
@@ -46,7 +48,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			
 			if (token != null && !token.equalsIgnoreCase("null")) {
 				String userId = tokenProvider.validateAndGetUserId(token);
-				
+
+				/*
+					-> UsernamePasswordAuthenticationToken의 constructor는 내부적으로
+					super (AbstarctAuthenticationToken) 의 setAuthenticated()를 call한다.
+					따라서 이 이후에 별도로 setAuthenticated()를 call할 필요는 없다.
+					
+					-> "credentials"에 token을 주지 않고 그냥 "null"으로 설정하는 이유는?
+				*/
 				AbstractAuthenticationToken authen =
 					new UsernamePasswordAuthenticationToken(
 							userId,
@@ -54,8 +63,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 							AuthorityUtils.NO_AUTHORITIES
 					);
 				
+				// 이 request에 담긴 detail들을 이 authentication token에 설정한다.
 				authen.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				
+				// security context를 만들어 위에서 정의한 authentication token을 담아 holder에 저장한다.
 				SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 				securityContext.setAuthentication(authen);
 				SecurityContextHolder.setContext(securityContext);

@@ -1,8 +1,6 @@
 package com.example.blog.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,7 +10,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.hamcrest.Matchers.hasSize;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +28,6 @@ import org.springframework.web.context.WebApplicationContext;
 import com.example.blog.dto.ArticleDTO;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.ArticleService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /*
 	> TokenProvider의 MockBean을 제공하지 않으면 그것의 bean을 찾지 못했다는 error가 계속해서 발생.
@@ -43,8 +39,6 @@ public class ArticleControllerTest {
 	
 	@Autowired
 	private MockMvc mockMvc;
-	@Autowired
-	private ObjectMapper objectMapper;
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 	

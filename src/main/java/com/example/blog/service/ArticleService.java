@@ -1,7 +1,5 @@
 package com.example.blog.service;
 
-//import static java.io.File.separator;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,8 +49,6 @@ public class ArticleService {
 	/* 
 	거의 비슷한 FileService의 logic을 그대로 가져오는 것은 지나치게 중복적이라고 판단했기에 FileService를
 	dependency로 설정하고 그 method를 ArticleService에서 call하는 방식으로 사용한다.
-	다만, 한 service에서 다른 service class를 dependency로 가지는 logic이 사용해도 문제가 없는지 여부는
-	아직 불명확하기에 이후 확실해진다면 수정하도록 한다.
 	*/
 	private FileService fileService;
 	
@@ -172,7 +168,6 @@ public class ArticleService {
 	public Entry<ArticleDTO, FileDTO> createOrEditArticle(
 		ArticleDTO articleDTO,
 		MultipartFile file
-		//FileDTO fileDTO
 	) throws IOException {
 		User writer = userRepository.findByUserName(articleDTO.getWriter())
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));

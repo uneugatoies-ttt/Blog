@@ -29,17 +29,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class FileService {
 	
-	/*
-	private static final String IMG_STORAGE_DIRECTORY = 
-			"." + separator +
-			"src" + separator +
-			"main" + separator +
-			"resources" + separator + 
-			"static" + separator;
-	*/
-	
-	// Using this should be replaced by something like @Value("${image.directory}")
-	// after you define that value within the configuration file (.yml or .properties)
 	private static final String FORFILE_FILEPATH = 
 			"." + separator +
 			"src" + separator +
@@ -50,11 +39,10 @@ public class FileService {
 			"blog" + separator +
 			"service" + separator +
 			"forfile.txt";
-	
+
 	private FileRepository fileRepository;
 	private UserRepository userRepository;
 	private ArticleRepository articleRepository;
-	//private ResourceLoader resourceLoader;
 	
 	private String getPath() throws IOException {
 		Path p = Paths.get(FORFILE_FILEPATH);
@@ -64,7 +52,7 @@ public class FileService {
 	
 	public Resource getFile(String fileName, String userName) throws IOException {
 		try {
-			// if fileName에 extension이 포함되어 있지 않다면 default로 .jpg를 append함.
+			// if fileName에 extension이 포함되어 있지 않다면 default로 .jpg를 append한다.
 			String extension = extractFileExtension(fileName);
 			if (extension.trim().equals(""))
 				fileName = fileName + ".jpg";
@@ -106,16 +94,14 @@ public class FileService {
 			MultipartFile file,
 			String userName,
 			Long articleId
-			//@Validated FileDTO fileDTO
 	) throws IOException {
 		try {
 			String fileNameWithHyphen = file.getOriginalFilename().replace(' ', '-').replace('_', '-');
 			String userNameWithHyphen = userName.replace(' ', '-').replace('_', '-');
-			//String extension = extractFileExtension(file.getOriginalFilename());
 			
 			byte[] bytes = file.getBytes();
 			Path directoryPath = Paths.get( getPath() + userNameWithHyphen );
-			// Create the corresponding directory if it doesn't exist.
+			// 만약 해당 directory가 존재하지 않는다면 새로 만든다.
 			Files.createDirectories(directoryPath);
 			
 			Path path = Paths.get(
@@ -191,12 +177,19 @@ public class FileService {
 			throw e;
 		}
 	}
+	
+	/********************************************
+	 * 											*
+	 * 			private methods					*
+	 * 											*
+	 ********************************************/
 
 	private String extractFileExtension(String filename) {
 	    int lastDotIndex = filename.lastIndexOf('.');
 	    if (lastDotIndex > 0) {
 	        return filename.substring(lastDotIndex + 1);
 	    }
-	    return ""; // there's no extension
+	    return ""; // extension이 포함되어 있지 않은 경우
 	}
+	
 }
