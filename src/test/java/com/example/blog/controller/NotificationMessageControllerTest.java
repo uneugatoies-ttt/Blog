@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.example.blog.dto.NotificationMessageDTO;
+import com.example.blog.misc.RedirectUriSession;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.NotificationMessageService;
 
@@ -39,6 +40,8 @@ public class NotificationMessageControllerTest {
 	private NotificationMessageService notificationMessageService;
 	@MockBean
 	private TokenProvider tokenProvider;
+	@MockBean
+	private RedirectUriSession redirectUriSession;
 	
 	@BeforeEach
 	void setup() {
@@ -49,25 +52,33 @@ public class NotificationMessageControllerTest {
 	@DisplayName("Test for getAllMessagesForThisUser: successful case")
 	void getAllMessagesForThisUserTest() throws Exception {
 		String userName = "TestUser";
+		Long[] ids = new Long[3];
+		ids[0] = 3L;
+		ids[1] = 4L;
+		ids[2] = 5L;
+		String[] paths = new String[3];
+		paths[0] = "/TestUser/article/335";
+		paths[1] = "/TestUser/article/87";
+		paths[2] = "/TestUser/article/991";
 		
 		List<NotificationMessageDTO> messages = new ArrayList<>();
 		messages.add(NotificationMessageDTO.builder()
-				.id(3L)
+				.id(ids[0])
 				.message("Test message 1")
 				.recipient(userName)
-				.where("/TestUser/article/335")
+				.where(paths[0])
 				.build());
 		messages.add(NotificationMessageDTO.builder()
-				.id(4L)
+				.id(ids[1])
 				.message("Test message 2")
 				.recipient(userName)
-				.where("/TestUser/article/87")
+				.where(paths[1])
 				.build());
 		messages.add(NotificationMessageDTO.builder()
-				.id(5L)
+				.id(ids[2])
 				.message("Test message 3")
 				.recipient(userName)
-				.where("/TestUser/article/991")
+				.where(paths[2])
 				.build());
 		
 		when(notificationMessageService.getAllMessagesForThisUser(userName))
@@ -77,19 +88,16 @@ public class NotificationMessageControllerTest {
 											.param("userName", userName));
 		
 		result.andExpect(status().isOk())
-				.andExpect(jsonPath("$.data", hasSize(3)))
-				.andExpect(jsonPath("$.data[0].id").value(3L))
-				.andExpect(jsonPath("$.data[0].message").value("Test message 1"))
-				.andExpect(jsonPath("$.data[0].recipient").value(userName))
-				.andExpect(jsonPath("$.data[0].where").value("/TestUser/article/335"))
-				.andExpect(jsonPath("$.data[1].id").value(4L))
-				.andExpect(jsonPath("$.data[1].message").value("Test message 2"))
-				.andExpect(jsonPath("$.data[1].recipient").value(userName))
-				.andExpect(jsonPath("$.data[1].where").value("/TestUser/article/87"))
-				.andExpect(jsonPath("$.data[2].id").value(5L))
-				.andExpect(jsonPath("$.data[2].message").value("Test message 3"))
-				.andExpect(jsonPath("$.data[2].recipient").value(userName))
-				.andExpect(jsonPath("$.data[2].where").value("/TestUser/article/991"))
+				.andExpect(jsonPath("$.data", hasSize(3)));
+		
+		for (int i = 0; i < 3; ++i) {
+			result
+				.andExpect(jsonPath("$.data[" + i + "].id").value(ids[i]))
+				.andExpect(jsonPath("$.data[" + i + "].message").value("Test message " + (i + 1)))
+				.andExpect(jsonPath("$.data[" + i + "].recipient").value(userName))
+				.andExpect(jsonPath("$.data[" + i + "].where").value(paths[i]));
+		}
+		result
 				.andDo(print());
 		
 		verify(notificationMessageService).getAllMessagesForThisUser(userName);
@@ -103,7 +111,8 @@ public class NotificationMessageControllerTest {
 		ResultActions result = mockMvc.perform(delete("/notification")
 											.param("userName", userName));
 		
-		result.andExpect(status().isNoContent())
+		result.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data").value("Messages deleted successfully"))		
 				.andDo(print());
 		
 		verify(notificationMessageService).clearAllMessagesForThisUser(userName);

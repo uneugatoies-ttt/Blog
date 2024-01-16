@@ -1,15 +1,17 @@
 package com.example.blog.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.hamcrest.Matchers.hasSize;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,19 +21,56 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.blog.dto.ArticleDTO;
+import com.example.blog.dto.FileDTO;
+import com.example.blog.misc.RedirectUriSession;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.ArticleService;
+import com.example.blog.service.FileService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 /*
-	> TokenProvider의 MockBean을 제공하지 않으면 그것의 bean을 찾지 못했다는 error가 계속해서 발생.
-	당분간은 각 test class 내부에서 이것을 @MockBean으로 추가; 해결 방법 탐색할 것.
+	-> 하술한 문제의 원인이 아직 명확하지 않기 때문에 최대한 저것들을 피해서 test code를 작성하려고 했다.
+	이후 해결법을 알아낸다면 그에 따른 변경과 추가를 하도록 하겠다.
+	
+	-> "Failed to Load ApplicationContext" Problem:
+		-> TokenProvider의 MockBean을 제공하지 않으면 그것의 bean을 찾지 못했다는 error가 계속해서 발생.
+		당분간은 각 test class 내부에서 이것을 @MockBean으로 추가; 해결 방법 탐색할 것.
+	
+		-> RedirectUriSession을 추가한 이후, 이에 대해서도 비슷한 문제가 발생:
+		Caused by: org.springframework.beans.factory.NoSuchBeanDefinitionException:
+		No qualifying bean of type 'com.example.blog.misc.RedirectUriSession' available:
+		expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+	
+		-> ObjectMapper와 관련되어서도 비슷한 문제가 발생:
+		만약 이것을 @MockBean으로 등록하고 @Autowired로 등록하지 않으면 다음과 같은 message를 표시함: 
+		Caused by: org.springframework.beans.factory.BeanCreationException: 
+		Error creating bean with name 'requestMappingHandlerAdapter' defined
+		in class path resource
+		[org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]:
+		Bean instantiation via factory method failed;
+		nested exception is org.springframework.beans.BeanInstantiationException:
+		Failed to instantiate
+		[org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter]:
+		Factory method 'requestMappingHandlerAdapter' threw exception;
+		nested exception is java.lang.NullPointerException:
+		Cannot invoke "com.fasterxml.jackson.databind.ObjectReader.forType(java.lang.Class)"
+		because the return value of "com.fasterxml.jackson.databind.ObjectMapper.reader()" is null
+		
+		TokenProvider나 RedirectUriSession과 다른 점은, 만약 ObjectMapper를 아예 사용하지 않으면 괜찮다는 것이다.
+		하지만 이것을 @MockBean을 통해서 사용하려고 하면 문제가 발생한다; 오로지 @Autowired를 통해서만 사용이 가능하다.
+		@Autowired와 @MockBean을 동시에 사용하려고 해도 동일한 문제가 발생한다.
 */
 
 @WebMvcTest(ArticleController.class)
@@ -41,48 +80,174 @@ public class ArticleControllerTest {
 	private MockMvc mockMvc;
 	@Autowired
 	private WebApplicationContext webApplicationContext;
-	
+	@Autowired
+	private ObjectMapper objectMapper;
+
 	@MockBean
 	private ArticleService articleService;
 	@MockBean
+	private FileService fileService;
+	@MockBean
 	private TokenProvider tokenProvider;
-	
+	@MockBean
+	private RedirectUriSession redirectUriSession;
+
 	@BeforeEach
 	void setup() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 	}
+
+	@Test
+	@DisplayName("Test for createArticle()")
+	void createArticleTest() throws Exception {
+		List<Long> tags = new ArrayList<>();
+		tags.add(3L);
+		tags.add(5L);
+		tags.add(6L);
+		ArticleDTO articleDTO = ArticleDTO.builder()
+							.writer("TestUser")
+							.content("Test Content")
+							.title("Test Title")
+							.category(16L)
+							.tag(tags)
+							.build();
+		LocalDateTime now = LocalDateTime.now();
+		byte[] testFileBytes = Files.readAllBytes(Path.of(
+													"." + File.separator + 
+													"src" + File.separator +
+													"test" + File.separator + 
+													"java" + File.separator + 
+													"com" + File.separator +
+													"example" + File.separator +
+													"blog" + File.separator +
+													"controller" + File.separator + 
+													"cat_selfie.jpg"
+												));
+		MockMultipartFile file =
+				new MockMultipartFile(
+						"file",
+						"cat_selfie.jpg",
+						"image/jpeg",
+						testFileBytes
+				);
+		MockMultipartFile articleDTOJson =
+				new MockMultipartFile(
+						"articleDTO",
+						"",
+						"application/json",
+						objectMapper.writeValueAsBytes(articleDTO)
+				);
+		
+		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
+												.id(3019L)
+												.writer("TestUser")
+												.content("Test Content")
+												.title("Test Title")
+												.category(16L)
+												.tag(tags)
+												.createdAt(now)
+												.updatedAt(now)
+												.build();
+		FileDTO resultingFileDTO = FileDTO.builder()
+										.id(500L)
+										.fileName("cat-selfie.jpg")
+										.uploader("TestUser")
+										.createdAt(now)
+										.articleId(3019L)
+										.build();
+		
+		when(articleService.createOrEditArticle(any(ArticleDTO.class), any(MultipartFile.class)))
+			.thenReturn(new SimpleImmutableEntry<>(resultingArticleDTO, resultingFileDTO));
+		
+		ResultActions result = 
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/article")
+						.file(file)
+						.file(articleDTOJson));
+		
+		result.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data").value("Article inserted successfully"))
+				.andDo(print());
+		
+		verify(articleService, times(1)).createOrEditArticle(any(ArticleDTO.class), any(MultipartFile.class));
+	}
 	
 	@Test
-	@DisplayName("Test for getAticlesForThisUser()")
+	@DisplayName("Test for getArticleById()")
+	void getArticlesByIdTest() throws Exception {
+		Long articleId = 10L;
+		List<Long> tags = new ArrayList<>();
+		tags.add(3L);
+		tags.add(5L);
+		tags.add(6L);
+		LocalDateTime now = LocalDateTime.now();
+		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
+											.id(articleId)
+											.writer("TestUser")
+											.content("Test Content")
+											.title("Test Title")
+											.category(16L)
+											.tag(tags)
+											.createdAt(now)
+											.updatedAt(now)
+											.build();
+		
+		when(articleService.getArticleById(articleId))
+			.thenReturn(resultingArticleDTO);
+		
+		ResultActions result = mockMvc.perform(
+											get("/article/by-id")
+												.param("articleId", String.valueOf(articleId))
+											);
+						
+		result.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.id").value(articleId))
+			.andExpect(jsonPath("$.writer").value("TestUser"))
+			.andExpect(jsonPath("$.content").value("Test Content"))
+			.andExpect(jsonPath("$.title").value("Test Title"))
+			.andExpect(jsonPath("$.category").value(16L))
+			.andExpect(jsonPath("$.tag").exists())
+			.andExpect(jsonPath("$.createdAt").exists())
+			.andDo(print());
+	}
+	
+	
+	@Test
+	@DisplayName("Test for getArticlesForThisUser()")
 	void getArticlesForThisUserTest() throws Exception {
-		List<Long> tag1 = new ArrayList<>();
-		tag1.add(3L);
-		tag1.add(5L);
-		tag1.add(6L);
+		List<Long> tags = new ArrayList<>();
+		tags.add(3L);
+		tags.add(5L);
+		tags.add(6L);
+		Long[] categories = new Long[3];
+		categories[0] = 35L;
+		categories[1] = 46L;
+		categories[2] = 38L;
+		
 		List<ArticleDTO> articles = new ArrayList<>();
 		articles.add(ArticleDTO.builder()
 								.id(1365L)
 								.writer("TestUser")
 								.content("Test Article 1 Content")
 								.title("Test Article 1")
-								.category(35L)
-								.tag(tag1)
+								.category(categories[0])
+								.tag(tags)
 								.build());
 		articles.add(ArticleDTO.builder()
 								.id(1366L)
 								.writer("TestUser")
 								.content("Test Article 2 Content")
 								.title("Test Article 2")
-								.category(46L)
-								.tag(tag1)
+								.category(categories[1])
+								.tag(tags)
 								.build());
 		articles.add(ArticleDTO.builder()
 								.id(1367L)
 								.writer("TestUser")
 								.content("Test Article 3 Content")
 								.title("Test Article 3")
-								.category(38L)
-								.tag(tag1)
+								.category(categories[2])
+								.tag(tags)
 								.build());
 						
 		when(articleService.getArticlesForThisUser("TestUser"))
@@ -91,23 +256,21 @@ public class ArticleControllerTest {
 		
 		ResultActions result = mockMvc.perform(get("/article/by-user")
 						.param("userName", "TestUser"));
+		
+	
 						
-		// Loop를 사용할 수 있다면 좋겠지만.
 		result.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.data", hasSize(3)))		
-				.andExpect(jsonPath("$.data[0].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[0].title").value("Test Article 1"))
-				.andExpect(jsonPath("$.data[0].category").value(35L))
-				.andExpect(jsonPath("$.data[0].tag").exists())
-				.andExpect(jsonPath("$.data[1].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[1].title").value("Test Article 2"))
-				.andExpect(jsonPath("$.data[1].category").value(46L))
-				.andExpect(jsonPath("$.data[1].tag").exists())
-				.andExpect(jsonPath("$.data[2].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[2].title").value("Test Article 3"))
-				.andExpect(jsonPath("$.data[2].category").value(38L))
-				.andExpect(jsonPath("$.data[2].tag").exists())
+				.andExpect(jsonPath("$.data", hasSize(3)));
+		for (int i = 0; i < 3; ++i) {
+			result
+				.andExpect(jsonPath("$.data[" + i + "].writer").value("TestUser"))
+				.andExpect(jsonPath("$.data[" + i + "].title").value("Test Article " + (i + 1)))
+				.andExpect(jsonPath("$.data[" + i + "].content").value("Test Article " + (i + 1) + " Content"))
+				.andExpect(jsonPath("$.data[" + i + "].category").value(categories[i]))
+				.andExpect(jsonPath("$.data[" + i + "].tag").exists());
+		}
+		result
 				.andDo(print());
 		
 		verify(articleService).getArticlesForThisUser("TestUser");
@@ -154,19 +317,16 @@ public class ArticleControllerTest {
 						
 		result.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.data", hasSize(3)))
-				.andExpect(jsonPath("$.data[0].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[0].title").value("Test Article 1"))
-				.andExpect(jsonPath("$.data[0].category").value(100L))
-				.andExpect(jsonPath("$.data[0].tag").exists())
-				.andExpect(jsonPath("$.data[1].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[1].title").value("Test Article 2"))
-				.andExpect(jsonPath("$.data[1].category").value(100L))
-				.andExpect(jsonPath("$.data[1].tag").exists())
-				.andExpect(jsonPath("$.data[2].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[2].title").value("Test Article 3"))
-				.andExpect(jsonPath("$.data[2].category").value(100L))
-				.andExpect(jsonPath("$.data[2].tag").exists())
+				.andExpect(jsonPath("$.data", hasSize(3)));
+		for (int i = 0; i < 3; ++i) {
+			result
+				.andExpect(jsonPath("$.data[" + i + "].writer").value("TestUser"))
+				.andExpect(jsonPath("$.data[" + i + "].title").value("Test Article " + (i + 1)))
+				.andExpect(jsonPath("$.data[" + i + "].content").value("Test Article " + (i + 1) + " Content"))
+				.andExpect(jsonPath("$.data[" + i + "].category").value(100L))
+				.andExpect(jsonPath("$.data[" + i + "].tag").exists());
+		}
+		result
 				.andDo(print());
 		
 		verify(articleService).getArticlesByCategory(100L);
@@ -175,71 +335,71 @@ public class ArticleControllerTest {
 	@Test
 	@DisplayName("Test for getArticlesByTag()")
 	void getArticlesByTagTest() throws Exception {
-		List<Long> tag1 = new ArrayList<>();
-		tag1.add(3L);
-		tag1.add(5L);
-		tag1.add(6L);
+		List<Long> tags = new ArrayList<>();
+		tags.add(3L);
+		tags.add(5L);
+		tags.add(6L);
+		Long[] categories = new Long[3];
+		categories[0] = 35L;
+		categories[1] = 46L;
+		categories[2] = 38L;
+		
 		List<ArticleDTO> articles = new ArrayList<>();
 		articles.add(ArticleDTO.builder()
 								.id(1365L)
 								.writer("TestUser")
 								.content("Test Article 1 Content")
 								.title("Test Article 1")
-								.category(59L)
-								.tag(tag1)
+								.category(categories[0])
+								.tag(tags)
 								.build());
 		articles.add(ArticleDTO.builder()
 								.id(1366L)
 								.writer("TestUser")
 								.content("Test Article 2 Content")
 								.title("Test Article 2")
-								.category(33L)
-								.tag(tag1)
+								.category(categories[1])
+								.tag(tags)
 								.build());
 		articles.add(ArticleDTO.builder()
 								.id(1367L)
 								.writer("TestUser")
 								.content("Test Article 3 Content")
 								.title("Test Article 3")
-								.category(82L)
-								.tag(tag1)
+								.category(categories[2])
+								.tag(tags)
 								.build());
 						
 		when(articleService.getArticlesByTag(6L))
 					.thenReturn(articles);
 		
 		ResultActions result = mockMvc.perform(get("/article/by-tag")
-						.param("tagId", "6"));
+										.param("tagId", "6"));
 						
 		result.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.data", hasSize(3)))
-				.andExpect(jsonPath("$.data[0].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[0].title").value("Test Article 1"))
-				.andExpect(jsonPath("$.data[0].category").value(59L))
-				.andExpect(jsonPath("$.data[0].tag").exists())
-				.andExpect(jsonPath("$.data[1].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[1].title").value("Test Article 2"))
-				.andExpect(jsonPath("$.data[1].category").value(33L))
-				.andExpect(jsonPath("$.data[1].tag").exists())
-				.andExpect(jsonPath("$.data[2].writer").value("TestUser"))
-				.andExpect(jsonPath("$.data[2].title").value("Test Article 3"))
-				.andExpect(jsonPath("$.data[2].category").value(82L))
-				.andExpect(jsonPath("$.data[2].tag").exists())
+				.andExpect(jsonPath("$.data", hasSize(3)));
+		for (int i = 0; i < 3; ++i) {
+			result
+				.andExpect(jsonPath("$.data[" + i + "].writer").value("TestUser"))
+				.andExpect(jsonPath("$.data[" + i + "].title").value("Test Article " + (i + 1)))
+				.andExpect(jsonPath("$.data[" + i + "].content").value("Test Article " + (i + 1) + " Content"))
+				.andExpect(jsonPath("$.data[" + i + "].category").value(categories[i]))
+				.andExpect(jsonPath("$.data[" + i + "].tag").exists());
+		}
+		result
 				.andDo(print());
 		
 		verify(articleService).getArticlesByTag(6L);
 	}
 	
-	/*
 	@Test
-	@DisplayName("Test for createArticle()")
-	void createArticleTest() throws Exception {
+	@DisplayName("Test for editArticle()")
+	void editArticleTest() throws Exception {
 		List<Long> tags = new ArrayList<>();
 		tags.add(3L);
 		tags.add(5L);
 		tags.add(6L);
-		
 		ArticleDTO articleDTO = ArticleDTO.builder()
 							.writer("TestUser")
 							.content("Test Content")
@@ -247,88 +407,65 @@ public class ArticleControllerTest {
 							.category(16L)
 							.tag(tags)
 							.build();
-		
 		LocalDateTime now = LocalDateTime.now();
+		byte[] testFileBytes = Files.readAllBytes(Path.of(
+													"." + File.separator + 
+													"src" + File.separator +
+													"test" + File.separator + 
+													"java" + File.separator + 
+													"com" + File.separator +
+													"example" + File.separator +
+													"blog" + File.separator +
+													"controller" + File.separator + 
+													"cat_selfie.jpg"
+												));
+		MockMultipartFile file =
+				new MockMultipartFile(
+						"file",
+						"cat_selfie.jpg",
+						"image/jpeg",
+						testFileBytes
+				);
+		MockMultipartFile articleDTOJson =
+				new MockMultipartFile(
+						"articleDTO",
+						"",
+						"application/json",
+						objectMapper.writeValueAsBytes(articleDTO)
+				);
 		
-		when(articleService.createOrEditArticle(articleDTO))
-					.thenReturn(ArticleDTO.builder()
-									.id(3019L)
-									.writer("TestUser")
-									.content("Test Content")
-									.title("Test Title")
-									.category(16L)
-									.tag(tags)
-									.createdAt(now)
-									.updatedAt(now)
-									.build());
+		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
+												.id(3019L)
+												.writer("TestUser")
+												.content("Test Content")
+												.title("Test Title")
+												.category(16L)
+												.tag(tags)
+												.createdAt(now)
+												.updatedAt(now)
+												.build();
+		FileDTO resultingFileDTO = FileDTO.builder()
+										.id(500L)
+										.fileName("cat-selfie.jpg")
+										.uploader("TestUser")
+										.createdAt(now)
+										.articleId(3019L)
+										.build();
 		
-		ResultActions result = mockMvc.perform(post("/article")
-									.contentType(MediaType.APPLICATION_JSON)
-									.content(objectMapper.writeValueAsString(articleDTO)));
-	
+		when(articleService.createOrEditArticle(any(ArticleDTO.class), any(MultipartFile.class)))
+			.thenReturn(new SimpleImmutableEntry<>(resultingArticleDTO, resultingFileDTO));
+		
+		ResultActions result = 
+				mockMvc.perform(MockMvcRequestBuilders.multipart(HttpMethod.PUT, "/article")
+						.file(file)
+						.file(articleDTOJson));
+		
 		result.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(3019L))
-				.andExpect(jsonPath("$.writer").value("TestUser"))
-				.andExpect(jsonPath("$.content").value("Test Content"))
-				.andExpect(jsonPath("$.title").value("Test Title"))
-				.andExpect(jsonPath("$.category").value(16L))
-				.andExpect(jsonPath("$.tag").exists())
-				.andExpect(jsonPath("$.createdAt").exists())
-				.andExpect(jsonPath("$.updatedAt").exists())
+				.andExpect(jsonPath("$.data").value("Article modified successfully"))
 				.andDo(print());
 		
-		verify(articleService).createOrEditArticle(articleDTO);
+		verify(articleService, times(1)).createOrEditArticle(any(ArticleDTO.class), any(MultipartFile.class));
 	}
-	
-	@Test
-	@DisplayName("Test for editArticle()")
-	void editArticleTest() throws Exception {
-		List<Long> tags = new ArrayList<>();
-		tags.add(58L);
-		tags.add(75L);
-		tags.add(9L);
-		
-		ArticleDTO articleDTO = ArticleDTO.builder()
-							.id(3058L)
-							.writer("TestUser")
-							.content("Test Content Modified")
-							.title("Test Title")
-							.category(16L)
-							.tag(tags)
-							.build();
-		
-		LocalDateTime createdAt = LocalDateTime.of(2022, 9, 17, 7, 3);
-		LocalDateTime now = LocalDateTime.now();
-		
-		when(articleService.createOrEditArticle(articleDTO))
-					.thenReturn(ArticleDTO.builder()
-									.id(3058L)
-									.writer("TestUser")
-									.content("Test Content Modified")
-									.title("Test Title")
-									.category(16L)
-									.tag(tags)
-									.createdAt(createdAt)
-									.updatedAt(now)
-									.build());
-		
-		ResultActions result = mockMvc.perform(put("/article")
-									.contentType(MediaType.APPLICATION_JSON)
-									.content(objectMapper.writeValueAsString(articleDTO)));
-	
-		result.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(3058L))
-				.andExpect(jsonPath("$.writer").value("TestUser"))
-				.andExpect(jsonPath("$.content").value("Test Content Modified"))
-				.andExpect(jsonPath("$.title").value("Test Title"))
-				.andExpect(jsonPath("$.category").value(16L))
-				.andExpect(jsonPath("$.tag").exists())
-				.andExpect(jsonPath("$.createdAt").exists())
-				.andExpect(jsonPath("$.updatedAt").exists())
-				.andDo(print());
-		
-		verify(articleService).createOrEditArticle(articleDTO);
-	}*/
 	
 	@Test
 	@DisplayName("Test for deleteArticle()")
@@ -336,9 +473,10 @@ public class ArticleControllerTest {
 		Long articleId = 10L;
 		
 		ResultActions result = mockMvc.perform(delete("/article")
-						.param("articleId", String.valueOf(articleId)));
+									.param("articleId", String.valueOf(articleId)));
 		
-		result.andExpect(status().isNoContent());
+		result.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data").value("Article deleted successfully"));
 		
 		verify(articleService).deleteArticle(articleId);
 	}

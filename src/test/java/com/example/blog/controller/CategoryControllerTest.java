@@ -2,6 +2,7 @@ package com.example.blog.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.example.blog.dto.CategoryDTO;
+import com.example.blog.misc.RedirectUriSession;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.CategoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +47,8 @@ public class CategoryControllerTest {
 	private CategoryService categoryService;
 	@MockBean
 	private TokenProvider tokenProvider;
+	@MockBean
+	private RedirectUriSession redirectUriSession;
 	
 	@BeforeEach
 	void setup() {
@@ -77,19 +81,6 @@ public class CategoryControllerTest {
 				.andDo(print());
 		
 		verify(categoryService).addCategory(categoryDTO);
-	}
-	
-	@Test
-	@DisplayName("Test for deleteCategory()")
-	void deleteCategoryTest() throws Exception {
-		Long categoryId = 10L;
-		
-		ResultActions result = mockMvc.perform(delete("/category")
-									.param("categoryId", String.valueOf(categoryId)));
-		
-		result.andExpect(status().isNoContent());
-		
-		verify(categoryService).deleteCategory(categoryId);
 	}
 	
 	@Test
@@ -134,5 +125,49 @@ public class CategoryControllerTest {
 		
 		verify(categoryService).getCategories(userName);
 	}
+	
+	@Test
+	@DisplayName("Test for editCategory()")
+	void editCategoryTest() throws Exception {
+		CategoryDTO categoryDTO = CategoryDTO.builder()
+				.id(10L)
+				.user("TestUser")
+				.name("Test Category")
+				.build();
+
+		when(categoryService.editCategory(categoryDTO))
+				.thenReturn(CategoryDTO.builder()
+							.id(10L)
+							.user("TestUser")
+							.name("Test Category")
+							.build());
+		
+		ResultActions result = mockMvc.perform(put("/category")
+									.contentType(MediaType.APPLICATION_JSON)
+									.content(objectMapper.writeValueAsString(categoryDTO)));
+		
+		result.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(10L))
+				.andExpect(jsonPath("$.user").value("TestUser"))
+				.andExpect(jsonPath("$.name").value("Test Category"))
+				.andDo(print());
+		
+		verify(categoryService).editCategory(categoryDTO);
+	}
+
+	@Test
+	@DisplayName("Test for deleteCategory()")
+	void deleteCategoryTest() throws Exception {
+		Long categoryId = 10L;
+		
+		ResultActions result = mockMvc.perform(delete("/category")
+									.param("categoryId", String.valueOf(categoryId)));
+		
+		result.andExpect(status().isOk())
+				.andExpect(jsonPath(".data").value("Category deleted successfully"));
+		
+		verify(categoryService).deleteCategory(categoryId);
+	}
+	
 	
 }

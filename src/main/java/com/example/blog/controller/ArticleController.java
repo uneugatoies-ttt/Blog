@@ -20,7 +20,7 @@ import com.example.blog.service.ArticleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /*
-	
+	-> ArticleController는 이 application에서 article (혹은 post) 에 관한 request를 받는 controller이다.
 */
 
 @RestController
@@ -39,7 +39,7 @@ public class ArticleController {
 	}
 
 	/*
-		-> 원래는 FileDTO를 받았지만, 다음의 변경점으로 인해 FileDTO를 request에서 받을 이유가 없어졌다:
+		-> 원래는 request에서 FileDTO를 받았지만, 다음의 변경점으로 인해 그렇게 할 이유가 없어졌다:
 			1) user input으로 fileName을 지정했던 원래의 logic에서, file이 본디 가지고 있었던 fileName을
 			그대로 사용하는 대신 이 application의 naming convention을 따르도록 변경하는 것으로 수정
 			2) File에서 "description" 과 "fileType" 에 해당하는 metadata field 두 개를
@@ -48,20 +48,22 @@ public class ArticleController {
 		
 		-> 현재 "createOrEditArticle()의 과정이 성공하면 Entry<ArticleDTO, FileDTO>를 return하는 것으로
 		설정했다; 하지만 이렇게 나온 두 개의 DTO를 response에 그대로 실어서 return할지는 아직 결정하지 못했다.
+		
+		-> 원래의 method명은 "createArticleWithFile"으로 file이 동반된다는 것을 명시했지만,
+		frontend와의 상호 작용을 확인하고 이후 수정점으로 인해 article이 만들어질 때는 언제나 file이
+		동반되는 것으로 바뀌었기 때문에 "WithFile"이라는 suffix는 삭제했다.
 	*/
 	@PostMapping
-	public ResponseEntity<?> createArticleWithFile(
+	public ResponseEntity<?> createArticle(
 		@RequestPart("file") MultipartFile file,
 		@RequestPart("articleDTO") String articleDTOJson
 	) {
-		if (file.isEmpty())
+		if (file.isEmpty() || file == null)
 			return ResponseEntity.badRequest().body("No file has been sent");
 		try {
 			ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
-			
 			articleService.createOrEditArticle(articleDTO, file);
-
-			return ResponseEntity.ok().body(ResponseDTO.builder().data("Article successfully inserted").build());
+			return ResponseEntity.ok().body(ResponseDTO.builder().data("Article inserted successfully").build());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.badRequest().body(ResponseDTO.builder().data(e.getMessage()).build());
@@ -120,7 +122,7 @@ public class ArticleController {
 	}
 	
 	@PutMapping
-	public ResponseEntity<?> editArticleWithFile(
+	public ResponseEntity<?> editArticle(
 			@RequestPart("file") MultipartFile file,
 			@RequestPart("articleDTO") String articleDTOJson
 	) {

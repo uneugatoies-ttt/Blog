@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.example.blog.dto.ReplyDTO;
+import com.example.blog.misc.RedirectUriSession;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.ReplyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +46,8 @@ public class ReplyControllerTest {
 	private ReplyService replyService;
 	@MockBean
 	private TokenProvider tokenProvider;
+	@MockBean
+	private RedirectUriSession redirectUriSession;
 	
 	@BeforeEach
 	void setup() {
@@ -73,8 +76,8 @@ public class ReplyControllerTest {
 								.build());
 		
 		ResultActions result = mockMvc.perform(post("/reply")
-											.contentType(MediaType.APPLICATION_JSON)
-											.content(objectMapper.writeValueAsString(replyDTO)));
+									.contentType(MediaType.APPLICATION_JSON)
+									.content(objectMapper.writeValueAsString(replyDTO)));
 		
 		result.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1053L))
@@ -89,15 +92,18 @@ public class ReplyControllerTest {
 		verify(replyService).createReply(replyDTO);
 	}
 	
-	
 	@Test
 	@DisplayName("Test for getRepliesByArticle(): successful case")
 	void getRepliesByArticleTest() throws Exception {
 		Long articleId = 35L;
 		String where = "/TestUser/article/35";
+		Long[] ids = new Long[3];
+		ids[0] = 1053L;
+		ids[1] = 1055L;
+		ids[2] = 1067L;
 		List<ReplyDTO> replyDTOList = new ArrayList<>();
 		replyDTOList.add(ReplyDTO.builder()
-				.id(1053L)
+				.id(ids[0])
 				.content("Test reply content 1")
 				.writer("TestWriter1")
 				.articleId(articleId)
@@ -106,7 +112,7 @@ public class ReplyControllerTest {
 				.updatedAt(LocalDateTime.now())
 				.build());
 		replyDTOList.add(ReplyDTO.builder()
-				.id(1055L)
+				.id(ids[1])
 				.content("Test reply content 2")
 				.writer("TestWriter2")
 				.articleId(articleId)
@@ -115,7 +121,7 @@ public class ReplyControllerTest {
 				.updatedAt(LocalDateTime.now())
 				.build());
 		replyDTOList.add(ReplyDTO.builder()
-				.id(1067L)
+				.id(ids[2])
 				.content("Test reply content 3")
 				.writer("TestWriter3")
 				.articleId(articleId)
@@ -128,31 +134,21 @@ public class ReplyControllerTest {
 				.thenReturn(replyDTOList);
 		
 		ResultActions result = mockMvc.perform(get("/reply")
-											.param("articleId", String.valueOf(articleId)));
+									.param("articleId", String.valueOf(articleId)));
 											
 		result.andExpect(status().isOk())
-				.andExpect(jsonPath("$.data", hasSize(3)))
-				.andExpect(jsonPath("$.data[0].id").value(1053L))
-				.andExpect(jsonPath("$.data[0].content").value("Test reply content 1"))
-				.andExpect(jsonPath("$.data[0].writer").value("TestWriter1"))
-				.andExpect(jsonPath("$.data[0].articleId").value(articleId))
-				.andExpect(jsonPath("$.data[0].where").value(where))
-				.andExpect(jsonPath("$.data[0].createdAt").exists())
-				.andExpect(jsonPath("$.data[0].updatedAt").exists())
-				.andExpect(jsonPath("$.data[1].id").value(1055L))
-				.andExpect(jsonPath("$.data[1].content").value("Test reply content 2"))
-				.andExpect(jsonPath("$.data[1].writer").value("TestWriter2"))
-				.andExpect(jsonPath("$.data[1].articleId").value(articleId))
-				.andExpect(jsonPath("$.data[1].where").value(where))
-				.andExpect(jsonPath("$.data[1].createdAt").exists())
-				.andExpect(jsonPath("$.data[1].updatedAt").exists())
-				.andExpect(jsonPath("$.data[2].id").value(1067L))
-				.andExpect(jsonPath("$.data[2].content").value("Test reply content 3"))
-				.andExpect(jsonPath("$.data[2].writer").value("TestWriter3"))
-				.andExpect(jsonPath("$.data[2].articleId").value(articleId))
-				.andExpect(jsonPath("$.data[2].where").value(where))
-				.andExpect(jsonPath("$.data[2].createdAt").exists())
-				.andExpect(jsonPath("$.data[2].updatedAt").exists());
+				.andExpect(jsonPath("$.data", hasSize(3)));
+		
+		for (int i = 0; i < 3; ++i) {
+			result
+				.andExpect(jsonPath("$.data[" + i + "].id").value(ids[i]))
+				.andExpect(jsonPath("$.data[" + i + "].content").value("Test reply content " + (i + 1)))
+				.andExpect(jsonPath("$.data[" + i + "].writer").value("TestWriter" + (i + 1)))
+				.andExpect(jsonPath("$.data[" + i + "].articleId").value(articleId))
+				.andExpect(jsonPath("$.data[" + i + "].where").value(where))
+				.andExpect(jsonPath("$.data[" + i + "].createdAt").exists())
+				.andExpect(jsonPath("$.data[" + i + "].updatedAt").exists());
+		}
 		
 		verify(replyService).getRepliesByArticle(articleId);
 	}
@@ -165,10 +161,10 @@ public class ReplyControllerTest {
 		ResultActions result = mockMvc.perform(delete("/reply")
 											.param("replyId", String.valueOf(replyId)));
 		
-		result.andExpect(status().isNoContent());
+		result.andExpect(status().isOk())
+				.andExpect(jsonPath(".data").value("Reply deleted successfully"));
 		
 		verify(replyService).deleteReply(replyId);
 	}
-	
 	
 }

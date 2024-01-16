@@ -16,8 +16,8 @@ import com.example.blog.service.NotificationMessageService;
 
 /*
 	-> NotificationMessage는 현재 이 user의 blog의 article에 reply가 달렸을 때에 자동적으로 추가되며,
-	main 화면에서 그 user가 CLEAR MESSAGES를 click하면 일괄적으로 삭제된다.
-	그러므로 update나 create에 대한 API를 작성할 필요가 없다고 판단했다. 따라서 그들은 생략한다.
+	main 화면에서 그 user가 "CLEAR MESSAGES"라는 label이 붙은 button을 click하면 일괄적으로 삭제된다.
+	그러므로 UPDATE나 CREATE에 대한 API를 작성할 필요가 없다고 판단했다. 따라서 그들은 생략한다.
 */
 
 @RestController
@@ -43,9 +43,7 @@ public class NotificationMessageController {
 		}
 	}
 	
-	/*
-	raw string data를 response의 body에 바로 지정하지 않도록 할 것.
-	*/
+	//raw string data를 response의 body에 바로 지정하지 않도록 할 것.
 	@DeleteMapping
 	public ResponseEntity<?> clearAllMessagesForThisUser(@RequestParam String userName) {
 		try {

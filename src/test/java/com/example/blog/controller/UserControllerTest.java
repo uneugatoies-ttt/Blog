@@ -21,7 +21,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.example.blog.dto.CheckUserDTO;
 import com.example.blog.dto.UserDTO;
+import com.example.blog.misc.RedirectUriSession;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +44,8 @@ public class UserControllerTest {
 	private TokenProvider tokenProvider;
 	@MockBean
 	private PasswordEncoder encoder;
+	@MockBean
+	private RedirectUriSession redirectUriSession;
 
 	@BeforeEach
 	void setup() {
@@ -87,16 +91,6 @@ public class UserControllerTest {
 							.password("TestUserPassword")
 							.build();
 		
-		/*
-		User user = User.builder()
-				.id("TestUserID")
-				.userName("TestUser")
-				.password("TestUserPassword")
-				.email("test@test.com")
-				.blogTitle("TestUser's Blog")
-				.build();
-		*/
-		
 		UserDTO responseUserDTO = UserDTO.builder()
 								.id("TestUserID")
 								.userName("TestUser")
@@ -104,7 +98,7 @@ public class UserControllerTest {
 								.build();
 		
 		when(userService.getUserByCredentials("TestUser", "TestUserPassword"))
-				.thenReturn(responseUserDTO);
+							.thenReturn(responseUserDTO);
 		
 		ResultActions result = mockMvc.perform(post("/auth/signin")
 							.contentType(MediaType.APPLICATION_JSON)
@@ -117,7 +111,6 @@ public class UserControllerTest {
 				.andDo(print());
 		
 		verify(userService).getUserByCredentials("TestUser", "TestUserPassword");
-		//verify(userService).createToken(user);
 	}
 	
 	@Test
@@ -139,6 +132,54 @@ public class UserControllerTest {
 
 	    verify(userService).getUserByCredentials("NonExistentUser", "InvalidPassword");
 	    verifyNoMoreInteractions(userService);
+	}
+	
+	@Test
+	@DisplayName("Test for checkThisUser: successful case")
+	void checkThisUserTest() throws Exception {
+		CheckUserDTO checkUserDTO = CheckUserDTO.builder()
+										.pathUserName("TestUser")
+										.notCertifiedUserName("TestUser")
+										.notCertifiedToken("TestToken")
+										.build();
+		
+		when(userService.checkThisUser(checkUserDTO))
+			.thenReturn(true);
+		
+		ResultActions result = mockMvc.perform(post("/auth/check-this-user")
+												.contentType(MediaType.APPLICATION_JSON)
+												.content(objectMapper.writeValueAsString(checkUserDTO)));
+		
+		result
+				.andExpect(status().isOk())
+				.andExpect(jsonPath(".boolData").value(true))
+				.andExpect(jsonPath(".data").value("VALID"))
+				.andDo(print());
+		
+		verify(userService).checkThisUser(checkUserDTO);
+	}
+	
+	@Test
+	@DisplayName("Test for deleteUser: successful case")
+	void deleteUserTest() throws Exception {
+	    UserDTO userDTO = UserDTO.builder()
+	            .userName("TestUser")
+	            .password("TestUserPassword")
+	            .build();
+	    
+	    when(userService.deleteUser(userDTO))
+	    	.thenReturn("User deleted successfully");
+	    
+		ResultActions result = mockMvc.perform(post("/auth/user-deletion")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(userDTO)));
+
+		result
+				.andExpect(status().isOk())
+				.andExpect(jsonPath(".data").value("User deleted successfully"))
+				.andDo(print());
+				
+		verify(userService).deleteUser(userDTO);
 	}
 
 }

@@ -1,8 +1,43 @@
 package com.example.blog.controller;
 
-//@WebMvcTest(FileController.class)
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.File;
+import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.blog.dto.FileDTO;
+import com.example.blog.misc.RedirectUriSession;
+import com.example.blog.security.TokenProvider;
+import com.example.blog.service.FileService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@WebMvcTest(FileController.class)
 public class FileControllerTest {
-	/*
+	
 	private static final String IMG_STORAGE_DIRECTORY = 
 			"." + File.separator +
 			"src" + File.separator +
@@ -21,8 +56,9 @@ public class FileControllerTest {
 	private FileService fileService;
 	@MockBean
 	private TokenProvider tokenProvider;
+	@MockBean
+	private RedirectUriSession redirectUriSession;
 
-	
 	@BeforeEach
 	void setup() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -31,36 +67,35 @@ public class FileControllerTest {
 	@Test
 	@DisplayName("Test for insertNewFile()")
 	void insertNewFileTest() throws Exception {
-		FileDTO fileDTO = FileDTO.builder()
-				.fileName("fileName")
-				.uploader("TestUser")
-				.description("Test file")
-				.fileType("image")
-				.build();
-		
-		String filePathPath = IMG_STORAGE_DIRECTORY +
+		String filePath = IMG_STORAGE_DIRECTORY +
 				"TestUser" + File.separator + "fileName.jpg";
 		
 		FileDTO resultingDTO = FileDTO.builder()
 				.id(10L)
 				.fileName("fileName")
 				.uploader("TestUser")
-				.description("Test file")
-				.fileType("image")
-				.filePath(filePathPath)
+				.filePath(filePath)
 				.createdAt(LocalDateTime.now())
 				.build();
 		
-		when(fileService.insertNewFile(fileDTO, filePathPath))
+		when(fileService.insertNewFileInSystem(any(MultipartFile.class), any(String.class), any(Long.class)))
 			.thenReturn(resultingDTO);
 		
-		MockMultipartFile fileDTOJson = 
+		MockMultipartFile userName = 
 				new MockMultipartFile(
-						"fileDTO",
+						"userName",
 						"",
 						"application/json",
-						objectMapper.writeValueAsBytes(fileDTO)
-					);
+						objectMapper.writeValueAsBytes("TestUser")
+				);
+		
+		MockMultipartFile articleId = 
+				new MockMultipartFile(
+						"articleId",
+						"",
+						"application/json",
+						objectMapper.writeValueAsBytes("100")
+				);
 				
 		MockMultipartFile file = 
 				new MockMultipartFile(
@@ -72,17 +107,53 @@ public class FileControllerTest {
 		
 		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.multipart("/file")
         			.file(file)
-        			.file(fileDTOJson));
+        			.file(userName)
+        			.file(articleId));
 		
 		result
 			.andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.id").value(10L))
-			.andExpect(jsonPath("$.uploader").value("TestUser"));
+			.andExpect(jsonPath("$.fileName").value("fileName"))
+			.andExpect(jsonPath("$.uploader").value("TestUser"))
+			.andExpect(jsonPath("$.filePath").value(filePath));
 		
-		verify(fileService).insertNewFile(fileDTO, filePathPath);
+		verify(fileService).insertNewFileInSystem(any(MultipartFile.class), any(String.class), any(Long.class));
 	}
 	
+	@Test
+	@DisplayName("Test for getFile()") 
+	void getFileTest() throws Exception {
+		String fileName = "fileName.jpg";
+		String uploader = "TestUser";
+		String fileNameWithHyphen = fileName.replace(' ', '-').replace('_', '-');
+		String userNameWithHyphen = uploader.replace(' ', '-').replace('_', '-');
+		
+		Resource resultingFileResource =
+						new FileSystemResource(
+							"." + File.separator + 
+							"src" + File.separator +
+							"test" + File.separator + 
+							"java" + File.separator + 
+							"com" + File.separator +
+							"example" + File.separator +
+							"blog" + File.separator +
+							"controller" + File.separator + 
+							"cat_selfie.jpg");
+		
+		when(fileService.getFile(fileNameWithHyphen, userNameWithHyphen))
+			.thenReturn(resultingFileResource);
+		
+		ResultActions result = mockMvc.perform(get("/file")
+										.param("fileName", fileName)
+										.param("uploader", uploader));
+		
+		result.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.IMAGE_JPEG));
+		
+		// byte array를 result.getResponse.getContentAsByteArray()로 받아서
+		// expected byte array와 비교하면 assert할 수 있을 것이다.
+	}
 	
 	@Test
 	@DisplayName("Test for isFileNamePresent(): the file name isn't present")
@@ -100,5 +171,5 @@ public class FileControllerTest {
 		
 		verify(fileService).isFileNamePresent("fileName", "TestUser");							
 	}
-	*/
+	
 }

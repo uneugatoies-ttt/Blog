@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.example.blog.misc.RedirectUriSession;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.UserService;
 
@@ -33,6 +34,8 @@ public class BlogControllerTest {
 	private UserService userService;
 	@MockBean
 	private TokenProvider tokenProvider;
+	@MockBean
+	private RedirectUriSession redirectUriSession;
 	
 	@BeforeEach
 	void setup() {
