@@ -60,11 +60,7 @@ public class FileService {
 			String path = getPath();
 			path = path + userName + separator + fileName;
 			Resource fileResource = new FileSystemResource(path);
-			
-			System.out.print("\n\n\nFile Length: ");
-			System.out.println(fileResource.contentLength());
-			System.out.println("\n\n");
-			
+
 			if (fileResource.exists())
 				return fileResource;
 			return null;
@@ -161,7 +157,12 @@ public class FileService {
 		}
 	}
 	
-	public void deleteFileInSystem(com.example.blog.domain.File existingFile) throws IOException {
+	/*
+		-> Article이 삭제되거나 수정될 때만 ArticleService에서 call되는 method이므로
+		특별히 return value를 지정할 필요는 없다고 생각해서 void로 했지만, 이것이 최선의 방법인지
+		확신은 아직 없다.
+	*/
+	public void deleteFileInSystem(File existingFile) throws IOException {
 		try {
 			String path1 = getPath() +
 					existingFile.getUploader().getUserName() +

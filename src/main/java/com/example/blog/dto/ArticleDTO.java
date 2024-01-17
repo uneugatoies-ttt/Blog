@@ -3,8 +3,6 @@ package com.example.blog.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.validation.constraints.Pattern;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,12 +20,12 @@ public class ArticleDTO {
 	
 	private String content;
 	
-	@Pattern(regexp = "[^_-]+")
 	private String title;
 	
 	/*
-	"category"와 "tag"는 이 article의 category와 tag들이 database에서 가지는 ID의 값이다.
-	"categoryName"과 "tagName"은 그들의 이름이다.
+		-> "category"와 "tag"는 이 article의 category와 tag들이 database에서 가지는 ID의 값이다.
+		
+		-> "categoryName"과 "tagName"은 그들의 이름이다.
 	*/
 	private Long category;
 	

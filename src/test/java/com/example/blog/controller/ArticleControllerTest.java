@@ -31,9 +31,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.blog.common.RedirectUriSession;
 import com.example.blog.dto.ArticleDTO;
 import com.example.blog.dto.FileDTO;
-import com.example.blog.misc.RedirectUriSession;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.ArticleService;
 import com.example.blog.service.FileService;

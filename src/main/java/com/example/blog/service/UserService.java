@@ -38,7 +38,7 @@ public class UserService {
 					!passwordEncoder.matches(
 							password,
 							origUser.getPassword()
-					)
+				)
 			) return null;
 			
 			final String token = createToken(origUser);

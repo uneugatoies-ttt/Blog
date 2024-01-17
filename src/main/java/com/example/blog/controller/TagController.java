@@ -28,7 +28,9 @@ public class TagController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> addTag(@RequestBody TagDTO tagDTO) {
+	public ResponseEntity<?> addTag(
+		@RequestBody TagDTO tagDTO
+	) {
 		try {
 			TagDTO resultingTagDTO = tagService.addTag(tagDTO);
 			return ResponseEntity.ok().body(resultingTagDTO);
@@ -38,7 +40,9 @@ public class TagController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<?> getTag(@RequestParam String userName) {
+	public ResponseEntity<?> getTag(
+		@RequestParam String userName
+	) {
 		try {
 			List<TagDTO> tags = tagService.getTag(userName);
 			ResponseListDTO<TagDTO> responseListDTO = ResponseListDTO.<TagDTO>builder()

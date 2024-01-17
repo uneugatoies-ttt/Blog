@@ -17,6 +17,10 @@ import com.example.blog.dto.ResponseDTO;
 import com.example.blog.dto.ResponseListDTO;
 import com.example.blog.service.CategoryService;
 
+/*
+	-> CategoryController는 
+*/
+
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
@@ -38,7 +42,9 @@ public class CategoryController {
 	}	
 	
 	@GetMapping
-	public ResponseEntity<?> getCategories(@RequestParam String userName) {
+	public ResponseEntity<?> getCategories(
+		@RequestParam String userName
+	) {
 		try {
 			List<CategoryDTO> categories = categoryService.getCategories(userName);
 			ResponseListDTO<CategoryDTO> responseListDTO = ResponseListDTO.<CategoryDTO>builder()

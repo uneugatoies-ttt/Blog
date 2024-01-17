@@ -1,4 +1,4 @@
-package com.example.blog.misc;
+package com.example.blog.common;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;

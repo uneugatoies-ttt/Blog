@@ -31,7 +31,9 @@ public class NotificationMessageController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<?> getAllMessagesForThisUser(@RequestParam String userName) {
+	public ResponseEntity<?> getAllMessagesForThisUser(
+		@RequestParam String userName
+	) {
 		try {
 			List<NotificationMessageDTO> messages = notificationMessageService.getAllMessagesForThisUser(userName);
 			ResponseListDTO<NotificationMessageDTO> dto = ResponseListDTO.<NotificationMessageDTO>builder()
@@ -43,9 +45,11 @@ public class NotificationMessageController {
 		}
 	}
 	
-	//raw string data를 response의 body에 바로 지정하지 않도록 할 것.
+	// raw string data를 response의 body에 바로 지정하지 않도록 할 것.
 	@DeleteMapping
-	public ResponseEntity<?> clearAllMessagesForThisUser(@RequestParam String userName) {
+	public ResponseEntity<?> clearAllMessagesForThisUser(
+		@RequestParam String userName
+	) {
 		try {
 			notificationMessageService.clearAllMessagesForThisUser(userName);
 			return ResponseEntity.ok().body(ResponseDTO.builder().data("Messages deleted successfully").build());

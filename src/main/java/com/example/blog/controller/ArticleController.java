@@ -81,7 +81,9 @@ public class ArticleController {
 	}
 	
 	@GetMapping("/by-user")
-	public ResponseEntity<?> getArticlesForThisUser(@RequestParam String userName) {
+	public ResponseEntity<?> getArticlesForThisUser(
+		@RequestParam String userName
+	) {
 		try {
 			List<ArticleDTO> articles = articleService.getArticlesForThisUser(userName);
 			ResponseListDTO<ArticleDTO> res = ResponseListDTO.<ArticleDTO>builder()
@@ -123,8 +125,8 @@ public class ArticleController {
 	
 	@PutMapping
 	public ResponseEntity<?> editArticle(
-			@RequestPart("file") MultipartFile file,
-			@RequestPart("articleDTO") String articleDTOJson
+		@RequestPart("file") MultipartFile file,
+		@RequestPart("articleDTO") String articleDTOJson
 	) {
 		try {
 			ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);		
@@ -144,8 +146,8 @@ public class ArticleController {
 	}
 	
 	/*
-	원래는 204 NO CONTENT status를 response에 지정하려고 했지만, 이 application은 명시적 설정이 없다면
-	기본적으로 JSON을 frontend-backend communication에 사용하므로 일관성을 위해 ResponseDTO를 사용한다.
+		-> 원래는 204 NO CONTENT status를 response에 지정하려고 했지만, 이 application은 명시적 설정이 없다면
+		기본적으로 JSON을 frontend-backend communication에 사용하므로 일관성을 위해 ResponseDTO를 사용한다.
 	*/
 	@DeleteMapping
 	public ResponseEntity<?> deleteArticle(@RequestParam Long articleId) {

@@ -8,8 +8,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.example.blog.common.UserSession;
 import com.example.blog.domain.User;
-import com.example.blog.misc.UserSession;
 import com.example.blog.persistence.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,15 +37,15 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		/* 
-		DefaultOAuth2UserService의 존재하는 loadUser를 call한다.
-		이 method는 "user-info-uri"를 사용해 user information을 가져온다.
+			DefaultOAuth2UserService의 존재하는 loadUser를 call한다.
+			이 method는 "user-info-uri"를 사용해 user information을 가져온다.
 		*/
 		final OAuth2User oAuth2User = super.loadUser(userRequest);
 		
 		try {
 			/*
-			debugging을 위해서 user information을 log한다.
-			test할 때만 사용.
+				debugging을 위해서 user information을 log한다.
+				test할 때만 사용.
 			*/
 			log.info("oAuth2User attributes {} ", new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
 		} catch (JsonProcessingException e) {
@@ -56,14 +56,12 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 
 		String username = null;
 		if (authProvider.equals("GitHub")) {
-			// "login" field를 가져온다.
-			username = (String) oAuth2User.getAttributes().get("login");
+			// "login" field를 가져온다; 모든 whitespace를 -로 대체한다.
+			username = ((String) oAuth2User.getAttributes().get("login")).replaceAll(" ", "-");
 		} else if (authProvider.equals("Google")) {
-			/*
-			Google의 OAuth2 flow에서는 "login" field가 존재하지 않기 때문에,
-			"name" field를 대신해서 가져와야 한다.
-			*/
-			username = (String) oAuth2User.getAttributes().get("name");
+			// Google의 OAuth2 flow에서는 "login" field가 존재하지 않기 때문에,
+			// "name" field를 대신해서 가져와야 한다; 역시 모든 whitespace를 -로 대체한다.
+			username = ((String) oAuth2User.getAttributes().get("name")).replaceAll(" ", "-");
 		}
 		
 		if (username == null)

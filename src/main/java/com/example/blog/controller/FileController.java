@@ -34,9 +34,9 @@ public class FileController {
 	
 	@PostMapping
 	public ResponseEntity<?> insertNewFile(
-			@RequestPart("file") MultipartFile file,
-			@RequestPart("userName") String userName,
-			@RequestPart("articleId") Long articleId
+		@RequestPart("file") MultipartFile file,
+		@RequestPart String userName,
+		@RequestPart("articleId") Long articleId
 	) {
 		if (file.isEmpty())
 			return ResponseEntity.badRequest().body("No file has been sent");
@@ -51,13 +51,11 @@ public class FileController {
 	
 	@GetMapping
 	public ResponseEntity<?> getFile(
-			@RequestParam String fileName,
-			@RequestParam String uploader
+		@RequestParam String fileName,
+		@RequestParam String uploader
 	) {
 		try {
-			String fileNameWithHyphen = fileName.replace(' ', '-').replace('_', '-');
-			String userNameWithHyphen = uploader.replace(' ', '-').replace('_', '-');
-			Resource resultingFileResource = fileService.getFile(fileNameWithHyphen, userNameWithHyphen);
+			Resource resultingFileResource = fileService.getFile(fileName, uploader);
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(resultingFileResource);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -67,13 +65,11 @@ public class FileController {
 	
 	@GetMapping("/presence")
 	public ResponseEntity<?> isFileNamePresent(
-			@RequestParam String fileName,
-			@RequestParam String uploader
+		@RequestParam String fileName,
+		@RequestParam String uploader
 	) {
 		try {
-			String fileNameWithHyphen = fileName.replace(' ', '-').replace('_', '-');
-			String userNameWithHyphen = uploader.replace(' ', '-').replace('_', '-');
-			boolean presence = fileService.isFileNamePresent(fileNameWithHyphen, userNameWithHyphen);
+			boolean presence = fileService.isFileNamePresent(fileName, uploader);
 			return ResponseEntity.ok().body(presence);
 		} catch (Exception e) {
 			e.printStackTrace();

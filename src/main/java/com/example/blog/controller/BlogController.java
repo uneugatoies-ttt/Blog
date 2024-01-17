@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.blog.dto.ResponseDTO;
 import com.example.blog.service.UserService;
 
+/*
+	-> BlogController는 parameter로 들어온 "userName"에 대응되는 "blogTitle"의 value를 
+	return하기 위한 controller이다.
+*/
+
 @RestController
 @RequestMapping("/blog")
 public class BlogController {
@@ -20,7 +25,9 @@ public class BlogController {
 	}
 	
 	@GetMapping("/title")
-	public ResponseEntity<?> getBlogTitleByUserName(@RequestParam String userName) {
+	public ResponseEntity<?> getBlogTitleByUserName(
+		@RequestParam String userName
+	) {
 		try {
 			String title = userService.getBlogTitleByUserName(userName);
 			ResponseDTO responseDTO = ResponseDTO.builder()

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.blog.misc.RedirectUriSession;
+import com.example.blog.common.RedirectUriSession;
 
 /*
 	-> "OAuthSuccessHandler의 comment에서 설명된 것과 같이, 원래는 이 class 내부에서 
