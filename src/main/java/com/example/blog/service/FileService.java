@@ -92,26 +92,23 @@ public class FileService {
 			Long articleId
 	) throws IOException {
 		try {
-			String fileNameWithHyphen = file.getOriginalFilename().replace(' ', '-').replace('_', '-');
-			String userNameWithHyphen = userName.replace(' ', '-').replace('_', '-');
-			
 			byte[] bytes = file.getBytes();
-			Path directoryPath = Paths.get( getPath() + userNameWithHyphen );
+			Path directoryPath = Paths.get( getPath() + userName );
 			// 만약 해당 directory가 존재하지 않는다면 새로 만든다.
 			Files.createDirectories(directoryPath);
 			
 			Path path = Paths.get(
 					directoryPath.toString() + 
 					separator + 
-					fileNameWithHyphen
+					file.getOriginalFilename()
 			);
 			Files.write(path, bytes);
 			
 			FileDTO resultingFileDTO = 
 					insertOrUpdateFileInDatabase(
 							path.toString(),
-							fileNameWithHyphen,
-							userNameWithHyphen,
+							file.getOriginalFilename(),
+							userName,
 							articleId
 					);
 			
@@ -125,18 +122,18 @@ public class FileService {
 	@Transactional
 	public FileDTO insertOrUpdateFileInDatabase(
 			String filePath,
-			String fileNameWithHyphen,
-			String userNameWithHyphen,
+			String fileName,
+			String userName,
 			Long articleId
 	) {
 		try {
-			User uploader = userRepository.findByUserName(userNameWithHyphen)
+			User uploader = userRepository.findByUserName(userName)
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));
 			Article article = articleRepository.findById(articleId)
 					.orElseThrow(() -> new EntityNotFoundException("Article not found"));
 			
 			File fileEntity = File.builder()
-								.fileName(fileNameWithHyphen)
+								.fileName(fileName)
 								.uploader(uploader)
 								.filePath(filePath)
 								.article(article)

@@ -147,14 +147,7 @@ public class ArticleService {
 		
 		return new SimpleImmutableEntry<>(resultingArticleDTO, resultingFileDTO);
 	}
-	
-	@Transactional
-	public String getMainImageName(Article article) {
-		return fileRepository.findByArticle(article)
-					.orElseThrow(() -> new EntityNotFoundException("File not found"))
-					.getFileName();
-	}
-	
+
 	@Transactional
 	public ArticleDTO getArticleById(Long articleId) {
 		Article article = articleRepository.findById(articleId)
@@ -308,6 +301,13 @@ public class ArticleService {
 			articleTagList.add(articleTagRepository.save(at).getTag().getId());
 		}
 		return articleTagList;
+	}
+	
+	@Transactional
+	private String getMainImageName(Article article) {
+		return fileRepository.findByArticle(article)
+					.orElseThrow(() -> new EntityNotFoundException("File not found"))
+					.getFileName();
 	}
 	
 }
