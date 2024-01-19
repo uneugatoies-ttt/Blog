@@ -13,7 +13,7 @@ import com.example.blog.dto.UserDTO;
 import com.example.blog.service.UserService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/user")
 public class UserController {
 	
 	private UserService userService;

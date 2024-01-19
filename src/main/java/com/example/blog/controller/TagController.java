@@ -40,7 +40,7 @@ public class TagController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<?> getTag(
+	public ResponseEntity<?> getTags(
 		@RequestParam String userName
 	) {
 		try {
