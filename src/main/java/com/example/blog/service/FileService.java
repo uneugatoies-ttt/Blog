@@ -132,20 +132,20 @@ public class FileService {
 			Article article = articleRepository.findById(articleId)
 					.orElseThrow(() -> new EntityNotFoundException("Article not found"));
 			
-			File fileEntity = File.builder()
+			File file = File.builder()
 								.fileName(fileName)
 								.uploader(uploader)
 								.filePath(filePath)
 								.article(article)
 								.build();
-			File storedFileEntity = fileRepository.save(fileEntity);
+			File storedFile= fileRepository.save(file);
 			
 			FileDTO storedFileDTO = FileDTO.builder()
-										.fileName(storedFileEntity.getFileName())
-										.uploader(storedFileEntity.getUploader().getUserName())
-										.createdAt(storedFileEntity.getCreatedAt())
-										.id(storedFileEntity.getId())
-										.articleId(storedFileEntity.getArticle().getId())
+										.fileName(storedFile.getFileName())
+										.uploader(storedFile.getUploader().getUserName())
+										.createdAt(storedFile.getCreatedAt())
+										.id(storedFile.getId())
+										.articleId(storedFile.getArticle().getId())
 										.build();
 			
 			return storedFileDTO;

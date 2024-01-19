@@ -49,7 +49,7 @@ public class TagService {
 	public List<TagDTO> getTag(String userName) {
 		User user = userRepository.findByUserName(userName)
 				.orElseThrow(() -> new EntityNotFoundException("User not found"));
-		List<TagDTO> tags = tagRepository
+		List<TagDTO> resultingTagDTOs = tagRepository
 					.findAllByUser(user)
 					.stream()
 					.map(t -> TagDTO.builder()
@@ -58,7 +58,7 @@ public class TagService {
 									.name(t.getName())
 									.build())
 					.collect(Collectors.toList());
-		return tags;
+		return resultingTagDTOs;
 	}
 	
 	@Transactional

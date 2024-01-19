@@ -2,6 +2,7 @@ package com.example.blog.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.example.blog.domain.User;
+import com.example.blog.dto.CheckUserDTO;
 import com.example.blog.dto.UserDTO;
 import com.example.blog.persistence.UserRepository;
 import com.example.blog.security.TokenProvider;
@@ -41,14 +43,10 @@ public class UserServiceTest {
 		String userName = "TestUser";
 		String password = "TestUserPassword";
 		String encodedPassword = "EncodedTestUserPassword";
-		User origUser = User.builder()
-							.id("TestUserID")
-							.userName(userName)
-							.password(encodedPassword)
-							.email("testuser@test.com")
-							.authProvider(null)
-							.blogTitle("TestUser's Blog")
-							.build();
+		
+		User origUser = ServiceTestSupporting.buildUser();
+		origUser.setPassword(encodedPassword);
+		
 		UserDTO responseUserDTO = UserDTO.builder()
 										.id("TestUserID")
 										.userName(userName)
@@ -73,9 +71,9 @@ public class UserServiceTest {
 		assertThat(responseUserDTOFromService.getToken())
 			.isEqualTo(responseUserDTO.getToken());
 		
-		verify(userRepository).findByUserName(userName);
-		verify(passwordEncoder).matches(password, encodedPassword);
-		verify(tokenProvider).create(origUser);
+		verify(userRepository, times(1)).findByUserName(userName);
+		verify(passwordEncoder, times(1)).matches(password, encodedPassword);
+		verify(tokenProvider, times(1)).create(origUser);
 	}
 	
 	@Test
@@ -86,6 +84,7 @@ public class UserServiceTest {
 								.password("TestUserPassword")
 								.email("testuser@test.com")
 								.build();
+		
 		User savedUser = User.builder()
 								.id("TestUserID")
 								.userName(userDTO.getUserName())
@@ -93,6 +92,7 @@ public class UserServiceTest {
 								.email(userDTO.getEmail())
 								.blogTitle(userDTO.getBlogTitle())
 								.build();
+		
 		UserDTO resultingUserDTO = UserDTO.builder()
 										.id(savedUser.getId())
 										.userName(savedUser.getUserName())
@@ -120,22 +120,16 @@ public class UserServiceTest {
 		assertThat(resultingUserDTOFromService.getBlogTitle())
 			.isEqualTo(resultingUserDTO.getBlogTitle());
 		
-		verify(passwordEncoder).encode(userDTO.getPassword());
-		verify(userRepository).existsByUserName(userDTO.getUserName());
-		verify(userRepository).save(any(User.class));
+		verify(passwordEncoder, times(1)).encode(userDTO.getPassword());
+		verify(userRepository, times(1)).existsByUserName(userDTO.getUserName());
+		verify(userRepository, times(1)).save(any(User.class));
 	}
 
 	@Test
 	@DisplayName("Test for getBlogTitleByUserName(): successful case")
 	void getBlogTitleByUserNameTest() throws Exception {
 		String userName = "TestUser";
-		User foundUser = User.builder()
-						.id("TestUserID")
-						.userName(userName)
-						.password("EncodedTestUserPassword")
-						.email("testuser@test.com")
-						.blogTitle("TestUser's Blog")
-						.build();
+		User foundUser = ServiceTestSupporting.buildUser();
 		
 		when(userRepository.findByUserName(userName))
 			.thenReturn(Optional.of(foundUser));
@@ -144,40 +138,65 @@ public class UserServiceTest {
 		
 		assertThat(blogTitle)
 			.isEqualTo(foundUser.getBlogTitle());
-			
-		verify(userRepository).findByUserName(userName);
+		
+		verify(userRepository, times(1)).findByUserName(userName);
 	}
 	
-	/*
 	@Test
-	@DisplayName("Test for findUserByUserName(): successful case")
-	void findUserByUserNameTest() throws Exception {
-		String userName = "TestUser";
-		User foundUser = User.builder()
-						.id("TestUserID")
-						.userName(userName)
-						.password("EncodedTestUserPassword")
-						.email("testuser@test.com")
-						.blogTitle("TestUser's Blog")
-						.build();
+	@DisplayName("Test for checkThisUser(): successful case")
+	void checkThisUserTest() throws Exception {
+		CheckUserDTO checkUserDTO = CheckUserDTO.builder()
+										.pathUserName("TestUser")
+										.notCertifiedUserName("TestUser")
+										.notCertifiedToken("TestToken")
+										.build();
 		
-		when(userRepository.findByUserName(userName))
-			.thenReturn(Optional.of(foundUser));
+		User user = ServiceTestSupporting.buildUser();
+		String notCertifiedID = "TestUserID";
 		
-		User savedUserFromService = userService.findUserByUserName(userName);
+		when(userRepository.findByUserName(checkUserDTO.getPathUserName()))
+			.thenReturn(Optional.of(user));
+		when(tokenProvider.validateAndGetUserId(checkUserDTO.getNotCertifiedToken()))
+			.thenReturn(notCertifiedID);
 		
-		assertThat(savedUserFromService)
-			.isNotNull();
-		assertThat(savedUserFromService.getId())
-			.isEqualTo(foundUser.getId());
-		assertThat(savedUserFromService.getUserName())
-			.isEqualTo(foundUser.getUserName());
-		assertThat(savedUserFromService.getPassword())
-			.isEqualTo(foundUser.getPassword());
-		assertThat(savedUserFromService.getEmail())
-			.isEqualTo(foundUser.getEmail());
-		assertThat(savedUserFromService.getBlogTitle())
-			.isEqualTo(foundUser.getBlogTitle());
-	}*/
+		boolean resultingBoolean = userService.checkThisUser(checkUserDTO);
+		
+		assertThat(resultingBoolean)
+			.isEqualTo(true);
+		
+		verify(userRepository, times(1)).findByUserName(checkUserDTO.getPathUserName());
+		verify(tokenProvider, times(1)).validateAndGetUserId(checkUserDTO.getNotCertifiedToken());
+	}
+	
+	
+	@Test
+	@DisplayName("Test for deleteUser(): successful case")
+	void deleteUserTest() throws Exception {
+		String token = "TestUserToken";
+		UserDTO userDTO = UserDTO.builder()
+								.userName("TestUser")
+								.password("TestUserPassword")
+								.token(token)
+								.build();
+		
+		User existingUser = ServiceTestSupporting.buildUser();
+		
+		when(userRepository.findByUserName(userDTO.getUserName()))
+			.thenReturn(Optional.of(existingUser));
+		when(tokenProvider.validateAndGetUserId(token))
+			.thenReturn(existingUser.getId());
+		when(passwordEncoder.matches(userDTO.getPassword(), existingUser.getPassword()))
+			.thenReturn(true);
+		
+		String resultingMessageFromService = userService.deleteUser(userDTO);
+		
+		assertThat(resultingMessageFromService)
+			.isEqualTo("User deleted successfully");
+		
+		verify(userRepository, times(2)).findByUserName(userDTO.getUserName());
+		verify(tokenProvider, times(1)).validateAndGetUserId(token);
+		verify(passwordEncoder, times(1)).matches(userDTO.getPassword(), existingUser.getPassword());
+		verify(userRepository, times(1)).deleteById(existingUser.getId());
+	}
 	
 }

@@ -34,10 +34,10 @@ public class UserService {
 			final User origUser = userRepository.findByUserName(userName)
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));
 			if (
-					origUser == null ||
-					!passwordEncoder.matches(
-							password,
-							origUser.getPassword()
+				origUser == null ||
+				!passwordEncoder.matches(
+					password,
+					origUser.getPassword()
 				)
 			) return null;
 			

@@ -24,14 +24,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.assertj.core.api.Assertions;
 
 import com.example.blog.domain.Article;
 import com.example.blog.domain.ArticleTag;
 import com.example.blog.domain.Category;
 import com.example.blog.domain.Tag;
 import com.example.blog.domain.User;
-import com.example.blog.domain.File;
 import com.example.blog.dto.ArticleDTO;
 import com.example.blog.dto.FileDTO;
 import com.example.blog.persistence.ArticleRepository;
@@ -83,7 +81,7 @@ public class ArticleServiceTest {
 	@Test
 	@DisplayName("Test for createOrEditArticle(): creating a new article")
 	void createOrEditArticleTest() throws Exception {
-		Article article = buildArticle();
+		Article article = ServiceTestSupporting.buildArticle();
 		User writer = article.getWriter();
 		Category category = article.getCategory();
 		List<ArticleTag> articleTag = article.getTag();
@@ -208,7 +206,7 @@ public class ArticleServiceTest {
 	@DisplayName("Test for getArticleById(): successful case")
 	void getArticleByIdTest() throws Exception {
 		Long articleId = 15L;
-		Article article = buildArticle();
+		Article article = ServiceTestSupporting.buildArticle();
 		ArticleDTO resultingArticleDTO = ArticleDTO.builder()
 											.id(article.getId())
 											.writer(article.getWriter().getUserName())
@@ -225,8 +223,6 @@ public class ArticleServiceTest {
 		
 		when(articleRepository.findById(articleId))
 			.thenReturn(Optional.of(article));
-		when(fileRepository.findByArticle(article))
-			.thenReturn(Optional.of(getFile(article.getWriter(), article)));
 		
 		ArticleDTO resultingArticleDTOFromService = articleService.getArticleById(articleId);
 		
@@ -252,63 +248,78 @@ public class ArticleServiceTest {
 		verify(articleRepository, times(1)).findById(articleId);
 	}
 	
-	/*
+	
 	@Test
 	@DisplayName("Test for getArticlesForThisUser(): successful case")
 	void getArticlesForThisUserTest() throws Exception {
-		List<Article> articlesBeforeDTO = getBy();
+		List<Article> articlesBeforeDTO = ServiceTestSupporting.buildArticlesForGetByTests();
 		
 		User user = articlesBeforeDTO.get(0).getWriter();
 		String userName = user.getUserName();
 		
 		List<ArticleDTO> articles = articlesBeforeDTO
-				.stream()
-				.map(ar -> ArticleDTO.builder()
-									.id(ar.getId())
-									.writer(ar.getWriter().getUserName())
-									.content(ar.getContent())
-									.title(ar.getTitle())
-									.createdAt(ar.getCreatedAt())
-									.updatedAt(ar.getUpdatedAt())
-									.build())
-				.collect(Collectors.toList());
+									.stream()
+									.map(ar -> ArticleDTO.builder()
+												.id(ar.getId())
+												.writer(ar.getWriter().getUserName())
+												.content(ar.getContent())
+												.title(ar.getTitle())
+												.category(ar.getCategory().getId())
+												.categoryName(ar.getCategory().getName())
+												.tag(ar.getTag().stream().map(at -> at.getTag().getId()).collect(Collectors.toList()))
+												.tagName(ar.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
+												.createdAt(ar.getCreatedAt())
+												.updatedAt(ar.getUpdatedAt())
+												.mainImage(ar.getMainImage().getFileName())
+												.build())
+									.collect(Collectors.toList());
 		
 		when(userRepository.findByUserName(userName))
 			.thenReturn(Optional.of(user));
 		when(articleRepository.findAllByWriter(user))
 			.thenReturn(articlesBeforeDTO);
 		
-		List<ArticleDTO> articlesFromService = articleService.getArticlesForThisUser(userName);
+		List<ArticleDTO> resultingArticleDTOsFromService = articleService.getArticlesForThisUser(userName);
 		
-		Assertions.assertThat(articlesFromService)
+		assertThat(resultingArticleDTOsFromService)
 			.isNotNull()
 			.hasSize(3);
 	
 		for (int i = 0; i < 3; ++i) {
-			Assertions.assertThat(articlesFromService.get(i))
+			assertThat(resultingArticleDTOsFromService.get(i))
 				.extracting(
-					ArticleDTO::getId, ArticleDTO::getWriter,
-					ArticleDTO::getCategory, ArticleDTO::getTag,
-					ArticleDTO::getContent, ArticleDTO::getTitle
+					ArticleDTO::getId,
+					ArticleDTO::getWriter,
+					ArticleDTO::getContent,
+					ArticleDTO::getTitle,
+					ArticleDTO::getCategory,
+					ArticleDTO::getCategoryName,
+					ArticleDTO::getTag,
+					ArticleDTO::getTagName,
+					ArticleDTO::getMainImage
 				)
 				.containsExactly(
 					articles.get(i).getId(),
 					articles.get(i).getWriter(),
-					articles.get(i).getCategory(),
-					articles.get(i).getTag(),
 					articles.get(i).getContent(),
-					articles.get(i).getTitle()
+					articles.get(i).getTitle(),
+					articles.get(i).getCategory(),
+					articles.get(i).getCategoryName(),
+					articles.get(i).getTag(),
+					articles.get(i).getTagName(),
+					articles.get(i).getMainImage()
 				);
 		}
 		
-		verify(userRepository).findByUserName(userName);
-		verify(articleRepository).findAllByWriter(user);
+		verify(userRepository, times(1)).findByUserName(userName);
+		verify(articleRepository, times(1)).findAllByWriter(user);
 	}
+	
 	
 	@Test
 	@DisplayName("Test for getArticlesByCategory(): successful case")
 	void getArticlesByCategoryTest() {
-		List<Article> articlesBeforeDTO = getBy();
+		List<Article> articlesBeforeDTO = ServiceTestSupporting.buildArticlesForGetByTests();
 		
 		Category category = articlesBeforeDTO.get(0).getCategory();
 		Long categoryId = category.getId();
@@ -320,8 +331,13 @@ public class ArticleServiceTest {
 									.writer(ar.getWriter().getUserName())
 									.content(ar.getContent())
 									.title(ar.getTitle())
+									.category(ar.getCategory().getId())
+									.categoryName(ar.getCategory().getName())
+									.tag(ar.getTag().stream().map(at -> at.getTag().getId()).collect(Collectors.toList()))
+									.tagName(ar.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
 									.createdAt(ar.getCreatedAt())
 									.updatedAt(ar.getUpdatedAt())
+									.mainImage(ar.getMainImage().getFileName())
 									.build())
 				.collect(Collectors.toList());;
 		
@@ -330,94 +346,119 @@ public class ArticleServiceTest {
 		when(articleRepository.findAllByCategory(category))
 			.thenReturn(articlesBeforeDTO);
 		
-		List<ArticleDTO> articlesFromService = articleService.getArticlesByCategory(categoryId);
+		List<ArticleDTO> resultingArticleDTOsFromService = articleService.getArticlesByCategory(categoryId);
 
-		Assertions.assertThat(articlesFromService)
+		assertThat(resultingArticleDTOsFromService)
 			.isNotNull()
 			.hasSize(3);
 		
 		for (int i = 0; i < 3; ++i) {
-			Assertions.assertThat(articlesFromService.get(i))
+			assertThat(resultingArticleDTOsFromService.get(i))
 				.extracting(
-					ArticleDTO::getId, ArticleDTO::getWriter,
-					ArticleDTO::getCategory, ArticleDTO::getTag,
-					ArticleDTO::getContent, ArticleDTO::getTitle
+					ArticleDTO::getId,
+					ArticleDTO::getWriter,
+					ArticleDTO::getContent,
+					ArticleDTO::getTitle,
+					ArticleDTO::getCategory,
+					ArticleDTO::getCategoryName,
+					ArticleDTO::getTag,
+					ArticleDTO::getTagName,
+					ArticleDTO::getMainImage
 				)
 				.containsExactly(
 					articles.get(i).getId(),
 					articles.get(i).getWriter(),
-					articles.get(i).getCategory(),
-					articles.get(i).getTag(),
 					articles.get(i).getContent(),
-					articles.get(i).getTitle()
+					articles.get(i).getTitle(),
+					articles.get(i).getCategory(),
+					articles.get(i).getCategoryName(),
+					articles.get(i).getTag(),
+					articles.get(i).getTagName(),
+					articles.get(i).getMainImage()
 				);
 		}
 		
-		verify(categoryRepository).findById(categoryId);
-		verify(articleRepository).findAllByCategory(category);
+		verify(categoryRepository, times(1)).findById(categoryId);
+		verify(articleRepository, times(1)).findAllByCategory(category);
 	}
 	
 	@Test
 	@DisplayName("Test for getArticlesByTag: successful case")
 	void getArticlesByTagTest() throws Exception {
-		List<Article> articlesBeforeDTO = getBy();
+		List<Article> articlesBeforeDTO = ServiceTestSupporting.buildArticlesForGetByTests();
 		
+		// 이 "tag"는 "buildArticlesForGetByTests()"에서 지정했던 "tag1"을 가리킨다.
 		Tag tag = articlesBeforeDTO.get(0).getTag().get(0).getTag();
 		Long tagId = tag.getId();
 		
+		// 이 "articleTags"는 "tag"로 형성된 모든 Article-Tag 관계를 나타낸다.
 		List<ArticleTag> articleTags = new ArrayList<>();
 		articleTags.add(articlesBeforeDTO.get(0).getTag().get(0));
 		articleTags.add(articlesBeforeDTO.get(1).getTag().get(0));
 		articleTags.add(articlesBeforeDTO.get(2).getTag().get(0));
 		
 		List<ArticleDTO> articles = articlesBeforeDTO
-									.stream()
-									.map(ar -> ArticleDTO.builder()
+										.stream()
+										.map(ar -> ArticleDTO.builder()
 												.id(ar.getId())
 												.writer(ar.getWriter().getUserName())
 												.content(ar.getContent())
 												.title(ar.getTitle())
+												.category(ar.getCategory().getId())
+												.categoryName(ar.getCategory().getName())
+												.tag(ar.getTag().stream().map(at -> at.getTag().getId()).collect(Collectors.toList()))
+												.tagName(ar.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
+												.createdAt(ar.getCreatedAt())
+												.updatedAt(ar.getUpdatedAt())
+												.mainImage(ar.getMainImage().getFileName())
 												.build())
-									.collect(Collectors.toList());
+										.collect(Collectors.toList());
+		
 		when(tagRepository.findById(tagId))
 			.thenReturn(Optional.of(tag));
 		when(articleTagRepository.findAllByTag(tag))
 			.thenReturn(articleTags);
 		
-		List<ArticleDTO> articlesFromService = articleService.getArticlesByTag(tagId);
+		List<ArticleDTO> resultingArticleDTOsFromService = articleService.getArticlesByTag(tagId);
 		
-		Assertions.assertThat(articlesFromService)
+		assertThat(resultingArticleDTOsFromService)
 			.isNotNull()
 			.hasSize(3);
 	
 		for (int i = 0; i < 3; ++i) {
-			Assertions.assertThat(articlesFromService.get(i))
+			assertThat(resultingArticleDTOsFromService.get(i))
 				.extracting(
-					ArticleDTO::getId, ArticleDTO::getWriter,
-					ArticleDTO::getCategory, ArticleDTO::getTag,
-					ArticleDTO::getContent, ArticleDTO::getTitle
+					ArticleDTO::getId,
+					ArticleDTO::getWriter,
+					ArticleDTO::getContent,
+					ArticleDTO::getTitle,
+					ArticleDTO::getCategory,
+					ArticleDTO::getCategoryName,
+					ArticleDTO::getTag,
+					ArticleDTO::getTagName,
+					ArticleDTO::getMainImage
 				)
 				.containsExactly(
 					articles.get(i).getId(),
 					articles.get(i).getWriter(),
-					articles.get(i).getCategory(),
-					articles.get(i).getTag(),
 					articles.get(i).getContent(),
-					articles.get(i).getTitle()
+					articles.get(i).getTitle(),
+					articles.get(i).getCategory(),
+					articles.get(i).getCategoryName(),
+					articles.get(i).getTag(),
+					articles.get(i).getTagName(),
+					articles.get(i).getMainImage()
 				);
 		}
 		
-		verify(tagRepository).findById(tagId);
-		verify(articleTagRepository).findAllByTag(tag);
+		verify(tagRepository, times(1)).findById(tagId);
+		verify(articleTagRepository, times(1)).findAllByTag(tag);
 	}
-
-	*/
-	
 	
 	@Test
 	@DisplayName("Test for deleteArticle(): successful case")
 	void deleteArticleTest() throws Exception {
-		Article article = buildArticle();
+		Article article = ServiceTestSupporting.buildArticle();
 		List<ArticleTag> articleTag1 = article.getTag();
 		
 		when(articleRepository.findById(article.getId()))
@@ -427,190 +468,9 @@ public class ArticleServiceTest {
 		
 		articleService.deleteArticle(article.getId());
 		
-		verify(articleRepository).findById(article.getId());
-		verify(articleTagRepository).findAllByArticle(article);
-		verify(articleRepository).deleteById(article.getId());
-	}
-	
-	/********************************************
-	 * 											*
-	 * 			private methods					*
-	 * 											*
-	 ********************************************/
-	
-	private Article buildArticle() {
-		List<Long> tagIds = new ArrayList<>();
-		tagIds.add(1L);
-		
-		User writer = User.builder()
-				.id("TestUserID")
-				.userName("TestUser")
-				.password("TestUser password")
-				.email("test@test.com")
-				.blogTitle("TestUser's Blog")
-				.build();
-		
-		Category category = Category.builder()
-									.id(1L)
-									.user(writer)
-									.build();
-		
-		Article article = Article.builder()
-								.id(15L)
-								.writer(writer)
-								.content("Test Content")
-								.title("Test Article")
-								.category(category)
-								.build();
-		
-		// Handling tags
-		ArticleTag at1 = ArticleTag.builder()
-				.id(1L)
-				.article(article)
-				.build();
-		Tag tag1 = Tag.builder()
-						.id(1L)
-						.user(writer)
-						.name("Test Tag 1")
-						.build();
-		at1.setTag(tag1);
-		List<ArticleTag> articleTag1 = new ArrayList<>();
-		articleTag1.add(at1);
-		tag1.setArticleTag(articleTag1);
-		article.setTag(articleTag1);
-		
-		// Handling the main image
-		File file = getFile(writer, article);
-				
-		article.setMainImage(file);
-		
-		return article;
-	}
-	
-	private File getFile(User uploader, Article article) {
-		return File.builder()
-			.id(1L)
-			.fileName("cat_selfie.jpg")
-			.uploader(uploader)
-			.filePath(Path.of(
-					"." + separator + 
-					"src" + separator +
-					"test" + separator + 
-					"java" + separator + 
-					"com" + separator +
-					"example" + separator +
-					"blog" + separator +
-					"controller" + separator + 
-					"cat_selfie.jpg"
-				).toString())
-			.article(article)
-			.build();
-	}
-	
-	/*
-		-> getBy()는 3개의 Article을 포함하는 List를 return한다:
-			- article1: shaftCategory / user / tag1, tag2
-			- article2: shaftCategory / user / tag1
-			- article3: shartCategory / user / tag1, tag2, tag3
-	*/
-	private List<Article> getBy() {
-		User user = User.builder()
-						.id("TestUserID")
-						.userName("TestUser")
-						.password("TestUser password")
-						.email("test@test.com")
-						.blogTitle("TestUser's Blog")
-						.build();
-		
-		Category shaftCategory = Category.builder()
-				.id(1L)
-				.user(user)
-				.name("Test Category")
-				.build();
-		Tag tag1 = Tag.builder()
-				.id(1L)
-				.user(user)
-				.name("Test Tag 1")
-				.build();
-		Tag tag2 = Tag.builder()
-				.id(2L)
-				.user(user)
-				.name("Test Tag 2")
-				.build();
-		Tag tag3 = Tag.builder()
-				.id(3L)
-				.user(user)
-				.name("Test Tag 3")
-				.build();
-		
-		Article article1 = Article.builder()
-				.id(15L)
-				.writer(user)
-				.content("Test Content 1")
-				.title("Test Title 1")
-				.category(shaftCategory)
-				.build();
-		Article article2 = Article.builder()
-				.id(16L)
-				.writer(user)
-				.content("Test Content 2")
-				.title("Test Title 2")
-				.category(shaftCategory)
-				.build();
-		Article article3 = Article.builder()
-				.id(17L)
-				.writer(user)
-				.content("Test Content 3")
-				.title("Test Title 3")
-				.category(shaftCategory)
-				.build();
-		
-		ArticleTag articleTag1 = ArticleTag.builder()
-										.article(article1)
-										.tag(tag1)
-										.build();
-		ArticleTag articleTag2 = ArticleTag.builder()
-										.article(article1)
-										.tag(tag2)
-										.build();
-		List<ArticleTag> tagsForArticle1 = new ArrayList<>();
-		tagsForArticle1.add(articleTag1);
-		tagsForArticle1.add(articleTag2);
-		
-		ArticleTag articleTag3 = ArticleTag.builder()
-										.article(article2)
-										.tag(tag1)
-										.build();
-		List<ArticleTag> tagsForArticle2 = new ArrayList<>();
-		tagsForArticle2.add(articleTag3);
-		
-		ArticleTag articleTag4 = ArticleTag.builder()
-										.article(article3)
-										.tag(tag1)
-										.build();
-		ArticleTag articleTag5 = ArticleTag.builder()
-										.article(article3)
-										.tag(tag2)
-										.build();
-		ArticleTag articleTag6 = ArticleTag.builder()
-										.article(article3)
-										.tag(tag3)
-										.build();
-		List<ArticleTag> tagsForArticle3 = new ArrayList<>();
-		tagsForArticle3.add(articleTag4);
-		tagsForArticle3.add(articleTag5);
-		tagsForArticle3.add(articleTag6);
-		
-		article1.setTag(tagsForArticle1);
-		article2.setTag(tagsForArticle2);
-		article3.setTag(tagsForArticle3);
-		
-		List<Article> articlesBeforeDTO = new ArrayList<>();
-		articlesBeforeDTO.add(article1);
-		articlesBeforeDTO.add(article2);
-		articlesBeforeDTO.add(article3);
-		
-		return articlesBeforeDTO;
+		verify(articleRepository, times(1)).findById(article.getId());
+		verify(articleTagRepository, times(1)).findAllByArticle(article);
+		verify(articleRepository, times(1)).deleteById(article.getId());
 	}
 
 }

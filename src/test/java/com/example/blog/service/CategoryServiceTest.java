@@ -2,6 +2,7 @@ package com.example.blog.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,16 +37,22 @@ public class CategoryServiceTest {
 	@Autowired
 	private CategoryService categoryService;
 	
-	// We have no direct control over the object used as the argument:
-	//		-> should set when() in conjunction with any()
+	/*
+		-> when()을 통해 mock behavior를 지정해야 하는 method에 주어지는 argument에 대한 
+		직접적인 제어를 이 test에서 할 수 없다면 any()를 사용해야 됨을 주의해야 한다.
+		이것은 String과 다른 기본 data type은 가지고 있는 value만 같다면 equal한 것으로 취급되지만
+		다른 object type의 경우에는 그렇지 않기 때문이다.
+	*/
 	@Test
 	@DisplayName("Test for addCategory(): successful case")
 	void addCategoryTest() throws Exception {
 		String userName = "TestUser";
+		
 		CategoryDTO categoryDTO = CategoryDTO.builder()
 									.user(userName)
 									.name("Test Cate")
 									.build();
+		
 		User user = User.builder()
 						.id("TestUserID")
 						.userName(userName)
@@ -54,11 +61,13 @@ public class CategoryServiceTest {
 						.authProvider(null)
 						.blogTitle("TestUser's Blog")
 						.build();
-		Category category = Category.builder()
+		
+		Category savedCategory = Category.builder()
 									.id(3L)
 									.user(user)
 									.name("Test Cate")
 									.build();
+		
 		CategoryDTO resultingCategoryDTO = CategoryDTO.builder()
 											.id(3L)
 											.user(userName)
@@ -68,37 +77,30 @@ public class CategoryServiceTest {
 		when(userRepository.findByUserName(userName))
 				.thenReturn(Optional.of(user));
 		when(categoryRepository.save(any(Category.class)))
-				.thenReturn(category);
+				.thenReturn(savedCategory);
 		
 		CategoryDTO resultingCategoryDTOFromService =
 				categoryService.addCategory(categoryDTO);
 		
 		assertThat(resultingCategoryDTOFromService)
-				.isNotNull();
+			.isNotNull();
 		assertThat(resultingCategoryDTOFromService.getId())
-				.isEqualTo(resultingCategoryDTO.getId());
+			.isEqualTo(resultingCategoryDTO.getId());
 		assertThat(resultingCategoryDTOFromService.getUser())
-				.isEqualTo(resultingCategoryDTO.getUser());
+			.isEqualTo(resultingCategoryDTO.getUser());
 		assertThat(resultingCategoryDTOFromService.getName())
-				.isEqualTo(resultingCategoryDTO.getName());
+			.isEqualTo(resultingCategoryDTO.getName());
 		
-		verify(userRepository).findByUserName(userName);
-		verify(categoryRepository).save(any(Category.class));
+		verify(userRepository, times(1)).findByUserName(userName);
+		verify(categoryRepository, times(1)).save(any(Category.class));
 	}
-	
-	@Test
-	@DisplayName("Test for deleteCategory(): successful case")
-	void deleteCategoryTest() throws Exception {
-		categoryService.deleteCategory(3L);
-		verify(categoryRepository).deleteById(3L);
-	}
-	
-	// We can designate the object used as the argument:
-	//		-> can set when() with the exact object
+
+
 	@Test
 	@DisplayName("Test for getCategories(): successful case")
 	void getCategoiesTest() throws Exception {
 		String userName = "TestUser";
+		
 		User user = User.builder()
 				.id("TestUserID")
 				.userName(userName)
@@ -107,6 +109,7 @@ public class CategoryServiceTest {
 				.authProvider(null)
 				.blogTitle("TestUser's Blog")
 				.build();
+		
 		List<Category> categoriesEntity = new ArrayList<>();
 		categoriesEntity.add(Category.builder()
 								.id(3L)
@@ -123,14 +126,15 @@ public class CategoryServiceTest {
 								.user(user)
 								.name("Test Cate 3")
 								.build());
+		
 		List<CategoryDTO> categories = categoriesEntity
-				.stream()
-				.map(c -> CategoryDTO.builder()
-								.id(c.getId())
-								.user(c.getUser().getUserName())
-								.name(c.getName())
-								.build())
-				.collect(Collectors.toList());
+									.stream()
+									.map(c -> CategoryDTO.builder()
+											.id(c.getId())
+											.user(c.getUser().getUserName())
+											.name(c.getName())
+											.build())
+									.collect(Collectors.toList());
 		
 		when(userRepository.findByUserName(userName))
 				.thenReturn(Optional.of(user));
@@ -158,8 +162,72 @@ public class CategoryServiceTest {
 				);
 		}
 	
-		verify(userRepository).findByUserName(userName);
-		verify(categoryRepository).findAllByUser(user);
+		verify(userRepository, times(1)).findByUserName(userName);
+		verify(categoryRepository, times(1)).findAllByUser(user);
+	}
+	
+	@Test
+	@DisplayName("Test for editCategory(): successful case")
+	void editCategoryTest() throws Exception {
+		CategoryDTO categoryDTO = CategoryDTO.builder()
+										.id(10L)
+										.user("TestUser")
+										.name("Test Category Modified")
+										.build();
+		
+		User user = User.builder()
+				.id("TestUserID")
+				.userName("TestUser")
+				.password("TestUser Password")
+				.email("testuser@test.com")
+				.authProvider(null)
+				.blogTitle("TestUser's Blog")
+				.build();
+		
+		Category existingCategory = Category.builder()
+										.id(10L)
+										.user(user)
+										.name("Test Category")
+										.build();
+		
+		Category savedCategory = Category.builder()
+										.id(10L)
+										.user(user)
+										.name("Test Category Modified")
+										.build();
+
+		CategoryDTO resultingCategoryDTO = CategoryDTO.builder()
+													.id(10L)
+													.user("TestUser")
+													.name("Test Category Modified")
+													.build();
+		
+		when(categoryRepository.findById(categoryDTO.getId()))
+			.thenReturn(Optional.of(existingCategory));
+		when(categoryRepository.save(existingCategory))
+			.thenReturn(savedCategory);
+		
+		CategoryDTO resultingCategoryDTOFromService = categoryService.editCategory(categoryDTO);
+		
+		assertThat(resultingCategoryDTOFromService)
+			.isNotNull();
+		assertThat(resultingCategoryDTOFromService.getId())
+			.isEqualTo(resultingCategoryDTO.getId());
+		assertThat(resultingCategoryDTOFromService.getUser())
+			.isEqualTo(resultingCategoryDTO.getUser());
+		assertThat(resultingCategoryDTOFromService.getName())
+			.isEqualTo(resultingCategoryDTO.getName());
+		
+		verify(categoryRepository, times(1)).findById(categoryDTO.getId());
+		verify(categoryRepository, times(1)).save(existingCategory);
+											
+	}
+	
+	@Test
+	@DisplayName("Test for deleteCategory(): successful case")
+	void deleteCategoryTest() throws Exception {
+		categoryService.deleteCategory(3L);
+		verify(categoryRepository, times(1)).deleteById(3L);
 	}
 
 }

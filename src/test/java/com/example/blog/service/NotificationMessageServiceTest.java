@@ -1,6 +1,7 @@
 package com.example.blog.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,14 +40,8 @@ public class NotificationMessageServiceTest {
 	@DisplayName("Test for getAllMessagesForThisUser: successful case")
 	void getAllMessagesForThisUserTest() throws Exception {
 		String userName = "TestUser";
-		User user = User.builder()
-						.id("TestUserID")
-						.userName(userName)
-						.password("TestUserPassword")
-						.email("testuser@test.com")
-						.authProvider(null)
-						.blogTitle("TestUser's Blog")
-						.build();
+		User user = ServiceTestSupporting.buildUser();
+		
 		List<NotificationMessage> allMessages = new ArrayList<>();
 		allMessages.add(NotificationMessage.builder()
 							.id(3L)
@@ -103,30 +98,23 @@ public class NotificationMessageServiceTest {
 				);
 		}
 		
-		verify(userRepository).findByUserName(userName);
-		verify(notificationMessageRepository).findAllByRecipient(user);
+		verify(userRepository, times(1)).findByUserName(userName);
+		verify(notificationMessageRepository, times(1)).findAllByRecipient(user);
 	}
 	
 	@Test
 	@DisplayName("Test for clearAllMessagesForThisUser(): successful case")
 	void clearAllMessagesForThisUserTest() throws Exception {
 		String userName = "TestUser";
-		User user = User.builder()
-						.id("TestUserID")
-						.userName(userName)
-						.password("TestUserPassword")
-						.email("testuser@test.com")
-						.authProvider(null)
-						.blogTitle("TestUser's Blog")
-						.build();
+		User user = ServiceTestSupporting.buildUser();
 		
 		when(userRepository.findByUserName(userName))
 			.thenReturn(Optional.of(user));
 		
 		notificationMessageService.clearAllMessagesForThisUser(userName);
 		
-		verify(userRepository).findByUserName(userName);
-		verify(notificationMessageRepository).deleteAllByRecipient(user);
+		verify(userRepository, times(1)).findByUserName(userName);
+		verify(notificationMessageRepository, times(1)).deleteAllByRecipient(user);
 	}
 
 }

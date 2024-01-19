@@ -163,7 +163,7 @@ public class ArticleService {
 										.tagName(article.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
 										.createdAt(article.getCreatedAt())
 										.updatedAt(article.getUpdatedAt())
-										.mainImage(getMainImageName(article))
+										.mainImage(article.getMainImage().getFileName())
 										.build();
 		return resultingArticleDTO;
 	}
@@ -186,7 +186,7 @@ public class ArticleService {
 									.tagName(a.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
 									.createdAt(a.getCreatedAt())
 									.updatedAt(a.getUpdatedAt())
-									.mainImage(getMainImageName(a))
+									.mainImage(a.getMainImage().getFileName())
 									.build())
 				.collect(Collectors.toList());
 		
@@ -210,7 +210,7 @@ public class ArticleService {
 									.tagName(ar.getTag().stream().map(at -> at.getTag().getName()).collect(Collectors.toList()))
 									.createdAt(ar.getCreatedAt())
 									.updatedAt(ar.getUpdatedAt())
-									.mainImage(getMainImageName(ar))
+									.mainImage(ar.getMainImage().getFileName())
 									.build())
 				.collect(Collectors.toList());
 		return articles;
@@ -233,7 +233,7 @@ public class ArticleService {
 							.tagName(at.getArticle().getTag().stream().map(aatt -> aatt.getTag().getName()).collect(Collectors.toList()))							
 							.createdAt(at.getCreatedAt())
 							.updatedAt(at.getUpdatedAt())
-							.mainImage(getMainImageName(at.getArticle()))
+							.mainImage(at.getArticle().getMainImage().getFileName())
 							.build())
 				.collect(Collectors.toList());
 		
@@ -303,11 +303,21 @@ public class ArticleService {
 		return articleTagList;
 	}
 	
+	/*
+		-> 이 method를 굳이 사용해야 하는 이유를 잘 모르겠다.
+		Article에도 File type의 "mainImage"가 있으므로 Article을 가지고 있다면
+		article.getMainImage().getFileName()을 사용하면 되는 것 아닌가?
+		어째서 repository를 사용해 database operation을 따로 해야 하는 것인가?
+		
+		이 method를 정의할 때의 내가 실수를 했을 가능성도, 지금의 내가 무언가 중요한 것을 놓치고 있을 가능성도
+		있다고 생각하므로 일단은 이렇게 놔두고 이후 확신이 생긴다면 재사용 혹은 삭제를 하도록 하겠다.
+	*/
+	/*
 	@Transactional
 	private String getMainImageName(Article article) {
 		return fileRepository.findByArticle(article)
 					.orElseThrow(() -> new EntityNotFoundException("File not found"))
 					.getFileName();
-	}
+	}*/
 	
 }
