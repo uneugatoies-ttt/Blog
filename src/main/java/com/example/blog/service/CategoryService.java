@@ -1,6 +1,5 @@
 package com.example.blog.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,7 +67,6 @@ public class CategoryService {
 				.orElseThrow(() -> new EntityNotFoundException("Category not found"));
 		
 		existingCategory.setName(categoryDTO.getName());
-		existingCategory.setUpdatedAt(LocalDateTime.now());
 		
 		Category savedCategory = categoryRepository.save(existingCategory);
 		

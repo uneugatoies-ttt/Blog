@@ -16,6 +16,12 @@ import com.example.blog.dto.ResponseDTO;
 import com.example.blog.service.FileService;
 
 /*
+	-> FileController는 이 application에서 file과 관련된 request를 받는 controller이다.
+	다만 FileController가 직접적으로 frontend로부터의 request를 받아 처리하는 동작 방식은 이
+	application을 가장 초반에 만들 때에 생각한 계획으로, 이후 프로젝트가 진행되면서 여러 logic이 변경되어
+	file의 처리는 주로 article이 처리될 때에 동시에 되는 것으로 바뀌었다; 따라서 이 class가 직접 사용되는
+	일은 "getFile"이 사용되는 경우 외에는 거의 없을 것이다.
+
 	-> 기존에는 file의 이름을 user로부터 input으로 받아 지정하고, 이후 user가 그 이름을 수정할
 	수 있게 하려고 했지만, 불필요하고 거의 무의미한 기능이라고 여겼기에 그것은 구현하지 않는 것으로 방향을 변경했다.
 */

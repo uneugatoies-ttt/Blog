@@ -12,6 +12,11 @@ import com.example.blog.dto.ResponseDTO;
 import com.example.blog.dto.UserDTO;
 import com.example.blog.service.UserService;
 
+/*
+	-> UserController는 이 application에서 사용자와 관련된 request를 받는 controller이다.
+	authentication과 사용자 삭제 등에 사용된다.
+*/
+
 @RestController
 @RequestMapping("/user")
 public class UserController {

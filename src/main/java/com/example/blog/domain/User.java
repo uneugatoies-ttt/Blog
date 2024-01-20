@@ -16,6 +16,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/*
+	-> User entity는 이 application에서 회원 가입을 완료한 사용자를 나타낸다.
+*/
+
 @Entity
 @Getter
 @Setter
@@ -41,10 +45,15 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String userName;
 
+	// password는 encoding되어서 저장된다.
 	private String password;
 	
 	private String email;
 
+	/*
+	만약 OAuth2를 통한 사용자에 해당하는 record라면, 이 field의 값은 해당하는 provider의
+	명칭이 들어간다. 이 application에서는 GitHub 혹은 Google이 된다.
+	*/
 	private String authProvider;
 	
 	private String blogTitle;

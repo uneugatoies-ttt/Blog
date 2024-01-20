@@ -16,6 +16,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/*
+	-> NotificationMessage는 이 application에서 각 user에게 전달되는 알림 메시지를 나타낸다.
+*/
+
 @Entity
 @Getter
 @Setter

@@ -16,6 +16,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/*
+	-> Reply entity는 이 application의 게시물에 달리는 댓글을 나타낸다.
+*/
+
 @Entity
 @Getter
 @Setter

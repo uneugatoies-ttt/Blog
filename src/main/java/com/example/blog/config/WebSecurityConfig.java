@@ -18,13 +18,16 @@ import com.example.blog.security.filters.JwtAuthenticationFilter;
 import com.example.blog.security.filters.RedirectUrlSessionFilter;
 
 /*
+	-> WebSecurityConfig는 security와 관련된 설정을 하는 class이다.
+	어떤 path로 들어오는 request를 허용할 것인지, OAuth2의 처리는 어떻게 할 것인지,
+	어떤 custom filter를 사용할 것인지 등의 설정을 하고 있다.
+
 	-> ".redirectionEndpoint().baseUri("/oauth2/callback/*")":
 	
 		- 이것은 OAuth2 redirection callbacks으로 사용할 기본 URI를 명시한다.
 		이 앱의 경우 "/oauth2/callback/*"라고 설정했는데, 이것이 OAuth2 provider (GitHub 혹은 Google) 가
 		성공적인 인증 이후 사용자를 redirect할 장소가 된다.
 	
-		
 	-> ".authorizationEndpoint().baseUri("/auth/authorize")":
 	
 		- 이것은 authorization end point가 노출될 장소가 될 기본 URI를 명시한다.
@@ -72,7 +75,7 @@ public class WebSecurityConfig {
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 			.authorizeRequests()
-				.antMatchers("/", "/auth/**", "/oauth2/**", "/test/**").permitAll()
+				.antMatchers("/", "/auth/**", "/oauth2/**", "/user/**", "/test/**").permitAll()
 				.anyRequest().authenticated()
 				.and()
 			.oauth2Login()

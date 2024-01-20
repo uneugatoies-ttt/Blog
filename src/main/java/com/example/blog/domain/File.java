@@ -17,6 +17,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/*
+	-> File entity는 이 application의 article이 하나씩 가지는
+	간판이나 섬네일 격의 이미지를 나타낸다.
+	
+	다만 image file 자체는 server의 computer에 직접적으로 저장되는 식으로 동작하므로,
+	이 entity는 그 file의 이름이나 경로 등의 metadata를 담는 역할만을 한다.
+*/
+
 @Entity
 @Getter
 @Setter

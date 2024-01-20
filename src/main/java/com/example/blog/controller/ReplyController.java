@@ -17,6 +17,10 @@ import com.example.blog.dto.ResponseDTO;
 import com.example.blog.dto.ResponseListDTO;
 import com.example.blog.service.ReplyService;
 
+/*
+	-> ReplyController는 이 application에서 reply와 관련된 request를 받는 controller이다.
+*/
+
 @RestController
 @RequestMapping("/reply")
 public class ReplyController {

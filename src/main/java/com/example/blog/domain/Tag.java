@@ -19,6 +19,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/*
+	-> Tag entity는 이 application의 게시물들이 분류되는 태그를 나타낸다.
+	카테고리와는 다르게 한 게시물이 다수의 태그를 가질 수 있기 때문에 Article과 Tag에는 
+	다대다 관계가 성립한다.
+	
+	하지만 appliation의 동작 방식 때문에 직접적으로 @ManyToMany를 사용하지 않고,
+	중간에 "ArticleTag"라는 매개체 역할을 하는 별개의 entity를 정의하는 방식으로 
+	이 관계는 표현된다.
+*/
+
 @Entity
 @Getter
 @Setter

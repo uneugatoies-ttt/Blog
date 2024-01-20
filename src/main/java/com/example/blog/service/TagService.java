@@ -1,6 +1,5 @@
 package com.example.blog.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,7 +66,6 @@ public class TagService {
 				.orElseThrow(() -> new EntityNotFoundException("Tag not found"));
 		
 		existingTag.setName(tagDTO.getName());
-		existingTag.setUpdatedAt(LocalDateTime.now());
 		
 		Tag savedTag = tagRepository.save(existingTag);
 		

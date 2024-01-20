@@ -1,7 +1,6 @@
 package com.example.blog.service;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -109,7 +108,6 @@ public class ArticleService {
 		
 		if (articleDTO.getId() != null) {
 			article.setId(articleDTO.getId());
-			article.setUpdatedAt(LocalDateTime.now());
 		} 
 		
 		Article savedArticle = articleRepository.save(article);

@@ -20,6 +20,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/*
+	-> Article entity는 이 application의 게시글을 나타낸다.
+*/
+
 @Entity
 @Getter
 @Setter

@@ -18,7 +18,7 @@ import com.example.blog.dto.ResponseListDTO;
 import com.example.blog.service.CategoryService;
 
 /*
-	-> CategoryController는 
+	-> CategoryController는 이 application에서 category에 관련된 request를 받는 controller이다.
 */
 
 @RestController

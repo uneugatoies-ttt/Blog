@@ -20,7 +20,7 @@ import com.example.blog.service.ArticleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /*
-	-> ArticleController는 이 application에서 article (혹은 post) 에 관한 request를 받는 controller이다.
+	-> ArticleController는 이 application에서 article에 관한 request를 받는 controller이다.
 */
 
 @RestController

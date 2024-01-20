@@ -17,10 +17,9 @@ spring:
             redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
             token-uri: https://oauth2.googleapis.com/token
             resource-uri: https://www.googleapis.com/oauth2/v2/userinfo
-            authorization-grant-type: authorization_code
             scope:
-              - profile
               - email
+              - profile
               
     provider:
       github:

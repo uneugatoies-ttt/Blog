@@ -16,6 +16,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/*
+	-> Category entity는 이 application의 게시글이 분류되는 카테고리를 나타낸다.
+*/
+
 @Entity
 @Getter
 @Setter

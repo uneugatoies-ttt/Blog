@@ -1,6 +1,5 @@
 package com.example.blog.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,7 +91,6 @@ public class ReplyService {
 		Reply existingReply = replyRepository.findById(replyDTO.getId())
 				.orElseThrow(() -> new EntityNotFoundException("Reply not found"));
 		existingReply.setContent(replyDTO.getContent());
-		existingReply.setUpdatedAt(LocalDateTime.now());
 		
 		Reply modifiedReply = replyRepository.save(existingReply);
 		
