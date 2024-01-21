@@ -192,27 +192,148 @@
 
 # 사용 예시
 <details>
-<summary>회원가입과 인증</summary>
+<summary><h3>회원과 인증:</h3></summary>
+<h4>회원 가입과 로그인:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/f99a2210-e8f6-4704-828d-546837998260" alt="login">
+<li>사용자의 이름(user ID)와 비밀번호를 사용해 로그인합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/fe3f04bc-b7d6-4125-96a3-160351809746" alt="signup">
+<li>사용자의 이름, 비밀번호, 그리고 이메일을 입력해 회원 가입합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/e9395bc9-2f9e-4101-a0f1-1bdd50ac8623" alt="newblog">
+<li>회원 가입을 마치면 자동적으로 블로그가 생성됩니다.</li>
+</ul>
+
+<br/>
+
+<h4>OAuth2를 사용한 회원 가입과 로그인:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/fd5254aa-5d0d-4a9d-b371-e292c68d9ad9" alt="oauth2google">
+<li>Google 계정을 사용해서 이 어플리케이션에서 인증합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/552db43f-10da-44f4-a79a-25b730961e9b" alt="oauth2github">
+<li>GitHub 계정을 사용해서 이 어플리케이션에서 인증합니다.</li>
+</ul>
+
+<br/>
+<h4>회원 탈퇴:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/22cd7355-2249-4716-888e-225747a225bb" alt="deleteaccount">
+<li>사용자의 이름과 비밀번호를 입력해 탈퇴합니다.</li>
+</ul>
+<br/>
+</details>
+
+
+<details>
+<summary><h3>블로그 게시물:</h3></summary>
+<h4>게시물 열람:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/31ff5106-6b24-4b6d-baaa-c5a8a479d23d">
+<li>블로그에 속하는 게시물들을 열람합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/62c61738-5468-46c2-95f9-dd6732cdcd31">
+<li>게시물의 내용을 열람합니다.</li>
+</ul>
+<br/>
+
+<h4>게시물 작성:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/a34a2e5e-e5aa-49d3-964b-caeecf7aaafe">
+<li>제목, 내용, 대표 이미지, 카테고리, 그리고 태그를 입력하거나 지정해 게시물을 작성합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/cb3f757c-9711-46a0-b11c-0c031c1ba259">
+<li>게시물이 작성된 이후의 블로그의 메인 화면을 열람합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/05ed7fdf-94bf-42a8-b91a-74433893f9d5">
+<li>새로 작성된 게시물의 내용을 열람합니다.</li>
+</ul>
+<br/>
+
+<h4>게시물 수정:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/e9f72ba7-a156-4b7b-9696-399b909d1fe2">
+<li>제목, 내용, 대표 이미지, 카테고리, 그리고 태그를 변경해서 게시물을 수정합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/f31a3ffb-03b8-497c-b05f-30bd00b4740d">
+<li>수정된 게시물의 내용을 열람합니다.</li>
+</ul>
+<br/>
+
+<h4>게시물 삭제:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/72bc2129-dd2d-4682-8859-83871414df18">
+<li>게시물의 내용에 표시된 버튼을 눌러 게시물을 삭제합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/54d53836-6a5a-4c1a-83fe-63dd508dbdbb">
+<li>게시물이 삭제된 이후의 블로그의 메인 화면을 열람합니다.</li>
+</ul>
+<br/>
+</details>
+
+
+<details>
+<summary><h3>카테고리와 태그:</h3></summary>
+<h4>카테고리와 태그 추가와 명칭 수정:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/cb38579a-a4a9-4e3a-a487-a8626e1bf477">
+<li>카테고리를 추가, 수정, 혹은 삭제합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/e6769172-7b44-4f9b-aac4-ba09bcb2c034">
+<li>태그를 추가, 수정, 혹은 삭제합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/b798c68f-8041-414a-8377-3dc0ec122aa4">
+<li>추가, 수정, 혹은 삭제를 마친 이후의 카테고리와 태그의 목록을 확인합니다.</li>
+</ul>
+<br/>
 
 </details>
-<br/>
+
+
 <details>
-<summary>게시물</summary>
+<summary><h3>댓글:</h3></summary>
+<h4>댓글 추가:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/f118f9eb-1aab-414c-bc19-7bc9169ca73b">
+<li>게시물의 하단에서 댓글을 작성합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/7f82d83b-8f44-4806-b435-f82534ee1189">
+<li>추가된 댓글을 확인합니다.</li>
+</ul>
+<br/>
+
+<h4>댓글 수정:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/417b6297-1e3c-4b8f-9771-b833374a19c7">
+<li>기존의 댓글을 수정합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/3b456966-8273-46b7-813c-562c6801e9f5">
+<li>수정된 댓글을 확인합니다.</li>
+</ul>
+<br/>
+
+<h4>댓글 삭제:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/0bc2a35c-3a15-4019-b2cd-f4624e88bc5f">
+<li>기존의 댓글을 삭제합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/d4050468-e997-40d8-9fca-63bf46a93378">
+<li>삭제된 댓글을 확인합니다.</li>
+</ul>
+<br/>
 
 </details>
-<br/>
-<details>
-<summary>카테고리와 태그</summary>
 
-</details>
-<br/>
-<details>
-<summary>댓글</summary>
 
-</details>
-<br/>
 <details>
-<summary>알림 메시지</summary>
+<summary><h3>알림 메시지:</h3></summary>
+<h4>알림 메시지 확인:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/8b78e3c9-bbc8-4f9c-8e18-6d320e4ad0a3">
+<li>새로운 댓글을 작성합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/f79a9b78-dcb5-4d1b-820f-26829c0fe4cd">
+<li>댓글이 달린 게시물의 작성자에게 알림 메시지가 전달된 것을 확인합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/55f81c11-dff3-43ef-8450-a74fbd8b54a3">
+<li>드롭다운 메뉴를 클릭해 알림 메시지의 목록을 확인합니다.</li>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/9b253338-35b5-4762-9fb7-5b23757c117c">
+<li>드롭다운 메뉴의 메시지를 클릭해 해당 댓글이 달린 페이지로 이동합니다.</li>
+</ul>
+<br/>
+
+<h4>알림 메시지 삭제:</h4>
+<ul>
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/db3c3ce3-874a-4400-afa4-32837879b4b7">
+<li>드롭다운 메뉴의 버튼을 클릭해 모든 메시지를 삭제합니다.</li>
+</ul>
+<br/>
 
 </details>
 
