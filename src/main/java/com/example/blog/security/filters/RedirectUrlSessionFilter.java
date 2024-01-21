@@ -13,7 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.blog.common.RedirectUriSession;
 
 /*
-	-> "OAuthSuccessHandler의 comment에서 설명된 것과 같이, 원래는 이 class 내부에서 
+	-> "OAuthSuccessHandler"의 comment에서 설명된 것과 같이, 원래는 이 class 내부에서 
 	Cookie를 사용해서 이 URI로 들어온 "redirect_uri"라는 이름의 parameter가 있다면
 	그것을 저장했지만, 이미 UserSession을 사용하고 있는 상황에서 굳이 cookie와 session을
 	동시에 쓸 필요는 없다고 생각해서 일괄적으로 session을 사용하는 것으로 노선을 변경했다.

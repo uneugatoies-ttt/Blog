@@ -20,7 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.blog.security.TokenProvider;
 
 /*
-	-> 이 filter class는 request로부터:
+	-> JwtAuthenticationFilter는 들어오는 request로부터:
 		1) "Authorization" header를 확인해 token을 회수하고,
 		2) 그것으로 얻을 수 있는 userId를 TokenProvider의 validateAndGetUserId()로부터 받아,
 		3) ID를 "username"으로 사용하는 UsernamePasswordAuthenticationToken을 정의해,

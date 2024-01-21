@@ -25,10 +25,13 @@ import com.example.blog.persistence.UserRepository;
 
 import lombok.AllArgsConstructor;
 
+// FileController의 dependency로 사용되어 File과 관련된 logic을 수행하는 service이다.
 @Service
 @AllArgsConstructor
 public class FileService {
 	
+	// "forflie.txt"는 이 project를 만들 당시의 개발 환경인 system 내부의 어느 경로를 담고 있다.
+	// image file 원본들은 모두 이 경로에 저장된다.
 	private static final String FORFILE_FILEPATH = 
 			"." + separator +
 			"src" + separator +

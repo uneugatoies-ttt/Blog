@@ -15,6 +15,7 @@ import com.example.blog.persistence.UserRepository;
 
 import lombok.AllArgsConstructor;
 
+// NotificationMessageController의 dependency로 사용되어 NotificationMessage와 관련된 logic을 수행하는 service이다.
 @Service
 @AllArgsConstructor
 public class NotificationMessageService {

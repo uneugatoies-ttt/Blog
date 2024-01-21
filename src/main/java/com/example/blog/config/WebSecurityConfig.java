@@ -93,9 +93,8 @@ public class WebSecurityConfig {
 				.exceptionHandling()
 					.authenticationEntryPoint(new Http403ForbiddenEntryPoint());
 		
-		/*
-		이 설정이 있기 때문에 RedirectUrlCookieFilter가 사용된다.
-		*/
+		
+		// 이 설정이 있기 때문에 RedirectUrlCookieSessionFilter가 사용된다.
 		http.addFilterBefore(
 			redirectUrlSessionFilter,
 			OAuth2AuthorizationRequestRedirectFilter.class

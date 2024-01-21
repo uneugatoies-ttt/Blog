@@ -31,6 +31,7 @@ import com.example.blog.persistence.ReplyRepository;
 import com.example.blog.persistence.TagRepository;
 import com.example.blog.persistence.UserRepository;
 
+// ArticleController에서 dependency로 사용되어 Article과 관련된 logic을 수행하는 service이다.
 @Service
 public class ArticleService {
 	

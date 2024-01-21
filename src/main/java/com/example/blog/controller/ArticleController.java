@@ -125,7 +125,7 @@ public class ArticleController {
 	
 	@PutMapping
 	public ResponseEntity<?> editArticle(
-		@RequestPart("file") MultipartFile file,
+		@RequestPart(value = "file", required = false) MultipartFile file,
 		@RequestPart("articleDTO") String articleDTOJson
 	) {
 		try {

@@ -16,7 +16,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.AllArgsConstructor;
 
 /*
- 	-> 이 class는 JWT를 생성한다.
+ 	-> TokenProvider는 JWT를 생성한다.
  	
  	-> authentication 결과의 token은 이 class에서 만들어진다는 점을 기억할 것. database에 저장되었다가
  	fetch되는 것이 아니다.

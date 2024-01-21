@@ -15,8 +15,8 @@ import com.example.blog.common.UserSession;
 import lombok.AllArgsConstructor;
 
 /*
-	-> 이 class의 method는 OAuth의 흐름이 성공적으로 종료했을 때 call된다. OAuth를
-	사용하는 user들을 위해서 이 class내부에서 그들에 상응하는 JWT들을 만들어 주어야 한다.
+	-> OAuthSuccessHandler의 method는 OAuth의 흐름이 성공적으로 종료했을 때 call된다. OAuth를
+	사용하는 user들을 위해서, 이 class 내부에서는 그들에 대응되는 JWT들을 만들어 주어야 한다.
 	
 	-> 원래는 frontend로부터 URI의 parameter로 "redirect_uri"의 값을 받아 그것을
 	RedirectUrlCookieFilter에서 cookie에 담고서 이후에 이 class에서 그것을 회수하는 것으로 설정했다.

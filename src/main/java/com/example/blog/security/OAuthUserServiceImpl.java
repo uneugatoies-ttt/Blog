@@ -17,8 +17,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /*
-	-> 이 class는 GitHub나 Google에서 return된 user information이 이 application의 database 내부에
-	있는지의 여부를 확인하기 위해서 존재한다. 만약 이 확인 과정에서 해당하는 user가 없다면, 새로운 account가 만들어진다.
+	-> OAuthUserServiceImpl은 GitHub나 Google에서 return된 user information이
+	이 application의 database 내부에 있는지의 여부를 확인하기 위해서 존재한다.
+	만약 이 확인 과정에서 해당하는 user가 없다면, 새로운 account가 만들어진다.
 */
 
 @Slf4j
@@ -43,10 +44,7 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 		final OAuth2User oAuth2User = super.loadUser(userRequest);
 		
 		try {
-			/*
-				debugging을 위해서 user information을 log한다.
-				test할 때만 사용.
-			*/
+			// debugging을 위해서 user information을 log한다.
 			log.info("oAuth2User attributes {} ", new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

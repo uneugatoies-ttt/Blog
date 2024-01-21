@@ -8,6 +8,7 @@ import com.example.blog.domain.Article;
 import com.example.blog.domain.File;
 import com.example.blog.domain.User;
 
+// File entity에 대한 operation을 포함하는 repository이다.
 public interface FileRepository extends JpaRepository<File, Long> {
 	
 	Boolean existsByFileNameAndUploader(String fileName, User uploader);

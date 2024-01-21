@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	-> 하술한 문제의 원인이 아직 명확하지 않기 때문에 최대한 저것들을 피해서 test code를 작성하려고 했다.
 	이후 해결법을 알아낸다면 그에 따른 변경과 추가를 하도록 하겠다.
 	
-	-> "Failed to Load ApplicationContext" Problem:
+	-> "Failed to Load ApplicationContext" 문제:
 		-> TokenProvider의 MockBean을 제공하지 않으면 그것의 bean을 찾지 못했다는 error가 계속해서 발생.
 		당분간은 각 test class 내부에서 이것을 @MockBean으로 추가; 해결 방법 탐색할 것.
 	

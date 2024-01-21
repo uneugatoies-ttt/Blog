@@ -17,6 +17,7 @@ import com.example.blog.security.TokenProvider;
 import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 
+// UserController의 dependency로 사용되어 User와 관련된 logic을 수행하는 service이다.
 @Service
 @AllArgsConstructor
 public class UserService {

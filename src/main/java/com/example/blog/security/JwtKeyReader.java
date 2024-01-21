@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 import lombok.AllArgsConstructor;
 
 /*
-	-> 이 class는 local에 저장된 text file로부터 JWT를 생성하는 데에 필요한 secret key를 읽는
-	기능을 하는 static method를 정의하고 있다.
+	-> JwtKeyReader는 local에 저장된 text file로부터 JWT를 생성하는 데에 필요한 secret key를 읽는
+	기능을 하는 static method "readKey()"를 정의하고 있다.
 
-	-> 현재는 local directory에 secret key를 담는 text file (.gitignore에 포함)을 만들어,
+	-> 현재는 local directory에 secret key를 담는 text file (.gitignore에 포함됨)을 만들어
 	이것을 이 file에서 읽어오는 식으로 secret key를 사용하고 있지만, 더 좋은 방법이 있지 않을까 싶다.
 */
 
