@@ -69,7 +69,7 @@ public class UserControllerTest {
 								.blogTitle("TestUser's Blog")
 								.build());
 		
-		ResultActions result = mockMvc.perform(post("/auth/signup")
+		ResultActions result = mockMvc.perform(post("/user/signup")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(userDTO)));
 		
@@ -100,7 +100,7 @@ public class UserControllerTest {
 		when(userService.getUserByCredentials("TestUser", "TestUserPassword"))
 							.thenReturn(responseUserDTO);
 		
-		ResultActions result = mockMvc.perform(post("/auth/signin")
+		ResultActions result = mockMvc.perform(post("/user/signin")
 							.contentType(MediaType.APPLICATION_JSON)
 							.content(objectMapper.writeValueAsString(userDTO)));
 		
@@ -124,7 +124,7 @@ public class UserControllerTest {
 	    when(userService.getUserByCredentials("NonExistentUser", "InvalidPassword"))
 	            .thenReturn(null);
 
-	    ResultActions result = mockMvc.perform(post("/auth/signin")
+	    ResultActions result = mockMvc.perform(post("/user/signin")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(objectMapper.writeValueAsString(userDTO)));
 
@@ -146,7 +146,7 @@ public class UserControllerTest {
 		when(userService.checkThisUser(checkUserDTO))
 			.thenReturn(true);
 		
-		ResultActions result = mockMvc.perform(post("/auth/check-this-user")
+		ResultActions result = mockMvc.perform(post("/user/check-this-user")
 												.contentType(MediaType.APPLICATION_JSON)
 												.content(objectMapper.writeValueAsString(checkUserDTO)));
 		
@@ -170,7 +170,7 @@ public class UserControllerTest {
 	    when(userService.deleteUser(userDTO))
 	    	.thenReturn("User deleted successfully");
 	    
-		ResultActions result = mockMvc.perform(post("/auth/user-deletion")
+		ResultActions result = mockMvc.perform(post("/user/user-deletion")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(userDTO)));
 
