@@ -22,19 +22,13 @@
 # 프로젝트 회고
 ### 개발을 진행하며 배우게 된 것들:
 - Spring application에서 빈번하게 사용되는 패턴들의 기본적인 특징과 그들을 이용할 때의 유용함에 대해서 알게 되었습니다.
-<br/>
 - Java 클래스와 관계형 DB의 테이블과의 JPA를 통한 mapping의 기본적인 사항들과 사용 방법에 대해서 알게 되었습니다.  
-<br/>
 - Spring application에서 자주 사용되는 인증 방식 중 token 기반 인증에 대한 개념과 JWT의 사용 방법에 대해서 알게 되었습니다.  
-<br/>
 - Spring Security의 기본적인 동작과 설정 방법에 대해서 알게 되었습니다. 
-<br/>
 - JUnit을 통한 unit test의 기본적인 방법과 그들이 가지는 의의에 대해서 알게 되었습니다.  
-<br/>
 - Spring 기반의 backend app과 React/TypeScript 기반의 frontend app의 통합과 그러한 decoupled architecture를 사용하는 의미에 대해서 알게 되었습니다.  
-<br/>
 - Spring application에서 validation (유효성 검사) 을 위해 사용할 수 있는 기능과 그에 따른 예외 처리에 대해서 알게 되었습니다.
-<br/>
+
 
 
 
