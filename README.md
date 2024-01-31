@@ -1,4 +1,6 @@
 # 개요
+<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/cb3f757c-9711-46a0-b11c-0c031c1ba259">
+
 ### 어플리케이션의 소개:
 이 어플리케이션은 간단한 블로그 사이트의 기능을 수행하기 위한 REST API들을 정의합니다.  
 이것은 Spring Boot를 사용하는 백엔드 어플리케이션으로, 프론트엔드 어플리케이션에게 API를 제공하여 그로부터 들어오는 요청을 method와 URL에 따라 분류해 해당하는 API의 로직으로 처리합니다.
