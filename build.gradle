@@ -35,8 +35,6 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	
-	//implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
-
 	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 
 	// JUnit 5

@@ -75,6 +75,9 @@ public class TokenProvider {
 	/*
 		-> 이 application에서 JWT를 생성할 때에 subject로 ID를 지정하고 있기 때문에,
 		이 method는 해당 token에 상응하는 user의 ID 값을 return하게 될 것이다.
+		
+		-> 현재는 JWT의 expiration이 지났을 경우 RuntimeException을 throw하고 있지만,
+		이것이 최선의 방법인지는 아직 잘 모르겠다.
 	*/
 	public String validateAndGetUserId(String token) throws IOException {
 		final String secretKey = JwtKeyReader.readKey();
@@ -84,7 +87,12 @@ public class TokenProvider {
 							.parseClaimsJws(token)
 							.getBody();
 		
+		// JWT의 만기가 지났을 경우
+		if (claims.getExpiration().before(new Date())) {
+			throw new RuntimeException("The given JWT has expired.");
+		}
+		
 		return claims.getSubject();
 	}
-
+	
 }
