@@ -15,7 +15,7 @@ import org.springframework.web.filter.CorsFilter;
 import com.example.blog.security.OAuthSuccessHandler;
 import com.example.blog.security.OAuthUserServiceImpl;
 import com.example.blog.security.filters.JwtAuthenticationFilter;
-import com.example.blog.security.filters.RedirectUrlSessionFilter;
+import com.example.blog.security.filters.RedirectUrlCookieFilter;
 
 /*
 	-> WebSecurityConfig는 security와 관련된 설정을 하는 class이다.
@@ -48,18 +48,18 @@ public class WebSecurityConfig {
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 	private OAuthUserServiceImpl oAuthUserService;
 	private OAuthSuccessHandler oAuthSuccessHandler;
-	private RedirectUrlSessionFilter redirectUrlSessionFilter;
+	private RedirectUrlCookieFilter redirectUrlCookieFilter;
 	
 	public WebSecurityConfig(
 			JwtAuthenticationFilter jwtAuthenticationFilter,
 			OAuthUserServiceImpl oAuthUserService,
 			OAuthSuccessHandler oAuthSuccessHandler,
-			RedirectUrlSessionFilter redirectUrlSessionFilter
+			RedirectUrlCookieFilter redirectUrlCookieFilter
 	) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.oAuthUserService = oAuthUserService;
 		this.oAuthSuccessHandler = oAuthSuccessHandler;
-		this.redirectUrlSessionFilter = redirectUrlSessionFilter;
+		this.redirectUrlCookieFilter = redirectUrlCookieFilter;
 	}
 	
 	@Bean
@@ -96,7 +96,7 @@ public class WebSecurityConfig {
 		
 		// 이 설정이 있기 때문에 RedirectUrlCookieSessionFilter가 사용된다.
 		http.addFilterBefore(
-			redirectUrlSessionFilter,
+			redirectUrlCookieFilter,
 			OAuth2AuthorizationRequestRedirectFilter.class
 		);
 		

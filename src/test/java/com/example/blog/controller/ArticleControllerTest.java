@@ -31,7 +31,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.blog.common.RedirectUriSession;
 import com.example.blog.dto.ArticleDTO;
 import com.example.blog.dto.FileDTO;
 import com.example.blog.security.TokenProvider;
@@ -71,6 +70,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 		TokenProvider나 RedirectUriSession과 다른 점은, 만약 ObjectMapper를 아예 사용하지 않으면 괜찮다는 것이다.
 		하지만 이것을 @MockBean을 통해서 사용하려고 하면 문제가 발생한다; 오로지 @Autowired를 통해서만 사용이 가능하다.
 		@Autowired와 @MockBean을 동시에 사용하려고 해도 동일한 문제가 발생한다.
+		
+	(24-02-28)
+	-> RedirectUriSession class 자체를 삭제한 이후로는 이와 관련된 context 문제가 사라졌다.
+	session 기능과 모종의 관련이 있으리라 예측하지만, 아직 정확히 알 수 없다.
 */
 
 @WebMvcTest(ArticleController.class)
@@ -89,8 +92,6 @@ public class ArticleControllerTest {
 	private FileService fileService;
 	@MockBean
 	private TokenProvider tokenProvider;
-	@MockBean
-	private RedirectUriSession redirectUriSession;
 
 	@BeforeEach
 	void setup() {

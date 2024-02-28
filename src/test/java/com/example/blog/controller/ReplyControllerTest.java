@@ -26,7 +26,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.example.blog.common.RedirectUriSession;
 import com.example.blog.dto.ReplyDTO;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.ReplyService;
@@ -46,8 +45,6 @@ public class ReplyControllerTest {
 	private ReplyService replyService;
 	@MockBean
 	private TokenProvider tokenProvider;
-	@MockBean
-	private RedirectUriSession redirectUriSession;
 	
 	@BeforeEach
 	void setup() {

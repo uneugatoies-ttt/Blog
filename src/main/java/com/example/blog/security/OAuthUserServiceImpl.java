@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.example.blog.common.UserSession;
+import com.example.blog.common.OAuthUserNameGetter;
 import com.example.blog.domain.User;
 import com.example.blog.persistence.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,12 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 	
 	private UserRepository userRepository;
-	private UserSession userSession;
+	private OAuthUserNameGetter oAuthUserNameGetter;
 	
-	public OAuthUserServiceImpl(UserRepository userRepository, UserSession userSession) {
+	public OAuthUserServiceImpl(UserRepository userRepository, OAuthUserNameGetter oAuthUserNameGetter) {
 		super();
 		this.userRepository = userRepository;
-		this.userSession = userSession;
+		this.oAuthUserNameGetter = oAuthUserNameGetter;
 	}
 	
 	@Override
@@ -52,16 +52,8 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 		
 		final String authProvider = userRequest.getClientRegistration().getClientName();
 
-		String username = null;
-		if (authProvider.equals("GitHub")) {
-			// "login" field를 가져온다; 모든 whitespace를 -로 대체한다.
-			username = ((String) oAuth2User.getAttributes().get("login")).replaceAll(" ", "-");
-		} else if (authProvider.equals("Google")) {
-			// Google의 OAuth2 flow에서는 "login" field가 존재하지 않기 때문에,
-			// "name" field를 대신해서 가져와야 한다; 역시 모든 whitespace를 -로 대체한다.
-			username = ((String) oAuth2User.getAttributes().get("name")).replaceAll(" ", "-");
-		}
-		
+		String username = oAuthUserNameGetter.getInOAuthUserService(authProvider, oAuth2User);
+
 		if (username == null)
 			throw new RuntimeException("username is null");
 		
@@ -78,8 +70,6 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
 			userEntity = userRepository.findByUserName(username)
 					.orElseThrow(() -> new EntityNotFoundException("User not found"));;
 		}
-		
-		userSession.setUsername(username);
 		
 		return new ApplicationOAuth2User(userEntity.getId(), oAuth2User.getAttributes());
 	}
