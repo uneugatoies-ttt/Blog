@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.example.blog.common.RedirectUriSession;
 import com.example.blog.dto.NotificationMessageDTO;
 import com.example.blog.security.TokenProvider;
 import com.example.blog.service.NotificationMessageService;
@@ -40,8 +39,6 @@ public class NotificationMessageControllerTest {
 	private NotificationMessageService notificationMessageService;
 	@MockBean
 	private TokenProvider tokenProvider;
-	@MockBean
-	private RedirectUriSession redirectUriSession;
 	
 	@BeforeEach
 	void setup() {
