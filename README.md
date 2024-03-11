@@ -134,38 +134,46 @@
 
 # API 구조
 ### 회원과 인증 관련:
-![APIUser](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/c4eca181-905c-4f56-8460-3f200f573d54)
+![APIUser](https://github.com/uneugatoies-ttt/Blog/assets/149379411/e00e90da-91f3-410a-b9de-87be51703779)
+
 
 <br/>
 
 ### 블로그 게시물 관련:
-![APIArticle](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/cab4f590-5565-4898-82d9-7314caf73fbb)
-![APIBlog](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/4569504c-e06d-402e-a663-c48f580529c6)
+![APIArticle](https://github.com/uneugatoies-ttt/Blog/assets/149379411/e766f5ea-27f5-4029-baca-72ac5478b76c)
+
+![APIBlog](https://github.com/uneugatoies-ttt/Blog/assets/149379411/f9db763b-3689-4388-8350-53b8b0c3e1ff)
+
 
 <br/>
 
 ### 카테고리 관련:
-![APICategory](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/c25b48e3-1eea-4462-8860-824e7d8bdb9c)
+![APICategory](https://github.com/uneugatoies-ttt/Blog/assets/149379411/7dc0dd7c-1c45-45a8-ab85-7f9cead7d878)
+
 
 <br/>
 
 ### 태그 관련:
-![APITag](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/90b488fd-b8e2-4c01-8e15-921fc9bdb930)
+![APITag](https://github.com/uneugatoies-ttt/Blog/assets/149379411/beced387-03d5-4869-936d-15f965a87ee9)
+
 
 <br/>
 
 ### 댓글 관련:
-![APIReply](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/9f21db8f-f7d0-4d6e-8f68-02e099acc476)
+![APIReply](https://github.com/uneugatoies-ttt/Blog/assets/149379411/b24af9f3-856f-41a0-8179-dcb5e00b9e9c)
+
 
 <br/>
 
 ### 알림 메시지 관련:
-![APINotificationMessage](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/8952995e-56a6-42df-8e2a-455868a4cd0d)
+![APINotificationMessage](https://github.com/uneugatoies-ttt/Blog/assets/149379411/4aaa97c2-62b9-44e9-a71c-ca10a50a4619)
+
 
 <br/>
 
 ### 파일 관련:
-![APIFile](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/3b8f2cdf-b976-451d-aa5d-6ae17aedc8f3)
+![APIFile](https://github.com/uneugatoies-ttt/Blog/assets/149379411/a3b41b7e-0a7d-45cd-b19e-88b56de1c380)
+
 
 
 
@@ -174,7 +182,8 @@
 
 
 # DB 구조
-![DB 구조](https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/0f8e3513-0161-4aab-af45-d40c367bf264)
+![image](https://github.com/uneugatoies-ttt/Blog/assets/149379411/a658ee25-2dea-40fa-87f6-989089e8b367)
+
 ### 테이블:
 #### article:
 - 이 어플리케이션의 게시물을 나타냅니다.
@@ -206,11 +215,14 @@
 <summary><h3>회원과 인증:</h3></summary>
 <h4>회원 가입과 로그인:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/f99a2210-e8f6-4704-828d-546837998260" alt="login">
+![login](https://github.com/uneugatoies-ttt/Blog/assets/149379411/e394e4a1-4882-41b2-b785-b13fefc33549)
+
 <li>사용자의 이름(user ID)와 비밀번호를 사용해 로그인합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/fe3f04bc-b7d6-4125-96a3-160351809746" alt="signup">
+![signup](https://github.com/uneugatoies-ttt/Blog/assets/149379411/5c4cd5fe-6df2-41a3-92ae-c1ce4ce8bd23)
+
 <li>사용자의 이름, 비밀번호, 그리고 이메일을 입력해 회원 가입합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/e9395bc9-2f9e-4101-a0f1-1bdd50ac8623" alt="newblog">
+![newblog](https://github.com/uneugatoies-ttt/Blog/assets/149379411/a78a311b-197b-4470-bcc1-727518924a55)
+
 <li>회원 가입을 마치면 자동적으로 블로그가 생성됩니다.</li>
 </ul>
 
@@ -218,16 +230,19 @@
 
 <h4>OAuth2를 사용한 회원 가입과 로그인:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/fd5254aa-5d0d-4a9d-b371-e292c68d9ad9" alt="oauth2google">
+![oauth2google](https://github.com/uneugatoies-ttt/Blog/assets/149379411/020d7ea1-1fdc-47ab-be6d-eebd5ea02457)
+
 <li>Google 계정을 사용해서 이 어플리케이션에서 인증합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/552db43f-10da-44f4-a79a-25b730961e9b" alt="oauth2github">
+![oauth2github](https://github.com/uneugatoies-ttt/Blog/assets/149379411/a285cb7c-d13a-4db7-b242-197e947d2a5a)
+
 <li>GitHub 계정을 사용해서 이 어플리케이션에서 인증합니다.</li>
 </ul>
 
 <br/>
 <h4>회원 탈퇴:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/22cd7355-2249-4716-888e-225747a225bb" alt="deleteaccount">
+![deleteaccount](https://github.com/uneugatoies-ttt/Blog/assets/149379411/e6e61420-d355-422c-a3ff-58c87fdab397)
+
 <li>사용자의 이름과 비밀번호를 입력해 탈퇴합니다.</li>
 </ul>
 <br/>
@@ -247,29 +262,36 @@
 
 <h4>게시물 작성:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/a34a2e5e-e5aa-49d3-964b-caeecf7aaafe">
+![creating1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/7866eb1b-a1b3-493b-b5ee-568e6d528dab)
+
 <li>제목, 내용, 대표 이미지, 카테고리, 그리고 태그를 입력하거나 지정해 게시물을 작성합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/cb3f757c-9711-46a0-b11c-0c031c1ba259">
+![creating2](https://github.com/uneugatoies-ttt/Blog/assets/149379411/6391f583-aa99-4b18-9cdf-34d9bbe3aada)
+
 <li>게시물이 작성된 이후의 블로그의 메인 화면을 열람합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/05ed7fdf-94bf-42a8-b91a-74433893f9d5">
+![creating3](https://github.com/uneugatoies-ttt/Blog/assets/149379411/9207c1ea-6c80-4e5e-9180-4757cbadcc95)
+
 <li>새로 작성된 게시물의 내용을 열람합니다.</li>
 </ul>
 <br/>
 
 <h4>게시물 수정:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/e9f72ba7-a156-4b7b-9696-399b909d1fe2">
+![modifying1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/f49c2058-739a-4154-acc2-ac1d739b8498)
+
 <li>제목, 내용, 대표 이미지, 카테고리, 그리고 태그를 변경해서 게시물을 수정합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/f31a3ffb-03b8-497c-b05f-30bd00b4740d">
+![modifying2](https://github.com/uneugatoies-ttt/Blog/assets/149379411/6b70459f-274d-44dc-92de-fce826f712e1)
+
 <li>수정된 게시물의 내용을 열람합니다.</li>
 </ul>
 <br/>
 
 <h4>게시물 삭제:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/72bc2129-dd2d-4682-8859-83871414df18">
+![deleting1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/101d1a44-2f26-4b1d-9db2-69ee375c65fe)
+
 <li>게시물의 내용에 표시된 버튼을 눌러 게시물을 삭제합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/54d53836-6a5a-4c1a-83fe-63dd508dbdbb">
+![deleting2](https://github.com/uneugatoies-ttt/Blog/assets/149379411/07b5c3c9-27c6-4e26-8abf-9bdad3ac209f)
+
 <li>게시물이 삭제된 이후의 블로그의 메인 화면을 열람합니다.</li>
 </ul>
 <br/>
@@ -280,11 +302,14 @@
 <summary><h3>카테고리와 태그:</h3></summary>
 <h4>카테고리와 태그 추가와 명칭 수정:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/cb38579a-a4a9-4e3a-a487-a8626e1bf477">
+![ct1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/afce8409-23e0-4179-8571-9c0868ff7c59)
+
 <li>카테고리를 추가, 수정, 혹은 삭제합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/e6769172-7b44-4f9b-aac4-ba09bcb2c034">
+![ct2](https://github.com/uneugatoies-ttt/Blog/assets/149379411/8aa24302-da0b-4ecd-836c-55e23904021a)
+
 <li>태그를 추가, 수정, 혹은 삭제합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/b798c68f-8041-414a-8377-3dc0ec122aa4">
+![ct3](https://github.com/uneugatoies-ttt/Blog/assets/149379411/8af5f71e-709c-46c2-8e7a-5e3edbc99c90)
+
 <li>추가, 수정, 혹은 삭제를 마친 이후의 카테고리와 태그의 목록을 확인합니다.</li>
 </ul>
 <br/>
@@ -296,27 +321,33 @@
 <summary><h3>댓글:</h3></summary>
 <h4>댓글 추가:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/f118f9eb-1aab-414c-bc19-7bc9169ca73b">
+![adding1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/6d6bd10f-194d-4b3e-a795-2744aed561f6)
+
 <li>게시물의 하단에서 댓글을 작성합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/7f82d83b-8f44-4806-b435-f82534ee1189">
+![adding2](https://github.com/uneugatoies-ttt/Blog/assets/149379411/b1979d6c-2a05-4ea1-b0dc-f07398f28fa1)
+
 <li>추가된 댓글을 확인합니다.</li>
 </ul>
 <br/>
 
 <h4>댓글 수정:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/417b6297-1e3c-4b8f-9771-b833374a19c7">
+![editing1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/24dedb7a-aee9-4e82-8a05-5e2f7c1ead39)
+
 <li>기존의 댓글을 수정합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/3b456966-8273-46b7-813c-562c6801e9f5">
+![editing2](https://github.com/uneugatoies-ttt/Blog/assets/149379411/1eb38ba6-cceb-4235-86e8-c8ec5b75746b)
+
 <li>수정된 댓글을 확인합니다.</li>
 </ul>
 <br/>
 
 <h4>댓글 삭제:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/0bc2a35c-3a15-4019-b2cd-f4624e88bc5f">
+![deleting1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/d11982c6-8884-4a8d-9d84-62552c2242d9)
+
 <li>기존의 댓글을 삭제합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/d4050468-e997-40d8-9fca-63bf46a93378">
+![deleting2](https://github.com/uneugatoies-ttt/Blog/assets/149379411/20a7fdbc-1bf0-43e4-adda-72ac1db2839d)
+
 <li>삭제된 댓글을 확인합니다.</li>
 </ul>
 <br/>
@@ -328,20 +359,25 @@
 <summary><h3>알림 메시지:</h3></summary>
 <h4>알림 메시지 확인:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/8b78e3c9-bbc8-4f9c-8e18-6d320e4ad0a3">
+![confirming1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/8b9ed1a1-cabe-4ebe-97be-f9393b593580)
+
 <li>새로운 댓글을 작성합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/f79a9b78-dcb5-4d1b-820f-26829c0fe4cd">
+![confirming2](https://github.com/uneugatoies-ttt/Blog/assets/149379411/89da5125-cf4a-4efb-96d5-3d13a63f712c)
+
 <li>댓글이 달린 게시물의 작성자에게 알림 메시지가 전달된 것을 확인합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/55f81c11-dff3-43ef-8450-a74fbd8b54a3">
+![confirming3](https://github.com/uneugatoies-ttt/Blog/assets/149379411/c8ddc80d-b5c0-4596-a0b1-e870bfcd9ead)
+
 <li>드롭다운 메뉴를 클릭해 알림 메시지의 목록을 확인합니다.</li>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/9b253338-35b5-4762-9fb7-5b23757c117c">
+![confirming4](https://github.com/uneugatoies-ttt/Blog/assets/149379411/4eb55c4c-b38c-4c3a-83ea-e04401f1626c)
+
 <li>드롭다운 메뉴의 메시지를 클릭해 해당 댓글이 달린 페이지로 이동합니다.</li>
 </ul>
 <br/>
 
 <h4>알림 메시지 삭제:</h4>
 <ul>
-<img src="https://github.com/uneugatoies-ttt/BlogFE/assets/149379411/db3c3ce3-874a-4400-afa4-32837879b4b7">
+![deleting1](https://github.com/uneugatoies-ttt/Blog/assets/149379411/809b4cab-f8f6-4e9a-a565-43c57ad90928)
+
 <li>드롭다운 메뉴의 버튼을 클릭해 모든 메시지를 삭제합니다.</li>
 </ul>
 <br/>
