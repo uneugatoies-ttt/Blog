@@ -55,6 +55,9 @@ dependencies {
 	// spring-boot-starter-webflux for using "WebClient", instead of "RestTemplate"
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webflux'
 	
+	// To use MySQL when the property file "-prod" is being used
+	runtimeOnly 'mysql:mysql-connector-java:8.0.26'
+	
 }
 
 tasks.named('test') {
