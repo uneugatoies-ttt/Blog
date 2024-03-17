@@ -3,6 +3,8 @@ package com.example.blog.common;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
+// OAuthUserNameGetter는 OAuth flow가 성공적으로 마쳐질 때에 provider로부터 "username"이라고 할 수 있을 
+// data를 가져오기 위한 class이다.
 @Component
 public class OAuthUserNameGetter {
 	
