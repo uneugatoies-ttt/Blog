@@ -288,7 +288,6 @@
 <h4>게시물 삭제:</h4>
 <ul>
 <img src="https://github.com/uneugatoies-ttt/Blog/assets/149379411/101d1a44-2f26-4b1d-9db2-69ee375c65fe" alt="deleting1">
-![deleting1]()
 
 <li>게시물의 내용에 표시된 버튼을 눌러 게시물을 삭제합니다.</li>
 <img src="https://github.com/uneugatoies-ttt/Blog/assets/149379411/07b5c3c9-27c6-4e26-8abf-9bdad3ac209f" alt="deleting2">
