@@ -69,5 +69,4 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 		response.sendRedirect(redirectUri + "/sociallogin?token=" + token + "&userName=" + userName);
 	}
 	
-	
 }

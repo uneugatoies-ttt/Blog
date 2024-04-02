@@ -138,9 +138,9 @@ public class UserService {
 	}
 	
 	/********************************************
-	 * 											*
-	 * 			private methods					*
-	 * 											*
+	  											
+	  		private methods					
+	  											
 	 ********************************************/
 	
 	private String createToken(User user) throws IOException {

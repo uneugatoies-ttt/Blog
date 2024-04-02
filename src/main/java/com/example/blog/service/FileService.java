@@ -180,9 +180,9 @@ public class FileService {
 	}
 	
 	/********************************************
-	 * 											*
-	 * 			private methods					*
-	 * 											*
+	  											
+	  		private methods					
+	 											
 	 ********************************************/
 
 	private String extractFileExtension(String filename) {

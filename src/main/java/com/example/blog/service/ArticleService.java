@@ -272,9 +272,9 @@ public class ArticleService {
 	}
 	
 	/********************************************
-	 * 											*
-	 * 			private methods					*
-	 * 											*
+	  											
+	  		private methods					
+	  											
 	 ********************************************/
 	
 	@Transactional
