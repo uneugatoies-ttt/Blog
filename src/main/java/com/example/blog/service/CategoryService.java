@@ -16,7 +16,7 @@ import com.example.blog.persistence.UserRepository;
 
 import lombok.AllArgsConstructor;
 
-// CategoryService에서 dependency로 사용되어 Category와 관련된 logic을 수행하는 service이다.
+// CategoryService는 CategoryService에서 dependency로 사용되어 Category와 관련된 logic을 수행하는 service이다.
 @Service
 @AllArgsConstructor
 public class CategoryService {

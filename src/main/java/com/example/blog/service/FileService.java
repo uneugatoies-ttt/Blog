@@ -25,7 +25,7 @@ import com.example.blog.persistence.UserRepository;
 
 import lombok.AllArgsConstructor;
 
-// FileController의 dependency로 사용되어 File과 관련된 logic을 수행하는 service이다.
+// FileService는 FileController의 dependency로 사용되어 File과 관련된 logic을 수행하는 service이다.
 @Service
 @AllArgsConstructor
 public class FileService {

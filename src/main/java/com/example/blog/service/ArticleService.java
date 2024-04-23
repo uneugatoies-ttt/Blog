@@ -31,7 +31,7 @@ import com.example.blog.persistence.ReplyRepository;
 import com.example.blog.persistence.TagRepository;
 import com.example.blog.persistence.UserRepository;
 
-// ArticleController에서 dependency로 사용되어 Article과 관련된 logic을 수행하는 service이다.
+// ArticleService는 ArticleController에서 dependency로 사용되어 Article과 관련된 logic을 수행하는 service이다.
 @Service
 public class ArticleService {
 	
@@ -73,7 +73,7 @@ public class ArticleService {
 	/*
 		-> 생성과 변경의 logic은 상호 간 큰 차이가 없으므로 동일 method로 처리한다.
 	 	이 때 file 관련 처리는 application 특성 상 항상 동반되므로 원래는 구분되어 있었던
-	 	createOrEditArticle() 과 createOrEditArticleWithFile()을 통합해서
+	 	createOrEditArticle()과 createOrEditArticleWithFile()을 통합해서
 	 	createOrEditArticle()으로 만들었다.
 
 	 	-> 원래는 article에 부수되는 file은 그대로 유지하며 file name만을 변경할 수 있게 하려고 했지만,

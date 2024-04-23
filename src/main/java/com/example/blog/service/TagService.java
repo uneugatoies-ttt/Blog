@@ -16,7 +16,7 @@ import com.example.blog.persistence.UserRepository;
 
 import lombok.AllArgsConstructor;
 
-// TagController의 dependency로 사용되어 Tag와 관련된 logic을 수행하는 service이다.
+// TagService는 TagController의 dependency로 사용되어 Tag와 관련된 logic을 수행하는 service이다.
 @Service
 @AllArgsConstructor
 public class TagService {
