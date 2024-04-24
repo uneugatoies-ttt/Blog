@@ -1,7 +1,9 @@
 package com.example.blog.config;
 
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -41,6 +43,7 @@ import com.example.blog.security.filters.RedirectUrlCookieFilter;
 		와 같은 end point들에 접속하는 것만으로 OAuth 인증의 flow를 시작할 수 있는 것이다.
 */
 
+
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
@@ -50,7 +53,7 @@ public class WebSecurityConfig {
 	private OAuthSuccessHandler oAuthSuccessHandler;
 	private RedirectUrlCookieFilter redirectUrlCookieFilter;
 	
-	public WebSecurityConfig(
+	public WebSecurityConfig (
 			JwtAuthenticationFilter jwtAuthenticationFilter,
 			OAuthUserServiceImpl oAuthUserService,
 			OAuthSuccessHandler oAuthSuccessHandler,
@@ -69,13 +72,14 @@ public class WebSecurityConfig {
 				.and()
 			.csrf()
 				.disable()
-				.httpBasic()
+			.httpBasic()
 				.disable()
-				.sessionManagement()
+			.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 			.authorizeRequests()
 				.antMatchers("/", "/auth/**", "/oauth2/**", "/user/**", "/test/**").permitAll()
+				.antMatchers(HttpMethod.OPTIONS).permitAll()
 				.anyRequest().authenticated()
 				.and()
 			.oauth2Login()
@@ -115,3 +119,4 @@ public class WebSecurityConfig {
     }
 
 }
+
