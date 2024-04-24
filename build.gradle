@@ -63,3 +63,27 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+task release {
+	// "build" task가 먼저 실행되어야 한다는 의미.
+	dependsOn("build")
+	
+	doLast {
+		def stdout = new ByteArrayOutputStream()
+		exec {
+			// 아래의 line은 console에서 eb setenv SPRING_PROFILES_ACTIVE=prod 를 실행하는 것과 같은 기능.
+			commandLine 'eb', 'setenv', 'SPRING_PROFILES_ACTIVE=prod'
+			standardOutput = stdout
+		}
+		// 결과 log
+		println "eb setenv PSINRG_PROFILES_ACTIVE=prod :\n$stdout";
+		exec {
+			// 아래의 line은 console에서의 eb deploy 와 동일.
+			commandLine 'eb', 'deploy'
+			standardOutput = stdout
+		}
+		// 결과 log
+		println "eb deploy : \n$stdout";
+		println "Release succeeded."
+	}
+}
